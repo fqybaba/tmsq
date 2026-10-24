@@ -7,6 +7,20 @@ superposition geometry predict this in advance?
 Status: Phase 0 (setup) and Phase 1 (replication). See `notes/LOG.md` for the running log and `CLAUDE.md` for
 all canonical definitions.
 
+## How this project was made
+
+This is a collaboration between a person and AI assistants. The roles are as follows:
+
+- **Shen Yuting**: research question, overall architecture and phase plan (`CLAUDE.md`, `PROMPTS.md`), every
+  approval and scope decision, and the project's evidence-first rule. The plan was first developed in
+  conversation with Claude (claude.ai).
+- **Claude Code** (Anthropic): checked the plan against primary sources, implemented the package, ran the
+  experiments and analyses, and ran independent review workflows on its own code and plans. It works within
+  the owner's approved plans.
+
+`notes/LOG.md` is the lab notebook: every result, every pre-registration and every deviation, with numbers.
+`notes/SESSION_JOURNAL.md` records who decided what and when.
+
 ## Setup (Windows, PowerShell)
 
 ```powershell
