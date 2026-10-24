@@ -703,3 +703,35 @@ had been computed on E or K at that commit; the K quantization sweep had not bee
 approval before any analysis.
 
 ---
+
+## 2026-10-24 — Phase 3 pre-registration v2 APPROVED; implementation clarifications
+
+The owner approved pre-registration v2 (`f76b49a`) unchanged. The clarifications below resolve points the
+plan leaves open. They are written down before any predictor–outcome association has been computed on any
+set. None of them changes a primary specification.
+
+1. `break_bits` tests. The per-instance rule asks for ≥ 5 distinct outcome values, but break_bits has at most
+   6 possible values and on E usually 2–4. For break_bits the outcome requirement is therefore ≥ 2 distinct
+   values; the predictor still needs ≥ 5. Where break_bits takes ≤ 2 distinct values among the eligible
+   features of a cell, the reported statistic is the per-instance rank-biserial
+   r_rb = 2·AUC(predictor, label "damaged at 3 bits") − 1. It has the same sign convention as the Spearman
+   ρ with break_bits and is kept outside the BH family, as the plan says ("not counted as a separate
+   result").
+2. Settings A and B (secondary 8, descriptive). The ≥ 20-feature rule cannot be met: A has 5 features per
+   instance and B has 20. The A/B tables therefore include an instance if it has ≥ 5 eligible features and
+   both variables take ≥ 3 distinct values. They report the mean per-instance ρ and n_valid, with no
+   p-values and no intervals.
+3. Holm with an untestable primary test. A primary test with < 8 valid instances enters the Holm step-down
+   with p = 1, and the family size is unchanged (3, or 2 under the identifiability rule).
+4. A downgrade cell can trigger a downgrade only if it has ≥ 8 valid K instances (≥ 4 of 5 on E), the same
+   bar as summarising a cell.
+5. `LogisticRegression(penalty=None)` is deprecated in scikit-learn 1.9 (FutureWarning, removal in 1.10). The
+   identical unpenalised model is fitted as `LogisticRegression(C=np.inf, max_iter=10000)`.
+6. The composite label for the sensitivity grid (secondary 7) is recomputed from the stored float32 columns
+   with a 1e-7 tolerance. At the registered thresholds (0.9, 0.1, 0.05) the recomputed label must reproduce
+   the stored `composite_survived` exactly, and the code asserts it.
+7. sqrt(ICC_noise) is reported as sqrt(max(ICC, 0)). ICC is the one-way ICC(1) over the 5 noise-control
+   seeds, with features as groups, computed within each instance over eligible features and averaged over
+   instances.
+
+---
