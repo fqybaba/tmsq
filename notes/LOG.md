@@ -1228,3 +1228,11 @@ caveats in CLAUDE.md). The toy model can at most show which regime, or which geo
 pattern.
 
 ---
+
+## 2026-10-24 — Phase 4 pre-registration committed
+
+Committed as `a11e490` (2026-10-24T15:17:23-04:00), together with the frozen analysis code. No setting-D
+quantization outcome had been read. The two sweeps (D_weak, then D_strong) were started right after, with the
+registered config and no overrides.
+
+---

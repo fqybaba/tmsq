@@ -153,3 +153,15 @@ Phase 3 用全新的确认集 K 检验了预注册的 H1–H3：
   (`dcb4b55`); strong = −1.0 (one config only 0.6, reported as not strong).
 - 14:45 Main setting-D training started (2 runs × 20 instances). Next: FP facts → H4 pre-registration
   (advisor review) → sweep → pre-check → frozen analysis.
+
+- 14:52–15:17 Setting-D training done (gamma 7: phi_half 0.11–0.20; gamma −1: 1.0 / 0.62 / 1.0 / 0.99).
+  FP-only facts: frequency is strongly confounded with geometry (strong regime ρ(p, near_thr) = 0.94; weak
+  regime ρ(p, D) = 0.89).
+- The H4 pre-registration includes an OUT-OF-SAMPLE test of the Phase 3 mechanism. Near-threshold features
+  should be fragile, which predicts ρ > 0 in the strong regime and ρ < 0 in the weak one.
+- Advisor review of the draft added: the mechanical tilts (only the strong-regime half discriminates), extra
+  secondaries, a strong-regime sensitivity, an 8-bit contingency, and an end-to-end smoke test before the
+  freeze.
+- `sign_flip_p` was made exact and fast (meet-in-the-middle), with output verified identical on all stored
+  Phase 3/3b inputs. The test suite went from 245 s to 23 s.
+- 15:17 Pre-registration and frozen code committed (`a11e490`). Setting-D sweeps started (~25 min).
