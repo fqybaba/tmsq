@@ -695,3 +695,11 @@ H4 (frequency, setting D) belongs to Phase 4 and is not part of this plan.
 - Operating characteristics added, from a simulation that uses no project data.
 
 ---
+
+## 2026-10-24 — Phase 3 pre-registration v2 committed
+
+Committed as `f76b49a` (git log -1 --format=%cI f76b49a gives its timestamp). No predictor–outcome association
+had been computed on E or K at that commit; the K quantization sweep had not been run. Awaiting the owner's
+approval before any analysis.
+
+---
