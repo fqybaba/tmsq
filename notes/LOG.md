@@ -1665,3 +1665,134 @@ Pre-check (`python -m tmsq.experiments.phase5_analysis --config configs/phase5.y
 - No stop rule fires, so the analysis runs as frozen.
 
 ---
+
+## 2026-10-24 — Phase 5 results: geometry-aware allocation and rounding at 4.0 bits per weight
+
+Analysis: `results/phase5/20261024-160152-analysis`, from the frozen code `d6abce7`; the pre-check is
+`fec1998`.
+- Setting C P5: 40 instances, 10 per S.
+- Setting D strong (gamma −1): 20 instances; phi_half 1.00 / 0.62 / 1.00 / 0.99 per (alpha, k).
+- r = loss_q / loss_fp − 1 on the stratified eval set. "d" is the per-instance paired difference.
+- At n = 10, the sign-flip p of 0.00195 is the floor of the exact test (2 of 1,024 patterns). It means the t-test
+  and the sign-flip test agree; it does not mean a tinier p.
+
+### Headline (setting C)
+
+At the same 4.0-bit budget, **no geometry-aware allocation and no leak-preserving rounding beats uniform
+4-bit per-column RTN**. In the primary cell, geometry does not beat random allocation either (Family 2 is null
+after Holm). The registered prediction held almost exactly: random 3/5 mixing raises r by +0.0173, 1.9× U4's
+own loss increase, against the predicted ≈ 2.1×.
+
+The one arm better than uniform is **loss_round**. It is the registered SECONDARY control (e2), a generic
+loss-aware greedy rounding, not the PROMPTS.md method.
+
+### Family 1 (registered): arm vs U4
+
+Primary cell: C, S = 0.7488. Mean r(U4) = 0.0089 (U3 0.0526, U5 0.0020).
+
+| Arm | Mean d [95% t] | Holm p | d / r(U4) | Category |
+|---|---|---|---|---|
+| (b) margin_low | +0.0187 [+0.0165, +0.0210] | 4.9e-8 | +2.1× | worse than uniform |
+| (b3) near_thr | +0.0156 [+0.0137, +0.0175] | 4.9e-8 | +1.75× | worse than uniform |
+| (e) leak_round | +0.0149 [+0.0101, +0.0197] | 6.0e-5 | +1.7× | worse than uniform |
+
+### Family 2 (registered): allocation vs RANDOM (primary cell, Holm over 4)
+
+| Arm | Mean d [95% t] | Raw p | Holm p | Category |
+|---|---|---|---|---|
+| margin_low | +0.0014 [−0.0003, +0.0032] | 0.09 | 0.28 | no detectable difference |
+| margin_high | −0.0013 [−0.0031, +0.0006] | 0.16 | 0.28 | no detectable difference |
+| near_thr | −0.0017 [−0.0033, −0.0002] | 0.035 | 0.14 | no detectable difference |
+| norm | −0.0011 [−0.0024, +0.0002] | 0.10 | 0.28 | no detectable difference |
+
+### Secondaries (BH over the full family)
+
+loss_round vs U4:
+- Setting C: −0.0048, −0.0030, −0.0019 and −0.0023 at S = 0.7488, 0.8415, 0.9 and 0.9602 (all q ≤ 0.005).
+- At the primary cell this puts r(loss_round) = 0.0041, halfway between U4 (0.0089) and U5 (0.0020).
+- Generalization check: on the calibration set it removed about 64% of the quantization-induced loss
+  increase (J_final / J0 = 0.994); on the eval set it removed about 54%.
+- It improves the mean dR2 (−0.0071) but NOT composite_frac (+0.013, q = 0.11) or worst_dR2 (+0.002,
+  q = 0.49). The gain is spread over many features; it does not rescue the fragile ones.
+- Setting D: the pooled effect is null (−0.004 [−0.015, +0.007]), and it does not transfer by config (post hoc,
+  below). The loss_round result is therefore stated for setting C only.
+
+leak_round:
+- Worse than uniform everywhere, and far worse as S grows: +0.054, +0.105 and +0.250 at S = 0.84, 0.9 and
+  0.96; +0.39 in D.
+- The registered trade-off prediction is confirmed by the registered split, relative to U4 at 0.7488: the
+  active component rises by +0.12 while the inactive component falls by −0.056.
+- It cuts calibration leakage strongly (J_final / J0 = 0.93 / 0.60 / 0.35 / 0.24 across S) by sacrificing
+  active-stratum accuracy.
+
+Allocation vs random at the non-primary C cells:
+- Several small advantages are BH-significant: norm −0.0036 at S = 0.8415 and at 0.9602; near_thr −0.0057 at
+  0.9602; margin_high −0.0021 at 0.8415.
+- All are ≲ 0.006, against a mix penalty of 0.017–0.069. Geometry carries a little information about which
+  columns to protect, never enough to pay for the mix.
+- margin_low is never better than random. It is worse at 0.9602 (+0.0041, q = 0.03), as predicted from
+  Phase 3's opposite-sign H1. The one exception to "margin_high ≥ margin_low": at S = 0.9 margin_high is the
+  worse of the two.
+
+Mechanism check (registered), dR2 of the 5-bit half minus the 3-bit half:
+- Negative for every arm, so protected columns are protected.
+- At 0.7488: near_thr −0.018 vs random −0.029. near_thr's 3-bit half (the buffered columns) is damaged less,
+  consistent with the Phase 3 mechanism, but still not enough to beat the mix penalty.
+
+### Setting D: the allocation results are frequency allocation (post hoc)
+
+Post hoc, NOT registered: `results/phase5_posthoc/d_frequency_confound_20261024.txt` and the script beside it.
+- Pooled over D strong, near_thr beats U4 (−0.0186 [−0.034, −0.003], q = 0.03). Against random: near_thr
+  −0.19, margin_low −0.08, margin_high +0.07, norm +0.18.
+- FP-only Spearman of each arm's ranking with frequency p over the represented columns:
+
+  | Arm | ρ(ranking, p) | Range over instances |
+  |---|---|---|
+  | near_thr | +0.92 | 0.89–0.98 |
+  | margin_low | +0.49 | |
+  | margin_high | −0.49 | |
+  | norm | −0.02 | −0.44 to +0.54 |
+
+- A frequency-ranked arm (highest p gets 5 bits), run through the frozen `rtn_mixed` + `evaluate_q`:
+  - vs U4: −0.0200 [−0.035, −0.005]
+  - vs near_thr: −0.0014 [−0.003, +0.001], not distinguishable.
+- So **the D near_thr "win" is frequency allocation**. Protecting frequent features reduces the total loss
+  because dLoss ∝ p; it cannot be attributed to threshold geometry. Its sign is also heterogeneous:
+
+  | alpha, k | near_thr r | U4 r |
+  |---|---|---|
+  | 1.5, 2 | 0.076 | 0.129 |
+  | 1.5, 5 | 0.039 | 0.076 |
+  | 1.0, 2 | 0.049 | 0.038 |
+  | 1.0, 5 | 0.029 | 0.024 |
+
+  It wins only in the alpha = 1.5 configs. The frequency arm shows the same pattern. Not a result to lead with.
+- loss_round in D: in (alpha 1.0, k 2) all 5 instances are WORSE than U4 (+0.016 to +0.027), even though the
+  calibration objective fell 12%. This is systematic, not one outlier. The likely cause is calibration
+  overfitting with rare features (8,192 natural samples, about 1,200 accepted flips). In (1.5, 5) all 5 are
+  better (−0.016 to −0.039).
+
+### Answer to the PROMPTS.md question
+
+In the toy model, at an equal budget, uniform per-column 4-bit RTN is hard to beat by bit allocation. The
+penalty for mixing 3- and 5-bit columns (about 2× the loss increase) is larger than anything that geometry
+ranking or frequency ranking recovers, except where frequency is very skewed (setting D, alpha = 1.5).
+- Leak-specific rounding fails because it trades active accuracy for leakage.
+- Generic loss-aware rounding helps in setting C (about half of the quantization loss removed), but it does
+  not rescue the most fragile features, and in setting D it can overfit the calibration set.
+- Per-column allocation has no direct analog in real models (design note 6), so none of this is a deployable
+  method.
+
+Figure: `figures/phase5_arms_vs_u4.png` (paired differences vs U4, all cells).
+
+### Surprises / notes
+
+- The 1.9× mix penalty matched the a-priori prediction, so the allocation question was effectively decided by
+  convexity.
+- The D allocation result came from the frequency confound. It was caught post hoc and is stated as such.
+- The greedy rounding is budget-limited (cap of 5 flips per column per pass), not converged.
+
+Next: Phase 6 (write-up). The owner should review the Phase 4 framing and the Phase 5 D confound before the
+blog post is drafted.
+
+---

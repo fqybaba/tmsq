@@ -221,3 +221,23 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   seed independence, and an analysis e2e test. 261 tests pass.
 - 15:51 Pre-registration and frozen code committed (`d6abce7`). The runs started (C_P5, then D_strong; about
   20 min). The D runner is about 12 min, over the 10-min budget; this is logged.
+
+### 阶段小结（中文，给 owner）：Phase 5（按几何结构分配 bit / 取整）
+
+预注册 `d6abce7`，precheck `fec1998`。研究问题：在同样平均 4.0 bit/权重的预算下，按几何结构分配 bit 或调整
+取整，能不能比均匀 4 bit 伤得更少？
+
+- **结论（setting C）：都不能。** 所有预注册的方案，包括 PROMPTS.md 原定的“小 margin 列给 5 bit”、按“靠近
+  阈值”分配的方案、以及以减少漏激活为目标的取整，都比均匀 4 bit 差。原因是把 3 bit 和 5 bit 混用本身就要
+  付出约 2 倍的损失代价（实测 1.9 倍，和事先预测的 2.1 倍一致），几何排序只能挽回很小一部分（≤ 0.006，而
+  混用代价是 0.017–0.069）。在主检验单元，按几何排序也赢不了随机分配（Holm 校正后没有显著差异）。
+- **唯一胜过均匀量化的是 loss_round**：一个通用的、以校准集总损失为目标的贪心取整。这是我预注册的次要对照
+  臂，不是原定方法。它在 setting C 能消掉约一半的量化损失，但不能挽救最脆弱的特征；在 setting D 的
+  (α 1.0, k 2) 配置里，5 个实例全部比均匀量化差，属于校准集过拟合（稀有特征样本太少）。所以只能说在
+  setting C 有效。
+- **setting D 里 near_thr 方案赢过均匀量化，但这其实是频率分配**（事后检验）：在 D 里 near_thr 和频率的相关
+  系数是 0.92，直接按频率分配的效果和它一样（差异 −0.0014，不显著），而且只在 α = 1.5 的两个配置里赢。不能
+  当作几何结构的胜利。
+- leak_round 的取舍预测得到确认：漏激活确实减少了，但活跃时的重构误差增加得更多，S 越大越糟。
+
+下一步：Phase 6 写作。动笔前建议你先看两处：Phase 4 头尾结论的表述方式，和 Phase 5 setting D 的频率混杂。
