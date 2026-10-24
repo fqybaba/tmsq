@@ -1077,3 +1077,33 @@ Then:
 5. Frozen analysis.
 
 ---
+
+## 2026-10-24 — Phase 4 regime sweep result and a logged DEVIATION from the gamma rule
+
+FP-only sweep (20k steps, one seed per (alpha, k); `results/setting_d/20261024-142930-gsweep-regime` and
+`...-143621-gsweep-regime-ext`). phi_half for (alpha, k) = (1.0, 2), (1.0, 5), (1.5, 2), (1.5, 5):
+
+| gamma | phi_half per config | represented features |
+|---|---|---|
+| −1.0 | 1.000, 0.595, 1.000, 0.980 | 200, 119, 200, 196 |
+| +0.1 | 0.630, 0.440, 0.490, 0.380 | 126, 88, 98, 76 |
+| +0.3 | 0.650, 0.435, 0.465, 0.355 | 130, 87, 93, 71 |
+| +1.0 | 0.565, 0.410, 0.385, 0.320 | 113, 82, 77, 64 |
+| +3.0 | 0.415, 0.310, 0.250, 0.240 | 83, 62, 50, 48 |
+| +9 | 0.005, 0.000, 0.000, 0.005 | 1, 0, 0, 1 |
+| +27 | 0.000, 0.000, 0.000, 0.000 | 0 |
+
+- STRONG: gamma = −1.0, per the rule. The (alpha 1.0, k 5) config reaches only phi_half 0.595 and is reported
+  as NOT strong; the other three are ≥ 0.98.
+- WEAK: the rule ("smallest gamma with phi_half ≤ 0.20 in all configs") selects gamma = 9. But gamma = 9
+  collapses the model (0–1 represented features). That is not the weak regime CLAUDE.md defines
+  (phi_half ≈ m/n = 0.10), and it would leave nothing to test.
+- **DEVIATION**, logged before the refinement sweep below was run: refine between 3 and 9 with gamma ∈ {4, 5,
+  6, 7} (FP only, same protocol). WEAK = the gamma in {3, 4, 5, 6, 7, 9} whose phi_half, averaged over the
+  four configs, is closest to 0.10, subject to phi_half ≥ 0.05 (≥ 10 represented features) in every config;
+  ties go to the smaller gamma.
+- A possible reason why our gammas must be much larger than Liu et al.'s 0.1 (a hypothesis, not tested):
+  our loss sums over the 200 features while theirs (nn.MSELoss) averages over them, so for the same gamma
+  their decay is about n times stronger relative to the loss gradient.
+
+---
