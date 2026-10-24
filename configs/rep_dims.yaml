@@ -1,0 +1,21 @@
+# Setting C: n=100, m=20, uniform importance, 1-S on a log grid. Scaled-down version of the paper's D* figure
+# (paper: n=400, m=30, I=1; official notebook: n=200, m=20, density 1 -> 1/20).
+experiment: rep_dims
+n_features: 100
+n_hidden: 20
+importance_r: 1.0
+density_grid: {start: 1.0, stop: 0.001, num: 16}
+n_seeds: 5
+seed: 0
+init_std: null
+train:
+  steps: 15000             # timing smoke: ~39 ms/step for K=80 -> ~10 min (CLAUDE.md budget); see notes/LOG.md
+  batch: 1024
+  lr: 0.001
+  weight_decay: 0.01
+  decay_bias: true
+  lr_schedule: constant
+  snapshot_half: true      # save W, b at steps/2 to show whether the geometry is still moving
+acceptance:
+  sticky_tol: 0.05
+  sticky_min_seeds: 3      # out of 5

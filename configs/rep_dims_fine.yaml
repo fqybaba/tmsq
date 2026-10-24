@@ -1,0 +1,23 @@
+# Setting C, diagnostic follow-up (pre-registered 2026-10-24 after the coarse-grid run): same model and training,
+# but a finer density grid around the expected 1/2 plateau, 1/(1-S) from 1.8 to 7 (density 0.556 -> 0.143).
+# Criterion (unchanged): at least two ADJACENT grid points with >= 3 of 5 seeds within +-0.05 of D* = 1/2.
+experiment: rep_dims_fine
+figure_prefix: rep_dims_fine
+n_features: 100
+n_hidden: 20
+importance_r: 1.0
+density_grid: {start: 0.556, stop: 0.143, num: 10}
+n_seeds: 5
+seed: 0
+init_std: null
+train:
+  steps: 15000
+  batch: 1024
+  lr: 0.001
+  weight_decay: 0.01
+  decay_bias: true
+  lr_schedule: constant
+  snapshot_half: true
+acceptance:
+  sticky_tol: 0.05
+  sticky_min_seeds: 3
