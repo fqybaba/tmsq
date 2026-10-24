@@ -5,9 +5,10 @@ each point. Scientific results with all numbers live in `notes/LOG.md`. This fil
 collaboration and operations side, so the history can be reconstructed when the project is published.
 
 Roles:
-- **Shen Yuting (owner)**: research question, overall architecture and phase plan (`CLAUDE.md`, `PROMPTS.md`,
-  designed together with Claude chat), every approval and scope decision, and the rule that every change needs
-  evidence.
+- **Shen Yuting (owner)**: designed the research question, the overall architecture and the phase plan, and
+  made every approval and scope decision, including the rule that every change needs evidence. Claude chat only
+  helped write the design up as `CLAUDE.md` / `PROMPTS.md` and did a few simple lookups (owner's
+  clarification, 2026-10-24 13:50).
 - **Claude Code**: implementation, experiments, analysis, independent-review workflows, and this journal. It
   acts autonomously while the owner is away, within the approved plan, and logs every decision here.
 
@@ -19,8 +20,8 @@ Times are local (UTC−4).
 
 What the owner asked, what was done, and what was reported back, in order.
 
-1. **Plan review.** The owner brought the plan drafted with Claude chat (`CLAUDE.md`, `PROMPTS.md`) and asked
-   for a check. Claude Code verified every cited paper and the official TMS notebook against primary sources.
+1. **Plan review.** The owner brought their plan, written up as Markdown with Claude chat's help
+   (`CLAUDE.md`, `PROMPTS.md`), and asked for a check. Claude Code verified every cited paper and the official TMS notebook against primary sources.
    It reported 6 factual corrections (e.g. setting B importance is 0.7^i, the notebook trains with AdamW)
    and 9 design pitfalls.
 2. **Owner decision: apply the corrections, but only with evidence.** Corrections went into `CLAUDE.md`, and
@@ -62,8 +63,9 @@ Commits so far:
 
 Owner's instruction, verbatim intent: if something comes up, message the phone; if there is no timely reply,
 keep going according to my own logic, and archive every operation and every status report here, so the
-published project shows it was built together. The architecture was the owner's idea, developed with Claude
-chat.
+published project shows it was built together. Owner's clarification at 13:50: the research question, the
+architecture and the phase plan are essentially the owner's own design; Claude chat only turned them into
+Markdown files and did a few simple lookups.
 
 Standing rules for the autonomous stretch (Claude Code's commitments):
 - Follow the approved pre-registration exactly. Any deviation is logged in `notes/LOG.md` with its date

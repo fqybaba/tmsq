@@ -11,9 +11,10 @@ all canonical definitions.
 
 This is a collaboration between a person and AI assistants. The roles are as follows:
 
-- **Shen Yuting**: research question, overall architecture and phase plan (`CLAUDE.md`, `PROMPTS.md`), every
-  approval and scope decision, and the project's evidence-first rule. The plan was first developed in
-  conversation with Claude (claude.ai).
+- **Shen Yuting**: designed the research question, the overall architecture and the phase plan, and made
+  every approval and scope decision, including the project's evidence-first rule. Claude (claude.ai) helped
+  only to write that design up as the Markdown files `CLAUDE.md` and `PROMPTS.md` and with a few simple
+  lookups.
 - **Claude Code** (Anthropic): checked the plan against primary sources, implemented the package, ran the
   experiments and analyses, and ran independent review workflows on its own code and plans. It works within
   the owner's approved plans.
