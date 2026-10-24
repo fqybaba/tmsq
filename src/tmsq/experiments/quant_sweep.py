@@ -123,7 +123,9 @@ def main() -> None:
         k = int(k)
         p = float(density[k])
         es = build_eval_set(W_all.shape[2], p, eval_seed(train_seed, k, params), params)
-        feats, models = evaluate_instance(W_all[k], b_all[k], es, params, configs, importance, p, instance=k)
+        feats, models = evaluate_instance(
+            W_all[k], b_all[k], es, params, configs, importance, p, instance=k, train_seed=train_seed
+        )
         for df in (feats, models):
             df.insert(0, "setting", args.setting)
             df.insert(1, "S", np.float64(1.0 - p))

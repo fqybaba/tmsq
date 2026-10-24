@@ -408,3 +408,290 @@ tables) plus a refutation pass. Outcome:
   tables are the rerun directories named in the results entry.
 
 ---
+
+## 2026-10-24 — Phase 3 pre-registration (v2, awaiting the owner's approval)
+
+### Status and provenance
+
+- Written BEFORE any association between a geometry predictor and a damage outcome was computed on any
+  data set, by me or by a reviewer. It is committed to git in the commit that adds this section; that hash is
+  the pre-registration timestamp and is quoted in the next LOG entry. A v1 draft of this plan was never
+  committed. It was reviewed by three independent reviewers (statistics, science, research integrity), and
+  v2 replaces it; the changes are listed at the end of this entry.
+- What had been computed when v2 was written, all on the exploration set E: label rates per cell; which
+  condition of the composite label fails; marginal dispersion of the predictors; correlations between FP
+  quantities only (for example norm vs D, margin_tau vs the FP false-activation rate); and one outcome-only
+  statistic, the reliability ICC of dfalse_act and dR2 across the 5 noise-control seeds. The choice of the
+  primary cell therefore used outcome-only and FP-only information. It used no predictor–outcome
+  association.
+- The confirmation models K were trained before approval: 2026-10-24 13:07:37, from commit 002c4ba plus
+  three files that were uncommitted at the time and were committed in 474b458. Of their outputs only the FP
+  geometry summary was opened (D*, represented counts, plateau ratios; reported in "Data"). The K
+  quantization sweep has not been run, and no K outcome exists.
+
+### Data
+
+- Exploration set E: `results/quant_sweep/20261024-093058-C` (5 instances per S, training seed 0).
+- Confirmation set K: 10 fresh instances per S for S ∈ {0.7488, 0.8415, 0.9000, 0.9602}, trained with
+  `configs/rep_dims_confirm.yaml` into `results/rep_dims_confirm/20261024-130737` (300 s). The config is
+  identical to `configs/rep_dims.yaml` except for the experiment and figure_prefix names, seed 1, n_seeds 10
+  and `density_grid.keep: [3, 4, 5, 7]`. That last key selects the four densities from the same 16-point grid
+  by index, so they are bitwise identical to E. Geometry check (FP only): K reproduces E's D*: 0.431 vs
+  0.425, 0.290 vs 0.289, 0.207 vs 0.208, 0.155 vs 0.155. Represented counts per instance are 45.0 vs 45.6,
+  71.8 vs 72.6, 96.1 vs 95.6 and 100 vs 100. Plateau ratios are 0.999–1.000. The training script's two
+  "sticky" flags read FAIL only because a 4-point grid cannot contain the adjacent pairs they look for; they
+  are not used for K. No K instance is ever excluded for a training diagnostic.
+- K is quantized with `configs/quant_sweep.yaml`, whose only change is the entry `C_confirm` (all 40
+  instances). The command is `python -m tmsq.experiments.quant_sweep --config configs/quant_sweep.yaml
+  --setting C_confirm`, with no `--bits`, `--noise-seeds` or `--max-instances` override.
+- Independence of K from E. Model init, training data and eval sets use disjoint integer seeds. This is
+  checked in `tests/test_seed_independence.py`. The noise-control generator seed now includes the training
+  seed. For training seed 0 the formula is unchanged, and an E noise row recomputed after the change matches
+  the stored row exactly. With the change, every K noise direction comes from a new seed. Before the change,
+  30 of the 40 K instances would have reused E's directions bit for bit. One pre-existing coincidence remains
+  and is asserted in the test. K's training-data generator for chunk 2 has seed 2,000,043, and so does E's
+  noise direction for (instance 0, 5 bits, per-row, noise seed 2). One is a uniform training-data stream and
+  the other a single Gaussian direction, so the dependence is immaterial. Both runs already exist.
+- Verdicts are decided on K only. E is analysed with the identical frozen code and decision rule (5
+  instances, df = 4) and reported next to K, labelled exploratory. "Disagreement" means that E and K get
+  different categories or mean ρ of opposite signs; it is reported, and the verdict follows K.
+- Settings A and B are descriptive only and get no verdicts. On the Phase 2 data no A or B cell meets
+  design note 7's count rule under either label, because A and B have only 5 and 20 features per instance.
+
+### Fixed definitions
+
+- Quantization rows: RTN, tied, ablation `none`, b in FP32. Per-row scaling is the primary granularity
+  (design note 6), and per-column and per-tensor are secondary.
+- Eligible feature: `norm_i > 0.5` AND `R2_fp >= 0.5`. On K this is the `eligible` column of the K sweep,
+  computed on K's own FP eval set and fixed per feature across bits, granularities and methods.
+- Binary damage label: the composite label. A feature survives iff `surv_corr >= 0.9` AND `dR2 <= 0.1` AND
+  `dfalse_act <= 0.05`, with the thresholds of design note 3 fixed before any data existed and a 1e-9 float
+  tolerance. Damaged means not survived. The Pearson-only label is reported as secondary, because on E its
+  damaged fraction is ≈ 0 at 3–8 bits.
+- Label validity rule: in an (S, granularity) cell the binary label is valid only if the damaged fraction
+  among eligible features at 8 bits is ≤ 0.05; 8 bits is the negative control. The 0.05 cut-off was chosen
+  after seeing E's 8-bit rates. On E it excludes S = 0.6019, where the 8-bit damaged fraction is 0.073
+  per-column, 0.152 per-row and 0.230 per-tensor. Every one of those 8-bit failures comes from the leakage
+  condition. The median FP false-activation rate there (0.132) is similar to S = 0.7488 (0.140) and
+  S = 0.8415 (0.124), where the 8-bit damaged fraction is 0.000, so no mechanism is claimed. The rule
+  excludes no S in K's grid on E. S = 0 has no defined label because p = 1 and there is no inactive stratum.
+  The rule is re-evaluated on K.
+- Cell rule for label-based analyses (design note 7): the label is valid, the cell has ≥ 30 damaged and
+  ≥ 30 undamaged eligible features pooled over its instances, and each class appears in ≥ 3 instances.
+  Cells passing on E (label counts only, S ∈ K's grid): per-row 3 bits at all four S and 4 bits at 0.7488;
+  per-column 3 bits at 0.7488, 0.8415 and 0.9602 and 4 bits at 0.7488; per-tensor 3 bits at all four S and
+  4 bits at 0.7488. No 5-bit cell passes. The K list is written to this LOG from label counts before any
+  label-based analysis is fitted.
+- tau = 0.05 everywhere. `near_thr` keeps the closed window |pre − tau| ≤ 0.05. The window edges matter only
+  through point masses of the inactive pre-activation at exactly 0 or 0.1, and the only point mass is
+  pre = b_i (rows in which no overlapping feature is active). On E (setting C, S > 0) no eligible feature has
+  b_i equal to 0 or 0.1. None has an identically constant inactive pre-activation either: the smallest
+  max_{j≠i} |W_i · W_j| over eligible features is 0.107. No eligible feature in A, B or C has near_thr = 1.
+- H1 margin form: `margin_tau = tau − b_i − max(0, max_overlap_i)` (design note 5). It differs from
+  `margin_i` by a constant, so every rank statistic is identical, but the sign fractions differ. Eligible
+  features with raw margin_i < 0 / margin_tau < 0, per-row, on E: S = 0.7488: 1.00 / 0.79; 0.8415: 0.93 /
+  0.30; 0.9000: 0.00 / 0.00; 0.9602: 0.00 / 0.00.
+
+### Primary cell (one cell for H1–H3)
+
+Setting C, S = 0.7488, per-row, 3 bits, RTN.
+
+Reasons, from E, using outcome-only and FP-only information and no predictor–outcome association:
+- Outcome reliability. ICC(1) of the primary outcomes over the 5 noise-control seeds (eligible features,
+  per instance, averaged over instances), dfalse_act / dR2, per-row 3 bits: 0.55 / 0.12 at S = 0.7488;
+  −0.00 / 0.01 at 0.8415; −0.03 / −0.03 at 0.9000; 0.05 / 0.07 at 0.9602. Under the generic-noise model, any
+  FP predictor's |ρ| with a single-draw outcome is bounded by about sqrt(ICC). At S ≥ 0.8415 that bound is
+  ≈ 0.1–0.25, below the |ρ| ≥ 0.2 effect of interest, so a null there would say nothing about geometry. The
+  v1 choice (S = 0.8415) is withdrawn for this reason.
+- Predictor validity (FP only, mean within-instance Spearman): ρ(margin_tau, false_act_fp) = −0.69 at 0.7488
+  vs −0.17 at 0.8415. Margin measures FP leakage only at 0.7488.
+- Separability of H2 and H3 (FP only): ρ(norm, D) = 0.56 at 0.7488 vs 0.95 at 0.8415 and 0.9000.
+- No eligibility truncation: every represented feature is eligible at 0.7488 (228 of 228).
+- Counts on E (label counts only): 228 eligible features (44–47 per instance); 138 damaged and 90
+  undamaged, both classes in all 5 instances (per instance 25/22, 27/18, 27/20, 34/10, 25/20); 8-bit
+  damaged fraction 0.000. The cell contains 17 leak-free features (false_act_fp = 0; 1–9 per instance).
+- About 57% of the summed MSE increase in this cell is in the inactive stratum (outcome-only). That is a
+  mix of leakage and gain damage, not a single mechanism.
+
+### Hypotheses (primary cell, K)
+
+| ID | predictor | primary outcome | direction as stated in CLAUDE.md | registered alternative reading of the opposite sign |
+|----|-----------|-----------------|----------------------------------|------------------------------------------------------|
+| H1 | `margin_tau` | `dfalse_act` (signed) | negative ρ: smaller margin, larger increase in false activation (level reading) | positive ρ: threshold-density reading. The change in a threshold-crossing rate scales with the FP density of inactive pre-activations at tau. For one leaker with overlap a > tau − b, d false_act / d a = p_j (tau − b) / a², which shrinks as margin_tau becomes more negative. On E at 0.7488, ρ(margin_tau, near_thr) = +0.61 (FP only). |
+| H2 | `D` | `dR2` | negative ρ: smaller D (more crowding), larger dR2 | none registered |
+| H3 | `norm` | `dR2` | negative ρ: larger norm, smaller dR2 (Duan's relative-error reading) | positive ρ: absolute-error reading. Under per-row scaling every column receives a similar absolute error, so the self-gain error 2 W_i · δ_i grows with norm_i (design note 6). |
+
+All three tests are two-sided. A significant result of the opposite sign is reported as "Not supported
+(opposite sign)" and, for H1 and H3, explicitly as consistent with the registered alternative reading.
+
+Identifiability rule. On K, before any association, compute the mean within-instance ρ(norm, D) in the
+primary cell from FP quantities. If it is ≥ 0.8, H2 and H3 are reported as ONE finding, the "norm/D axis",
+using H2's test; the Holm family then has two tests, and no write-up counts H2 and H3 as separate evidence.
+On E this value is 0.56.
+
+### Test and decision rule
+
+- Per-instance statistic: Spearman ρ between predictor and outcome, `scipy.stats.spearmanr` with average ranks
+  for ties, over the eligible features of one instance whose predictor and outcome are both non-NaN. Dropped
+  rows are counted per cell. An instance is valid for a test only if it has ≥ 20 such features and both
+  predictor and outcome take ≥ 5 distinct values among them. Invalid instances are listed with the reason.
+- Summary: the unweighted mean of the valid per-instance ρ, with a 95% t-interval, df = n_valid − 1. The
+  mean ± std and, as a secondary interval, a 95% percentile interval from 1,000 bootstrap resamples of the
+  instances' ρ values (seed 0) are also reported. A cell is summarised only if ≥ 8 of its 10 K instances
+  (≥ 4 of 5 on E) are valid.
+- Test: a two-sided one-sample t-test of the valid per-instance ρ against 0. Holm correction across the
+  primary tests (three, or two under the identifiability rule) at family-wise α = 0.05. The exact sign-flip
+  permutation p (all 2^n_valid sign patterns) is reported next to it as a robustness check; the verdict uses
+  the t-test, and any disagreement in the Holm decision is reported. The 95% t-interval is unadjusted; the
+  Holm-adjusted p decides.
+- Testability by reliability. On K, before any association, compute ICC_noise of each primary outcome in
+  the primary cell (outcome-only, same definition as above). sqrt(ICC_noise) is reported next to every
+  per-instance mean ρ, primary and secondary, as the attainable ceiling under the generic-noise model.
+- Verdicts are applied in this order, and the first line that matches decides. Under Mixed every reason
+  that applies is listed.
+  - (a) **Not testable**: the primary cell has < 8 valid instances.
+  - (b) **Not supported (opposite sign)**: Holm-adjusted p < 0.05 and mean ρ has the sign opposite to the
+    CLAUDE.md direction. For H1 and H3 the registered alternative reading is named.
+  - (c) **Not testable (outcome dominated by the perturbation draw)**: Holm-adjusted p ≥ 0.05 and
+    ICC_noise < 0.10. Low reliability can turn a null into "not testable"; it can never block a positive
+    result.
+  - (d) **Not supported**: Holm-adjusted p ≥ 0.05.
+  - (e) **Mixed**: Holm-adjusted p < 0.05 with the CLAUDE.md direction and at least one of: [small]
+    |mean ρ| < 0.2; [inconsistent] a downgrade cell shows a mean ρ of the opposite sign with |mean ρ| ≥ 0.1
+    and uncorrected p < 0.05, using the same per-instance rule and test.
+  - (f) **Supported**: Holm-adjusted p < 0.05, the CLAUDE.md direction, |mean ρ| ≥ 0.2, and no
+    [inconsistent] reason.
+- Downgrade cells (K, RTN, 3 bits). They can only downgrade a verdict, never upgrade it, and they are
+  deliberately not corrected for multiplicity. A downgrade cell that fails the per-instance rule cannot
+  trigger a downgrade and is listed as not testable.
+  - H1: S = 0.7488 per-column and per-tensor. Other S values are excluded because the composition of
+    margin_tau signs differs there (0.79 negative at 0.7488 vs 0.30, 0.00, 0.00), and the level and
+    threshold-density readings can legitimately swap.
+  - H2: per-row at S = 0.8415 and S = 0.9000; per-column and per-tensor at S = 0.7488.
+  - H3: per-row at S = 0.8415 and S = 0.9000 only. Under per-column and per-tensor scaling, design note 6
+    predicts that the norm–damage sign may differ, so those cells are reported as mechanistic variants.
+  - S = 0.9602 is not a downgrade cell, because D and norm are nearly constant there (within-instance IQR
+    0.004 and 0.009 on E).
+- H2 companion (CLAUDE.md H2). The per-instance Spearman of `D_plus` with dR2 in the primary cell is
+  classified with the same rule, without Holm, and labelled secondary. If D and D_plus fall in different
+  categories, the LOG states "D (paper-comparable): <category>; D_plus (sign-aware, carries the mechanistic
+  claim): <category>". The H2 verdict remains the D verdict.
+- Operating characteristics, from a simulation that uses no project data: latent bivariate-normal features,
+  per-instance Spearman, 10 instances, the first Holm step α = 0.0167. With n = 45 features per instance,
+  the size of the primary cell, and no between-instance heterogeneity, P(significant) = 0.54 / 0.82 at
+  latent r = 0.15 / 0.20, and P(Supported) = 0.36 / 0.77 / 0.96 at r = 0.20 / 0.25 / 0.30. With n = 57 and
+  a between-instance SD of 0.2, P(Supported) = 0.34 / 0.59 / 0.78. So the |mean ρ| ≥ 0.2 point criterion,
+  not the test, decides between Supported and Mixed. The design is powered for ρ ≥ 0.3, and a true ρ near
+  0.2 is called Supported only about a third of the time. |ρ| = 0.2 (about 4% of rank variance) is the
+  smallest effect of interest. Next to every verdict the write-up gives the number, and a Supported
+  hypothesis with mean ρ < 0.3 is never described as "geometry predicts damage" without it.
+
+### Secondary analyses (K; labelled secondary)
+
+1. Per-instance Spearman table, one family. Cells: S ∈ {0.7488, 0.8415, 0.9000, 0.9602} × 3 granularities
+   × bits {3, 4, 5}. Pairs per cell: the three primary pairs; margin_tau–dR2; near_thr–|dfalse_act|
+   (mechanism, predicted positive); D_plus–dR2; norm–dcond_mse (the active-stratum outcome on which the gain
+   mechanism acts); p99_out_fp–dR2 (the "Duan analog", predicted negative; a distinct predictor, not a
+   robustness variant of norm, since on E ρ(norm, p99_out_fp) = 0.40 at 0.7488 and 0.54 at 0.8415);
+   peak_out_fp–dR2; and the partial Spearman of dR2 with D given norm and with norm given D. Also per
+   (S, granularity): break_bits with D and with norm. Every cell is reported in one table with mean ρ,
+   t-interval, uncorrected p, the Benjamini–Hochberg q-value within this family, and sqrt(ICC_noise). A
+   secondary result may be called "significant" only if q < 0.05, and any secondary pattern cited in the
+   write-up is labelled exploratory. Each cell also reports the split of the MSE increase into
+   p · dcond_mse and (1 − p) · dleak_energy. A sensitivity version repeats the three primary tests without
+   the leak-free features (false_act_fp = 0; 17 on E).
+2. `break_bits` is computed once per (S, granularity), from the composite label at bits {8, 6, 5, 4, 3, 2}.
+   It is the largest bit width at which the feature is damaged, with values in {2, 3, 4, 5, 6, 8}. A
+   feature that survives all six widths keeps NaN in the table but is ranked below 2 (most robust) in every
+   rank statistic; it is never dropped. break_bits = 2 means "damaged only at 2 bits", not "undamaged". A
+   feature whose label is non-monotone across bits keeps its largest damaged width, and the count of such
+   features is reported per cell (8 of 6,528 feature × granularity rows on E). A sensitivity version uses
+   the monotone envelope: the largest b at which the feature is damaged at b and at every lower width.
+   break_bits is analysed only in (S, granularity) cells whose label is valid. Where it takes ≤ 2 distinct
+   values among the eligible features of a cell, it is a relabelling of the 3-bit label. It is then
+   reported as that label's rank-biserial and not counted as a separate result; on E this is the case for
+   every S ≥ 0.8415 under per-row and per-column scaling. Predicted sign with D and with norm: negative.
+3. Univariate AUC of each predictor for the binary label, in every cell that passes the cell rule. It is
+   computed within each instance; instances with < 5 damaged or < 5 undamaged eligible features are excluded
+   and counted. Label 1 = damaged. Each score is oriented by the CLAUDE.md direction: −margin_tau, −D,
+   −D_plus, −norm, −p99_out_fp, −peak_out_fp, +near_thr. An AUC below 0.5 is reported as is and never
+   flipped. Summary: the mean of the per-instance AUCs with a 95% t-interval. The AUC pooled over instances
+   is shown next to it, labelled as mixing between-instance differences, with a 95% percentile cluster
+   bootstrap over instances (10,000 resamples, seed 0). With 10 clusters this bootstrap undercovers (about
+   90% actual coverage for a nominal 95%), and that is stated wherever it is shown.
+4. Logistic regression for the binary label, in cells passing the cell rule. Predictor sets: {p99_out_fp},
+   {peak_out_fp}, {margin_tau}, {D}, and {margin_tau, D, D_plus, norm, p99_out_fp}. Deviation from
+   PROMPTS.md: p99_out_fp replaces peak_out as Duan's predictor, because the sample max is an extreme-value
+   statistic; {peak_out_fp} is fitted as well. Model: `LogisticRegression(penalty=None, max_iter=10000)`, a
+   `StandardScaler` fitted inside each training fold, no class weights, `GroupKFold(n_splits=5)` by instance
+   (2 instances per test fold on K; on E this is leave-one-instance-out). The CV AUC is the AUC of the pooled
+   out-of-fold predictions, with the mean per-fold AUC alongside. Its CI is the cluster bootstrap of item 3
+   applied to the out-of-fold predictions without refitting. VIFs are computed on the full cell, and joint
+   coefficients are not interpreted when any VIF > 5.
+5. Rounding structure vs generic noise, for each primary pair in the primary cell. For each instance k and
+   noise seed s, ρ_noise,k,s is computed on that single noise realization, matching the single RTN
+   realization; ρ_noise,k is the mean over the 5 seeds. The outcome is never averaged over seeds before
+   ranking: averaging raises reliability from ICC to 5·ICC/(1 + 4·ICC) and would inflate |ρ_noise|. Let
+   σ = sign(mean ρ_RTN) and R = mean ρ_noise / mean ρ_RTN (signed). The paired difference is
+   Δ_k = σ · (ρ_RTN,k − ρ_noise,k), tested with a one-sample t-test and a 95% t-interval. Fixed reading:
+   "specific to rounding" iff R < 0.5 (including R ≤ 0) AND mean Δ > 0 with p < 0.05; "explained by
+   perturbation size" iff R ≥ 0.8 AND NOT (mean Δ > 0 with p < 0.05); otherwise "partly specific /
+   unresolved". A reading is given only when the primary verdict is Supported or Mixed. Otherwise R and the
+   Δ interval are reported without a reading.
+6. Design note 10, in the primary cell and within each instance. dW is residualized on norm and peak_ratio
+   by OLS. Model (1) is dR2 ~ margin_tau + D + norm; model (2) adds the residualized dW. All variables are
+   rank-transformed and standardized within the instance. Reported: the per-instance coefficients and the
+   per-instance change (2) − (1), each averaged with a 95% t-interval, plus VIFs. Model (2) is never reported
+   alone.
+7. Sensitivity of the composite label: survival correlation ∈ {0.8, 0.9, 0.95} × dR2 ∈ {0.05, 0.1, 0.2} ×
+   dfalse ∈ {0.025, 0.05, 0.1}. AUCs only, reported as robustness, never used to select a threshold.
+8. Settings A and B: per-instance Spearman tables of the H1–H3 pairs at every S, bits 3–5, per-row.
+   Descriptive only.
+
+Secondaries 3, 4, 6, 7 and 8 are estimation only: intervals, no p-values and no verdicts.
+
+### Procedure and stop rules
+
+1. On E, the analysis code is built and debugged and the E tables are produced. The primary specification is
+   frozen at approval: predictor, outcome, cell, direction, alternative readings, the |ρ| ≥ 0.2 criterion,
+   Holm, the verdict order, the testability and identifiability rules and the downgrade cells. It is not
+   changed after any E association has been computed. Any other change made after E associations were seen
+   is logged with its date as "deviation after seeing E".
+2. The analysis code is committed, and its hash recorded in this LOG, before the K sweep is run.
+3. The K sweep is run with the command above.
+4. Before any K predictor–outcome association, this LOG records, from labels, FP quantities and outcome-only
+   statistics: `sanity.json` `bits8_pass`, `monotone_nondecreasing_as_bits_decrease` per granularity,
+   eligible counts per instance, the 8-bit damaged fraction per (S, granularity), the K cells passing the cell
+   rule, ICC_noise of the primary outcomes in the primary cell, and ρ(norm, D) in the primary cell.
+5. STOP and report, with no H1–H3 verdict and K tables reported as descriptive only, if `bits8_pass` is false
+   or any granularity is non-monotone. The label validity and count rules gate only the label-based analyses:
+   secondaries 2, 3, 4 and 7. If the primary cell fails either rule, the primary Spearman verdicts are still
+   issued, with the failure reported next to them. No substitute primary cell is ever picked.
+6. The frozen code is run on K. Any code change after K's `features.parquet` has been read, bug fixes
+   included, is reported with the K results computed both before and after the change.
+
+H4 (frequency, setting D) belongs to Phase 4 and is not part of this plan.
+
+### Changes from v1 (uncommitted draft) after the independent review
+
+- Primary cell moved from S = 0.8415 to S = 0.7488, because of outcome reliability, predictor validity and
+  H2/H3 separability; all numbers were recomputed independently and match the reviewer's.
+- H1 and H3 are two-sided, each with a registered alternative reading of the opposite sign. Added: the
+  identifiability rule (H2/H3), the reliability-based "Not testable" category, a per-instance validity rule,
+  an ordered verdict list, explicit downgrade cells per hypothesis with a |ρ| ≥ 0.1 floor, and the D_plus
+  companion rule.
+- The rounding-vs-noise comparison now uses single-draw ρ averaged over seeds instead of a seed-averaged
+  outcome. Added: a paired test, and a signed ratio that stays defined when ρ_RTN is near 0.
+- break_bits is defined once per (S, granularity), never drops robust features, and is reported as a
+  rank-biserial wherever it collapses to the 3-bit label.
+- Secondary multiplicity is handled with BH within one stated family and a no-omission rule. AUCs are now
+  per instance, with fixed orientation. Logistic-regression details are fixed, and so is the stop-rule
+  order (label rules gate only label-based analyses).
+- Code freeze and deviation rules were added. The noise-control seed now includes the training seed, so K's
+  noise directions are new, and the seed bookkeeping is tested.
+- Corrected statements: the margin sign fraction now distinguishes raw margin from margin_tau; the
+  validity-rule explanation no longer claims a mechanism; the near_thr window statement is now justified by
+  point masses.
+- Operating characteristics added, from a simulation that uses no project data.
+
+---

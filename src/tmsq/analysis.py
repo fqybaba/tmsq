@@ -186,6 +186,7 @@ def evaluate_instance(
     importance: np.ndarray,
     p: float,
     instance: int = 0,
+    train_seed: int = 0,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """All sweep configurations for one instance -> (per-feature rows, per-model rows).
 
@@ -207,7 +208,7 @@ def evaluate_instance(
 
     feat_frames, model_rows = [], []
     for cfg in configs:
-        qr = apply_quant(cfg, W[None], b[None], instance=instance)
+        qr = apply_quant(cfg, W[None], b[None], instance=instance, train_seed=train_seed)
         _, out_q = forward_single(qr.W_enc[0], qr.W_dec[0], qr.b[0], es.X, False, params.forward_chunk)
         q = stratum_stats(es, out_q, None, params)
         del out_q

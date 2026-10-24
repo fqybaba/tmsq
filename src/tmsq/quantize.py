@@ -113,20 +113,31 @@ class QuantResult:
     scales: torch.Tensor
 
 
-def noise_generator_seed(cfg: QuantConfig, instance: int) -> int:
-    """Noise directions are independent across (noise seed, model instance, bit width, granularity)."""
-    return 1_000_003 * cfg.noise_seed + 1009 * int(instance) + 7 * cfg.bits + GRANULARITIES.index(cfg.granularity)
+NOISE_TRAIN_SEED_SALT = 2_147_483_629  # large prime-sized offset per training seed
 
 
-def apply_quant(cfg: QuantConfig, W: torch.Tensor, b: torch.Tensor, instance: int = 0) -> QuantResult:
+def noise_generator_seed(cfg: QuantConfig, instance: int, train_seed: int = 0) -> int:
+    """Noise directions are independent across (training seed, noise seed, instance, bit width, granularity).
+
+    ``train_seed = 0`` reproduces the Phase 2 exploration sweep exactly; any other training seed (e.g. the
+    Phase 3 confirmation set, seed 1) is shifted by ``NOISE_TRAIN_SEED_SALT`` so its directions differ from
+    those of instances with the same index in other model sets.
+    """
+    base = 1_000_003 * cfg.noise_seed + 1009 * int(instance) + 7 * cfg.bits + GRANULARITIES.index(cfg.granularity)
+    return base + NOISE_TRAIN_SEED_SALT * int(train_seed)
+
+
+def apply_quant(
+    cfg: QuantConfig, W: torch.Tensor, b: torch.Tensor, instance: int = 0, train_seed: int = 0
+) -> QuantResult:
     """Apply a sweep point to ``W [K, m, n]``, ``b [K, n]``.
 
     Tied by default (the same ``Wq`` as encoder and decoder, ``b`` in FP32). Ablations: ``quant_b`` also
     quantizes ``b``; ``enc_only`` / ``dec_only`` use ``Wq`` on one side and the FP ``W`` on the other.
-    ``instance`` only salts the noise-control generator (see :func:`noise_generator_seed`).
+    ``instance`` and ``train_seed`` only salt the noise-control generator (see :func:`noise_generator_seed`).
     """
     Q, s = rtn(W, cfg.bits, cfg.granularity)
-    Wq = noise_control(W, Q, noise_generator_seed(cfg, instance)) if cfg.method == "noise" else Q
+    Wq = noise_control(W, Q, noise_generator_seed(cfg, instance, train_seed)) if cfg.method == "noise" else Q
     if cfg.ablation == "enc_only":
         W_enc, W_dec = Wq, W
     elif cfg.ablation == "dec_only":
