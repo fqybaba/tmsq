@@ -179,3 +179,45 @@ Phase 3 用全新的确认集 K 检验了预注册的 H1–H3：
   noise does not.
 - The literature check found no prior report of the antipodal-fragility result (the premise is known); the
   "to our knowledge" wording is in the LOG.
+
+### 阶段小结（中文，给 owner）：Phase 4（头部 vs 尾部）
+
+研究问题：在频率服从幂律的 setting D 里，量化对高频特征（头部）和低频特征（尾部）谁的伤害更大？预注册在 `a11e490`，
+precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
+
+- **Strong 叠加区间（γ = −1，主检验可用）**：按预注册的相对损失 rel_damage = dR2 / R2_fp 衡量，**尾部损失的
+  相对比例更大**。ρ(p, rel_damage) = −0.21 [−0.27, −0.15]，Holm p = 1.3e-6。效应量只是勉强越过 0.2 的门槛；
+  敏感性分析（只用 phi_half ≥ 0.9 的实例）是 −0.17，方向相同但会被标成 small。
+- **这个结论要和分解一起说**：dR2 本身和频率无关（ρ = −0.03）。rel_damage 的负号来自分母 R2_fp：尾部的 FP
+  重构本来就差（0.61，头部是 0.94）。绝对损失 dLoss 和原始漏激活都集中在头部。例如 3 bit 时，头部新增
+  假激活 8%，尾部只有 0.3%。所以“谁损失更多”取决于用哪种归一化，不能简单对应 Wu 或 Chang 的结论。
+- **Phase 3 机制的样本外检验：预注册结论是 not confirmed。** 这是我预注册时的错误：漏激活机制应当用
+  dfalse_act 作检验结局（design note 12），我却用了 rel_damage。事后看原始漏激活，方向和机制一致，但这只能
+  算事后观察，不能算确认。LOG 里已经写明。
+- **Weak 区间（γ = 7）precheck 判为 STOP**：2 bit RTN 反而让模型变好，R² 平均提高约 0.15。机制已验证：γ = 7
+  的权重衰减把特征范数压缩到 ‖W_i‖² ≈ 0.36；三值 RTN 把大多数元素量化成 ±s，等于把范数撑大，于是重构
+  变好；同等大小的随机噪声没有这个效果。我在 precheck 里写的候选解释被它自己设定的检验否定了，已在 LOG 中
+  更正。结论：这是实验设置的局限（γ = 0.1 在 200/20 下不够 weak，只能用很强的衰减），不是关于头尾的发现。
+- 选择效应：k = 5 的 strong 配置里，真正尾部只有 4–6% 的特征合格，所以那里的“尾部”大多是中频特征。
+- 文献检查（针对 Phase 3b 的反极对发现）：查过的来源里没有人报告过这个发现，但它的前提已知（TMS 原文；
+  Chen et al. 2023 给出了 4-gon 的 b* = 0）。写作时用 “to our knowledge”，建议句已写在 LOG 里。发布前需要人工
+  核对两条引文和 Duan 论文的标题。
+
+## 2026-10-24 15:35–15:52 (owner away): Phase 5 planned, pre-registered, started
+
+- Phase 5 plan and pre-registration were written before any code or outcome, then amended after the advisor
+  review:
+  - Two registered families: arm vs uniform (deployable claim) and allocation vs random (mechanistic claim).
+  - The ranking of features with NaN keys is specified.
+  - The calibration seeds have a test.
+  - Mechanism checks are registered.
+- Arm (b), "5 bits to the smallest-margin half", is implemented exactly as PROMPTS.md specifies. Phase 3's
+  opposite-sign H1 result suggests it protects the wrong half, so (b2) "largest margin" and (b3) "highest
+  near-threshold density" were registered in advance as extra arms. Arm (b) was not modified.
+- A fresh setting-C set P5 (seed 13, 40 instances) was trained, so that the arms motivated by Phase 3 are not
+  scored on the models that motivated them.
+- Implementation: `tmsq.phase5` (mixed-precision RTN; greedy rounding with exact rank-1 updates), the runner,
+  and the analysis. Tests: rank-1 updates equal brute force, mixed RTN equals the Phase 2 RTN bit for bit,
+  seed independence, and an analysis e2e test. 261 tests pass.
+- 15:51 Pre-registration and frozen code committed (`d6abce7`). The runs started (C_P5, then D_strong; about
+  20 min). The D runner is about 12 min, over the 10-min budget; this is logged.
