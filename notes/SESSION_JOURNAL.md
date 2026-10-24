@@ -84,3 +84,15 @@ Status at 13:47:
   pre-checks, then run the frozen analysis to obtain the verdicts.
 
 ---
+
+## 2026-10-24 13:50–14:10 (owner away): pre-freeze review, freeze
+
+- 13:50 Owner clarified the credits: research question, architecture and phase plan are the owner's design;
+  Claude chat only formatted them as Markdown and did simple lookups. README and this journal were
+  corrected (`5393a34`).
+- 13:55–14:08 Pre-freeze code review (3 reviewers + refutation). An independent re-implementation from the
+  pre-registration text matched all 497 numbers on E. 5 bugs in secondary or reporting parts were fixed;
+  details are in notes/LOG.md.
+- 14:09 Analysis code frozen as `268a66e`. Exploratory E results (5 instances): no primary test is
+  significant. The H1 and H2 point estimates have the sign opposite to CLAUDE.md's direction.
+- Next: K sweep (~4 min), then the pre-check, then the frozen analysis on K.

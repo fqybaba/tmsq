@@ -798,3 +798,11 @@ The primary specification is unchanged. The analysis code is frozen in the commi
 its hash is recorded in the next entry before the K sweep is run.
 
 ---
+
+## 2026-10-24 — Phase 3 analysis code frozen
+
+Frozen at `268a66e` (2026-10-24T14:09:12-04:00), before the K quantization sweep was run. Next, per the
+registered procedure: K sweep (`quant_sweep --setting C_confirm`, no overrides), then the pre-check written here
+before any K association, then the frozen analysis on K.
+
+---
