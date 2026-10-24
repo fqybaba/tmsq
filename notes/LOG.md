@@ -1635,3 +1635,33 @@ axis-aligned (design note 6). Phase 5 is a mechanism demonstration in the toy mo
        is stated with the results.
 
 ---
+
+## 2026-10-24 — Phase 5 runs and pre-check (logged BEFORE the analysis is run)
+
+Runs, made with the frozen runner (`d6abce7`) and `configs/phase5.yaml`, with no overrides:
+
+| Run | Directory | Instances | Time |
+|---|---|---|---|
+| C_P5 | `results/phase5/20261024-155157-C_P5` | 40 | 283 s |
+| D_strong | `results/phase5/20261024-155642-D_strong` | 20 | 276 s |
+
+The timing smoke had estimated about 12 min for D; the real run took 4.6 min, within budget.
+
+Pre-check (`python -m tmsq.experiments.phase5_analysis --config configs/phase5.yaml --precheck-only`):
+- Completeness: no problems in either run. Every instance has U4, U3, U5, the 4 allocation arms,
+  20 random draws and the 2 rounding arms, and C_P5 has 10 instances per S.
+- Sanity: both runs pass.
+  - U4 is bitwise equal to the Phase 2 per-column 4-bit RTN.
+  - D: U4's loss equals the Phase 4 sweep's stored loss (relative difference 0.0).
+  - The greedy objective never increased. The maximum tracking error is 4.9e-9 for C and 7.1e-10 for D.
+  - stop = false in both runs.
+- Greedy flips, mean per instance:
+
+  | Setting | leak_round | loss_round |
+  |---|---|---|
+  | C | 608 | 372 |
+  | D | 1,464 | 1,216 |
+
+- No stop rule fires, so the analysis runs as frozen.
+
+---

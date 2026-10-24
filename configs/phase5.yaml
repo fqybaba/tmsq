@@ -16,4 +16,6 @@ eval:
   composite_dr2: 0.1
   composite_dfalse: 0.05
   eligible_r2: 0.5
-runs: {}
+runs:
+  C_P5: results/phase5/20261024-155157-C_P5
+  D_strong: results/phase5/20261024-155642-D_strong
