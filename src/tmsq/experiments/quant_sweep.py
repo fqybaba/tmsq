@@ -83,7 +83,15 @@ def main() -> None:
     if args.setting not in cfg["settings"]:
         raise SystemExit(f"--setting {args.setting!r} not in config settings {sorted(cfg['settings'])}")
     s_cfg = cfg["settings"][args.setting]
-    src_run = PROJECT_ROOT / s_cfg["run"]
+    if "run" in s_cfg:
+        src_run = PROJECT_ROOT / s_cfg["run"]
+    else:  # run_glob: exactly one untagged training run (timestamp-only directory name)
+        found = [p for p in PROJECT_ROOT.glob(s_cfg["run_glob"]) if p.is_dir() and p.name.count("-") == 1]
+        if len(found) != 1:
+            raise SystemExit(
+                f"expected exactly one untagged run for {s_cfg['run_glob']}, found {[p.name for p in found]}"
+            )
+        src_run = found[0]
     final = load_weights(src_run / "final.pt")
     src_cfg = load_config(src_run / "config.yaml")
     train_seed = int(src_cfg["seed"])

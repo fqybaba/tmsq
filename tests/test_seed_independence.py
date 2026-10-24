@@ -56,6 +56,17 @@ def test_confirmation_init_train_eval_streams_are_new():
     assert not (k_all & e_all)
 
 
+K2 = {"train_seed": 7, "K": 20}  # Phase 3b set, results/rep_dims_confirm2
+
+
+def test_phase3b_set_shares_no_stream():
+    k2 = _init_seeds(K2) | _train_sampler_seeds(K2) | _eval_seeds(K2) | _noise_seeds(K2)
+    others = set()
+    for s in (E, K):
+        others |= _init_seeds(s) | _train_sampler_seeds(s) | _eval_seeds(s) | _noise_seeds(s)
+    assert not (k2 & others)
+
+
 def test_known_preexisting_collision_is_exactly_one():
     """Documented in notes/LOG.md (Phase 3 pre-registration v2): K's training-sampler chunk-2 seed 2,000,043
     equals E's noise seed for (instance 0, 5 bits, per-row, noise seed 2). Both runs already exist; one is a
