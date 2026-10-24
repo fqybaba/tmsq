@@ -806,3 +806,24 @@ registered procedure: K sweep (`quant_sweep --setting C_confirm`, no overrides),
 before any K association, then the frozen analysis on K.
 
 ---
+
+## 2026-10-24 — Phase 3 K pre-check (written BEFORE any K predictor–outcome association)
+
+K sweep: `results/quant_sweep/20261024-140931-C_confirm` (registered command, no overrides; 576,000 rows,
+124 s). Pre-check run: `results/phase3/20261024-141155-K-precheck` (frozen code `268a66e`). Labels, FP quantities and
+outcome-only statistics only:
+
+- sanity: bits8_pass = True; monotone per granularity = {'tensor': True, 'column': True, 'row': True}. No STOP.
+- completeness: instances per S = {'0.7488': 10, '0.8415': 10, '0.9': 10, '0.9602': 10}, bits = [2, 3, 4, 5, 6, 8], noise seeds = 5; no problems.
+- clarification 6: recomputed composite label reproduces the stored one (0 mismatches).
+- 8-bit damaged fraction: 0.000 in all 12 (S, granularity) cells, so the label is valid everywhere in K's grid.
+- ICC_noise in the primary cell: dfalse_act 0.65, dR2 0.18 (E: 0.55, 0.12); both ≥ 0.10.
+- identifiability: mean within-instance ρ(norm, D) in the primary cell = 0.422 over 10 instances (< 0.8), so H2 and H3 stay separate; Holm family = H1, H2, H3.
+- eligible features per instance, per-row 3 bits: S=0.7488 43–47; S=0.8415 45–63; S=0.9 13–55 (several instances < 20, so some S = 0.9 tests may have < 8 valid instances); S=0.9602 100.
+- cells passing the cell rule (S, granularity, bits: damaged / undamaged):
+  0.7488 tensor 3b: 356/94; 0.7488 tensor 4b: 118/332; 0.7488 tensor 5b: 69/381; 0.7488 column 3b: 244/206; 0.7488 column 4b: 91/359; 0.7488 row 3b: 245/205; 0.7488 row 4b: 97/353; 0.8415 tensor 3b: 373/193; 0.8415 column 3b: 125/441; 0.8415 row 3b: 208/358; 0.9 tensor 3b: 158/118; 0.9 row 3b: 69/207; 0.9602 tensor 3b: 665/335; 0.9602 column 3b: 123/877; 0.9602 row 3b: 322/678.
+- primary cell (0.7488, row, 3 bits) passes: 245 damaged / 205 undamaged.
+
+Next: the frozen analysis on K.
+
+---
