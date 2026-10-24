@@ -137,3 +137,19 @@ Phase 3 用全新的确认集 K 检验了预注册的 H1–H3：
 
 局限：只在 S=0.7488 一个稀疏度成立（反极对与更密的多面体在这里共存）。二值标签依赖 0.05 的检测阈值；
 与阈值无关的 dR2 差距较小（0.102 对 0.072）。
+
+## 2026-10-24 14:24–14:50 (owner away): Phase 3b closed, Phase 4 started
+
+- 14:23 Phase 3b results committed (`091560f`); phone notification sent.
+- 14:24 Advisor consulted on Phase 4. Key point taken: frequency and geometry are confounded in setting D, so
+  geometry covariates per frequency bucket are mandatory.
+- 14:25–14:33 Built and tested the Phase 4 infrastructure (`cdff00b`): Liu et al.'s weight-decay optimizer
+  (bit-exact tests), the frequency root-finder, the setting-D trainer, per-feature eval sets. Wrote the
+  Phase 4 plan and a gamma-selection rule before reading the regime sweep.
+- 14:35 Regime sweep finding: gamma = +0.1 (Liu et al.'s "weak") is not weak in our setup. No gamma up to 3
+  reaches phi_half ≤ 0.2, and gamma 9 or 27 collapses the model. The written rule would have picked a
+  collapsed model, so a deviation was logged before refining (`bf7daeb`).
+- 14:44 Refinement (gamma 4–7): weak = gamma 7 (phi_half 0.12–0.18) selected by the logged rule
+  (`dcb4b55`); strong = −1.0 (one config only 0.6, reported as not strong).
+- 14:45 Main setting-D training started (2 runs × 20 instances). Next: FP facts → H4 pre-registration
+  (advisor review) → sweep → pre-check → frozen analysis.
