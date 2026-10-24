@@ -827,3 +827,97 @@ outcome-only statistics only:
 Next: the frozen analysis on K.
 
 ---
+
+## 2026-10-24 — Phase 3 RESULTS (confirmatory, set K)
+
+Runs:
+- K analysis: `results/phase3/20261024-141233-K` (frozen code `268a66e`, unchanged; 35 s).
+- E-vs-K comparison: `results/phase3/20261024-141338-compare`.
+- Post-hoc exploration: `results/phase3/20261024-141422-posthoc`.
+
+Figures:
+- `figures/phase3_forest_E_vs_K.*`
+- `results/phase3/20261024-141233-K/figures/phase3_K_{forest,damage_vs_margin,auc}.*`
+
+### Primary verdicts (K, primary cell C, S = 0.7488, per-row, 3 bits; Holm over H1–H3)
+
+| test | mean ρ (10 instances) | 95% t-interval | Holm p | sign-flip Holm p | sqrt(ICC_noise) | verdict |
+|---|---|---|---|---|---|---|
+| H1 margin_tau vs dfalse_act | +0.491 | [+0.341, +0.641] | 8.1e-5 | 0.006 | 0.81 | **Not supported (opposite sign); consistent with the registered threshold-density reading** |
+| H2 D vs dR2 | +0.399 | [+0.293, +0.506] | 4.2e-5 | 0.006 | 0.43 | **Not supported (opposite sign)** |
+| H3 norm vs dR2 | +0.002 | [−0.169, +0.173] | 0.98 | 0.99 | 0.43 | **Not supported** |
+| H2 companion D_plus vs dR2 (no Holm) | +0.397 | [+0.287, +0.508] | 1.9e-5 | 0.002 | 0.43 | Not supported (opposite sign) |
+
+- H3 is a genuine null. ICC_noise(dR2) = 0.18 ≥ 0.10, so the reliability rule does not apply.
+- The sign-flip Holm decisions agree with the t-test for every test.
+- Downgrade cells have the same sign as the primary cell:
+  - H1: per-column +0.49, per-tensor +0.54.
+  - H2: per-row S = 0.8415 +0.08; per-column +0.36 and per-tensor +0.41 at S = 0.7488; S = 0.9 not testable (7 valid instances).
+- Leak-free sensitivity (features with false_act_fp > 0 only): H1 +0.30, H2 +0.30, H3 +0.09.
+- E vs K: no disagreement under the registered rule. The signs agree; E's point estimates (+0.28, +0.20, +0.03) were not significant with 5 instances.
+- In plain words: in the cell where per-feature damage is reliable, the geometry predictors do predict damage
+  (|ρ| ≈ 0.4–0.5), but in the direction OPPOSITE to H1 and H2 as stated. Features with larger margins and
+  larger D (less crowded) are damaged MORE. Norm predicts nothing.
+
+### Secondary analyses (K; descriptive, BH within the 309-test family)
+
+- Secondary 1. 106 of 309 family tests have q < 0.05, almost all at S = 0.7488. At S = 0.8415 and 0.96 the
+  effects are near 0 (|ρ| ≤ 0.17), as the near-zero reliability there predicts.
+- Mechanism pair near_thr–|dfalse_act|: +0.51 [+0.37, +0.66], as predicted.
+- Duan analogs in the predicted direction: p99_out_fp–dR2 −0.24, peak_out_fp–dR2 −0.36. A higher FP peak
+  output means less damage, while norm itself is null.
+- Partial correlations: D | norm +0.41; norm | D −0.19.
+- break_bits at S = 0.7488: ρ with D = +0.54 to +0.62 in all three granularities. A larger D breaks at a
+  higher bit width.
+- Secondary 3 (primary cell, oriented by the CLAUDE.md direction; below 0.5 means the opposite direction):
+  margin_tau 0.30, D 0.26, D_plus 0.28, norm 0.50, p99_out 0.63, peak_out 0.70, near_thr 0.73.
+- Secondary 4 cross-validated AUC: {D} 0.72, {margin_tau} 0.70, {peak_out} 0.70, {p99_out} 0.64, {all} 0.74.
+  The {all} model's VIF is 309 (margin_tau, D and D_plus are nearly collinear), so its coefficients are not
+  interpreted.
+- Secondary 5, rounding vs noise. ρ_RTN vs ρ_noise: H1 0.491 vs 0.486 (R = 0.99), H2 0.399 vs 0.323
+  (R = 0.81); neither paired difference is significant. No reading is given, because the verdicts are not
+  Supported or Mixed. Descriptively, the same pattern appears under isotropic Gaussian noise of equal
+  per-column norm: it reflects sensitivity to perturbation, not something specific to rounding.
+- Secondary 6 (design note 10). The D coefficient (+0.39) and the norm coefficient (−0.19) are unchanged when
+  residualized dW is added (changes ≤ 0.012). Residual dW has its own effect (+0.21).
+- Secondary 8 (descriptive). Setting B shows the same H1 sign (+0.4 to +0.7) at S ≥ 0.977. A has 5 features
+  per instance and is uninformative.
+
+### POST-HOC exploration (decided after seeing K; NOT pre-registered; does not change any verdict)
+
+1. The cross-feature correlations come from discrete geometric classes. In the primary cell, features fall
+   into three classes by margin_tau, and within each class the correlations are small and inconsistent in
+   sign. K means per class:
+
+   | class | n | D | bias | max_overlap | FP false_act | near_thr | R2_fp | dfalse_act | dR2 | damaged at 3 bits |
+   |---|---|---|---|---|---|---|---|---|---|---|
+   | margin_tau < −0.1 | 108 | 0.395 | −0.087 | 0.31 | 0.164 | 0.10 | 0.66 | 0.037 | 0.056 | 37% |
+   | −0.1 … 0.015 | 249 | 0.445 | −0.075 | 0.14 | 0.137 | 0.15 | 0.75 | 0.046 | 0.066 | 45% |
+   | > 0.015 (antipodal pairs, D ≈ 0.5) | 93 | 0.499 | +0.010 | 0.01 | 0.001 | 0.65 | 0.84 | 0.274 | 0.107 | 99% |
+
+   E shows the same three classes and the same pattern (antipodal class 100% damaged, dfalse 0.28).
+2. A candidate mechanism. Antipodal-pair features have no positive interference to suppress, so they learn
+   a bias of about 0. Their inactive pre-activations therefore sit at the 0.05 threshold (near_thr 0.65), and
+   any weight perturbation turns them into false activations. Crowded features learn negative biases that act
+   as a buffer. This is the registered threshold-density reading made concrete. It is not only a threshold
+   artefact: their dR2, which includes the threshold-free leak energy, is also the largest.
+3. The H2 sign is largely a ceiling effect. D correlates with R2_fp (ρ = 0.87), and the partial ρ(D, dR2 | R2_fp)
+   is +0.08 [−0.02, +0.18]. Relative damage dR2 / R2_fp still increases with D (+0.28).
+4. The H1 sign is carried by threshold density. ρ(margin_tau, near_thr) = +0.78 (FP only), and the partial
+   ρ(margin_tau, dfalse_act | near_thr) falls from 0.49 to +0.17.
+5. Scope: everything above holds at S = 0.7488, where antipodal pairs and denser polytopes coexist. At
+   S ≥ 0.8415, per-feature damage is dominated by the perturbation draw.
+
+### Surprises, limitations, next steps
+
+- Surprise: the direction. The pre-registered intuition ("crowded, low-margin features break first") is
+  rejected in the one cell where it is testable. The fragile features are the least crowded ones.
+- Limitations:
+  - One setting (C, n = 100, m = 20) and one sparsity carry the result.
+  - The class structure means the effective sample is closer to "three classes × 10 instances" than to 450
+    features.
+  - false_act depends on the 0.05 detection threshold; the dR2 result does not.
+- Next step, recorded here before any new data: a confirmatory test of the post-hoc class finding on a
+  fresh, pre-registered set of models (Phase 3b; plan in the next entry).
+
+---
