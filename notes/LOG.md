@@ -921,3 +921,44 @@ Figures:
   fresh, pre-registered set of models (Phase 3b; plan in the next entry).
 
 ---
+
+## 2026-10-24 — Phase 3b pre-registration: confirm the post-hoc "antipodal class" finding on fresh models
+
+Status: written and committed BEFORE the new models are trained. The finding it tests was discovered post
+hoc on E and K (Phase 3 results entry). Decided by Claude Code while the owner was away, under the owner's
+standing instruction to continue autonomously. The owner can veto it.
+
+Data: a fresh set K2 of 20 instances at S = 0.7488 only, training seed 7. Config
+`configs/rep_dims_confirm2.yaml` is identical to `configs/rep_dims.yaml` except seed 7, 20 seeds and
+`density_grid.keep: [3]` (bitwise the same density). Seed 7 shares no integer seed with E or K (checked with
+the seed-bookkeeping functions; added to `tests/test_seed_independence.py`). Quantized with the unchanged
+sweep config as setting `C_confirm2` (no overrides). Analysed by `src/tmsq/experiments/phase3b.py`,
+committed before the K2 sweep is run.
+
+Class definition (FP geometry only; fixed now): a feature is "antipodal" iff D_i ≥ 0.48. On E and K at
+S = 0.7488, eligible D values have a gap between 0.470 and 0.493. Every other eligible feature is "other".
+Eligibility, the composite label and every damage metric are as in Phase 3.
+
+Primary test H5 (cell C, S = 0.7488, per-row, 3 bits, RTN):
+- Per instance k: Δ_k = (damaged fraction among eligible antipodal features) − (damaged fraction among
+  eligible other features). An instance is valid iff it has ≥ 2 antipodal and ≥ 10 other eligible features.
+- Two-sided one-sample t-test of the valid Δ_k against 0; 95% t-interval; exact sign-flip p reported
+  alongside.
+- **Supported**: p < 0.05, mean Δ > 0, and mean Δ ≥ 0.20 (20 percentage points).
+- **Mixed**: p < 0.05 and 0 < mean Δ < 0.20.
+- **Not supported**: p ≥ 0.05, or a significant negative Δ (reported as such).
+- **Not testable**: fewer than 16 of the 20 instances are valid.
+- E and K values of the same statistic are reported next to it (post hoc there).
+
+Secondary (estimation only, no verdicts): the same per-instance difference for
+- mean dR2 (threshold-free) and mean dleak_energy (threshold-free leakage);
+- mean dfalse_act;
+- per-column and per-tensor at 3 bits, and per-row at 4 bits;
+- the matched-noise control (per-instance Δ averaged over the 5 noise seeds).
+
+Mechanism (descriptive): class means of bias, near_thr, false_act_fp and R2_fp.
+
+Stop rules: if the K2 sweep's `bits8_pass` is false, or any granularity is non-monotone, or the sweep does not
+have 20 instances, 6 bit widths and 5 noise seeds, STOP and report with no verdict.
+
+---
