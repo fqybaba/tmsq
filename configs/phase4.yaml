@@ -1,0 +1,6 @@
+# Phase 4 (H4, head vs tail) analysis. Pre-registration: notes/LOG.md, committed a11e490 before these sweeps ran.
+experiment: phase4
+sweeps:
+  weak: results/quant_sweep/20261024-151741-D_weak      # gamma = 7, from results/setting_d/20261024-144457-g+7
+  strong: results/quant_sweep/20261024-152211-D_strong  # gamma = -1, from results/setting_d/20261024-145113-g-1
+instances_per_regime: 20

@@ -1236,3 +1236,54 @@ quantization outcome had been read. The two sweeps (D_weak, then D_strong) were 
 registered config and no overrides.
 
 ---
+
+## 2026-10-24 — Phase 4 sweeps and pre-check (logged BEFORE the H4 analysis is run)
+
+Sweeps, run with `configs/quant_sweep_d.yaml` and no overrides; each has 432,000 feature rows and evaluation
+took 266 s:
+- D_weak: `results/quant_sweep/20261024-151741-D_weak`
+- D_strong: `results/quant_sweep/20261024-152211-D_strong`
+- The 12–13 min per regime estimated in the pre-registration was wrong. The real time was about 4.5 min,
+  within budget.
+
+Incident:
+- Both sweep processes crashed AFTER `features.parquet`, `models.parquet` and `sanity.json` were written.
+  The crash was in the Phase 2 figure code (`plots_quant.plot_metric_vs_bits` colours lines by S, and S is
+  NaN for setting D: `KeyError: nan`). The saved data are complete; the completeness check below confirms it.
+- Fix: `plots_quant._with_groups` labels setting-D lines by (alpha, k) instead of S, and the figures were
+  regenerated from the saved `models.parquet` with `tmsq.experiments.replot`.
+- This is figure code, not the frozen Phase 4 analysis code, and no number changed.
+
+Pre-check (`python -m tmsq.experiments.phase4 --config configs/phase4.yaml --precheck-only`):
+- Completeness: no problems in either regime (20 instances, 6 bit widths, 5 noise seeds).
+- STRONG (gamma −1): passes.
+  - bits8_pass true: median |dR2| at 8 bits 0.00056; max relative loss increase 0.0019.
+  - Monotone in all three granularities. Mean dR2 (eligible) at 8/6/5/4/3/2 bits, per-row: 0.00003, 0.00065,
+    0.0027, 0.0145, 0.112, 6.34.
+  - ICC_noise at the primary cell: rel_damage 0.31 (sqrt 0.56), dR2 0.29, dLoss 0.62.
+  - Eligible features per instance: 97–106 for the (·, k 5) configs, 194–200 for the (·, k 2) configs.
+- WEAK (gamma 7): **STOP by the registered rule.**
+  - bits8_pass is true (median |dR2| 0.00046), but the regime is NON-MONOTONE in all three granularities.
+  - Mean dR2 (eligible) at 8/6/5/4/3/2 bits:
+
+    | Granularity | 8 | 6 | 5 | 4 | 3 | 2 |
+    |---|---|---|---|---|---|---|
+    | per-row | 0.00003 | 0.00014 | −0.00043 | −0.00004 | 0.00225 | **−0.148** |
+    | per-column | −0.00001 | −0.00015 | −0.00002 | −0.0017 | −0.0032 | −0.152 |
+    | per-tensor | 0.0 | 0.0003 | 0.0001 | −0.0007 | −0.017 | −0.122 |
+
+  - At 2 bits, quantization IMPROVES the mean R² of eligible features by about 0.15.
+  - ICC_noise(rel_damage) = 0.047, below the 0.10 testability floor. Eligible features per instance: 14–26.
+- Consequences, under the rules written before this was seen:
+  - The weak regime is descriptive only; its H4 primary reads "STOP (sanity failed; descriptive only)".
+  - H4 is testable only in the strong regime. Holm stays over the two regimes as registered (conservative for
+    strong).
+  - The out-of-sample test of the Phase 3 mechanism can reach at most "partly", because its weak half cannot
+    be evaluated. The strong half was registered as the discriminating one.
+- Surprise, to be reported and diagnosed post hoc AFTER the frozen analysis: "quantization improves the
+  weak-regime model". A candidate explanation, not yet checked: with gamma = 7 the FP weights minimise loss +
+  decay, not the reconstruction loss, so features are shrunk (head norm ≈ 0.63). Any perturbation adds
+  E||δ_i||² > 0 to the self-gain ||W_i + δ_i||², which partly undoes the shrinkage. If so, the matched-noise
+  control should show the same improvement.
+
+---

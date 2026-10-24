@@ -19,22 +19,35 @@ def _s_colors(S_values: np.ndarray) -> dict:
     return {float(S_values[i]): cols[r] for r, i in enumerate(order)}
 
 
+def _with_groups(df: pd.DataFrame) -> pd.DataFrame:
+    """Add a line-group label: S for settings A-C, (alpha, k) for setting D (per-feature p, S is NaN)."""
+    df = df.copy()
+    if df.S.notna().all() or not {"alpha", "k"} <= set(df.columns):
+        df["grp_key"] = df.S.astype(float)
+        df["grp_label"] = [f"S={s:.3g}" for s in df.S]
+    else:
+        df["grp_key"] = df.alpha.astype(float) * 100 + df.k.astype(float)
+        df["grp_label"] = [f"alpha={a:g}, k={k:g}" for a, k in zip(df.alpha, df.k, strict=True)]
+    return df
+
+
 def plot_metric_vs_bits(
     models: pd.DataFrame, value: str, ylabel: str, stem: Path, title: str, logy: bool, method: str = "rtn"
 ) -> None:
     """Panels = granularities; one line per S (mean over seeds, band = min..max); x = bits, 8 -> 2."""
     style()
-    df = models[(models.method == method) & (models.ablation == "none")]
+    df = _with_groups(models[(models.method == method) & (models.ablation == "none")])
     grans = [g for g in ("tensor", "column", "row") if g in set(df.granularity)]
     fig, axes = plt.subplots(1, len(grans), figsize=(3.6 * len(grans), 3.4), squeeze=False, sharey=True)
-    S_vals = np.sort(df.S.unique())
+    S_vals = np.sort(df.grp_key.unique())
     colors = _s_colors(S_vals)
+    labels = df.groupby("grp_key").grp_label.first()
     for ax, g in zip(axes[0], grans, strict=True):
         d = df[df.granularity == g]
         for S in S_vals:
-            sub = d[d.S == S].groupby("bits")[value].agg(["mean", "min", "max"]).sort_index(ascending=False)
+            sub = d[d.grp_key == S].groupby("bits")[value].agg(["mean", "min", "max"]).sort_index(ascending=False)
             x = sub.index.to_numpy()
-            ax.plot(x, sub["mean"], color=colors[float(S)], lw=1.4, marker="o", ms=3, label=f"S={S:.3g}")
+            ax.plot(x, sub["mean"], color=colors[float(S)], lw=1.4, marker="o", ms=3, label=labels[S])
             ax.fill_between(x, sub["min"], sub["max"], color=colors[float(S)], alpha=0.12, lw=0)
         ax.set_title(f"per-{g}", fontsize=9)
         ax.set_xlabel("bits")
@@ -50,9 +63,10 @@ def plot_metric_vs_bits(
 def plot_rtn_vs_noise(models: pd.DataFrame, stem: Path, title: str, value: str = "loss_increase") -> None:
     """RTN (solid) vs the matched-noise control (dashed, mean over noise seeds) for up to 4 S values."""
     style()
-    df = models[models.ablation == "none"]
+    df = _with_groups(models[models.ablation == "none"])
     grans = [g for g in ("tensor", "column", "row") if g in set(df.granularity)]
-    S_all = np.sort(df.S.unique())
+    S_all = np.sort(df.grp_key.unique())
+    labels = df.groupby("grp_key").grp_label.first()
     pick = S_all if len(S_all) <= 4 else S_all[np.linspace(0, len(S_all) - 1, 4).round().astype(int)]
     colors = _s_colors(pick)
     fig, axes = plt.subplots(1, len(grans), figsize=(3.6 * len(grans), 3.4), squeeze=False, sharey=True)
@@ -60,7 +74,9 @@ def plot_rtn_vs_noise(models: pd.DataFrame, stem: Path, title: str, value: str =
         d = df[df.granularity == g]
         for S in pick:
             for method, ls in (("rtn", "-"), ("noise", "--")):
-                sub = d[(d.S == S) & (d.method == method)].groupby("bits")[value].mean().sort_index(ascending=False)
+                sub = (
+                    d[(d.grp_key == S) & (d.method == method)].groupby("bits")[value].mean().sort_index(ascending=False)
+                )
                 if len(sub):
                     ax.plot(
                         sub.index,
@@ -70,7 +86,7 @@ def plot_rtn_vs_noise(models: pd.DataFrame, stem: Path, title: str, value: str =
                         lw=1.4,
                         marker="o",
                         ms=3,
-                        label=f"S={S:.3g} {method}",
+                        label=f"{labels[S]} {method}",
                     )
         ax.set_title(f"per-{g}", fontsize=9)
         ax.set_xlabel("bits")
