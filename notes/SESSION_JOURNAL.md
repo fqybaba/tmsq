@@ -96,3 +96,23 @@ Status at 13:47:
 - 14:09 Analysis code frozen as `268a66e`. Exploratory E results (5 instances): no primary test is
   significant. The H1 and H2 point estimates have the sign opposite to CLAUDE.md's direction.
 - Next: K sweep (~4 min), then the pre-check, then the frozen analysis on K.
+
+## 2026-10-24 14:09–14:20 (owner away): Phase 3 verdicts, post-hoc finding, Phase 3b
+
+- 14:09 K quantization sweep run with the registered command (124 s).
+- 14:12 K pre-check written to the LOG and committed (`48a9623`) before any K association. All checks passed:
+  ICC 0.65 / 0.18; ρ(norm, D) = 0.42, so H2 and H3 stay separate.
+- 14:13 Frozen analysis run on K, with the code unchanged since `268a66e`. **Verdicts:**
+  - H1: Not supported (opposite sign, ρ = +0.49), consistent with the registered threshold-density reading.
+  - H2: Not supported (opposite sign, ρ = +0.40).
+  - H3: Not supported (null, +0.00).
+  - E-vs-K comparison: no disagreement.
+  - Phone notification sent.
+- 14:14 Post-hoc exploration, labelled as such in the LOG. The effect is carried by a discrete class: antipodal
+  pairs (D ≈ 0.5, bias ≈ 0) sit at the activation threshold and are 99% damaged at 3 bits, versus 37–45% for
+  the crowded classes. The same pattern appears under matched Gaussian noise.
+- 14:16 Phase 3 results committed (`2a772d2`).
+- 14:17 **Decision by Claude Code (owner away):** test the post-hoc finding on fresh models before reporting it
+  as a result. The Phase 3b pre-registration was committed (`326fc7c`) before any training. Seed 7 was chosen
+  because seed 2 would have repeated one integer seed of E's noise control.
+- 14:18 Phase 3b code committed (`f45a856`). K2 training (20 instances) and its sweep were started.
