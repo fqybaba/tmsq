@@ -10,6 +10,26 @@ from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 import torch
+from scipy.optimize import brentq
+
+
+def power_law_frequencies(n: int, alpha: float, k: float) -> tuple[np.ndarray, float]:
+    """Setting D: ``p_i = min(1, c (i+1)^-alpha)``, i = 0..n-1, with ``c`` solved by root-finding so that
+    ``sum_i p_i = k`` (the clip makes the closed form wrong when it binds). Returns ``(p, c)``."""
+    if not 0 < k <= n:
+        raise ValueError("need 0 < k <= n")
+    w = (np.arange(n) + 1.0) ** (-alpha)
+
+    def gap(c: float) -> float:
+        return float(np.minimum(1.0, c * w).sum() - k)
+
+    hi = 1.0
+    while gap(hi) < 0:
+        hi *= 2.0
+    c = brentq(gap, 0.0, hi, xtol=1e-14, rtol=1e-14, maxiter=500)
+    p = np.minimum(1.0, c * w)
+    assert abs(p.sum() - k) < 1e-9, p.sum()
+    return p, float(c)
 
 
 class FeatureSampler:

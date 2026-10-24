@@ -145,6 +145,7 @@ def train_config_from(cfg: dict[str, Any], steps_override: int | None = None) ->
         lr_schedule=str(t.get("lr_schedule", "constant")),
         warmup_steps=int(t.get("warmup_steps", 0)),
         min_lr_frac=float(t.get("min_lr_frac", 0.0)),
+        decay_mode=str(t.get("decay_mode", "adamw")),
         snapshot_steps=snaps,
         progress=True,
     )

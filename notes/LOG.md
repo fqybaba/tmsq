@@ -1018,3 +1018,62 @@ To our knowledge, this toy-model mechanism (zero-bias antipodal features are the
 not been reported. That claim should be checked against the literature before the write-up.
 
 ---
+
+## 2026-10-24 — Addendum to the Phase 3 results (wording for the write-up)
+
+- H3 is a null for `norm`, but Duan's own predictor is confirmed. In the primary cell, peak_out_fp predicts
+  less damage (Spearman with dR2 −0.36; oriented AUC 0.70), and so does p99_out_fp (−0.24; AUC 0.63).
+  `norm` is not a stand-in for peak activation in this model: within-instance ρ(norm, p99_out_fp) is about
+  0.4 on E. The write-up should say "Duan's peak-activation predictor holds; feature norm does not", not just
+  "H3 null".
+- The Phase 3b note "to our knowledge, not reported" still requires a literature check (CLAUDE.md) before it
+  appears in any write-up or the README. Queued.
+
+---
+
+## 2026-10-24 — Phase 4 plan (head vs tail; owner away, proceeding under the standing instruction)
+
+Goal: setting D (n = 200, m = 20, uniform importance, p_i = min(1, c (i+1)^(−alpha))). Does quantization
+damage frequent (head) or rare (tail) features more, absolutely and relatively, in weak vs strong
+superposition? The comparison is with Chang et al. (2025) and Wu et al. (2026). This is H4, exploratory and
+two-sided (CLAUDE.md).
+
+Infrastructure (done before this entry, tested; 242 tests pass):
+- `LiuDecayAdam`. Liu, Liu & Gore's piecewise decay applied to W only, with a per-instance gamma. Tests
+  confirm three things: gamma = 0 is Adam bit for bit; gamma = 0.01 equals torch.optim.AdamW on W; gamma < 0
+  has a fixed point at unit norm and moves norms toward 1 from both sides.
+- `power_law_frequencies`. A root-finder that asserts Σp = k. The clip binds only for alpha 1.5, k 5
+  (c = 2.719).
+- `build_eval_set_vec`. Per-feature frequencies. The inactive stratum is filled per feature, using
+  forced-inactive batches where needed, with no common minimum. p_i = 1 features have no inactive stratum.
+  The scalar path for A–C still reproduces stored Phase 2 rows exactly (max |diff| 0.0).
+- The sweep handles vector frequencies.
+
+Recipe (CLAUDE.md "Setting D recipe"):
+- Training: alpha ∈ {1.0, 1.5}, k ∈ {2, 5}, 5 seeds; lr 1e-2, 2,000 warm-up steps, cosine to 0.05·lr,
+  20k steps.
+- TMS keeps: batch 1024, Xavier init, b = 0, U[0, 1].
+- Deviations from Liu et al., logged here: activations U[0, 1] (theirs U[0, 2]); importance-weighted loss
+  with I = 1 (theirs nn.MSELoss); Xavier init and b = 0 (theirs randn/sqrt(m) and random b); batch 1024
+  (theirs 2048); density k ∈ {2, 5} (theirs E = 1).
+
+Regime verification:
+- Pilot at 4,000 steps, one seed per (alpha, k). gamma = +0.1 gave phi_half 0.40–0.65, not the weak
+  regime's ≈ m/n = 0.10. gamma = −1.0 gave 0.62–1.00.
+- Per CLAUDE.md ("sweep gamma and report the sweep, do not relabel"), a full-length FP-only sweep is
+  running: gamma ∈ {−1.0, +0.1, +0.3, +1.0, +3.0}, one seed per (alpha, k), base seed 900.
+- Selection rule, fixed BEFORE the sweep result was read:
+  - WEAK gamma = the smallest gamma in the sweep whose phi_half ≤ 0.20 in all four (alpha, k) configs. If
+    none qualifies, the sweep is extended upward (×3 steps, up to 30) before anything else.
+  - STRONG gamma = −1.0, provided phi_half ≥ 0.90 in every config. Otherwise −1.0 is still used and every
+    config with phi_half < 0.90 is reported as not strong, with no relabelling.
+  - Each main run then trains 4 configs × 5 seeds = 20 instances per gamma (≈ 6–7 min each, within budget).
+
+Then:
+1. FP-only facts per regime (eligible counts, phi_half, D/bias/near_thr by frequency bucket).
+2. H4 pre-registration, committed before the quantization sweep.
+3. The sweep, without ablations: 6 bits × 3 granularities × (RTN + 5 noise seeds).
+4. Pre-check written to the LOG.
+5. Frozen analysis.
+
+---

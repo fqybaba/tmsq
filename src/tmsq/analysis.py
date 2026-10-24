@@ -58,11 +58,13 @@ class EvalSet:
     X: torch.Tensor  # [R, n]
     idx_act: torch.Tensor  # [n_active, n]
     idx_inact: torch.Tensor | None  # [n_inactive_eval, n] or None when p = 1
-    p: float
+    p: float | np.ndarray  # scalar (settings A-C) or per-feature vector (setting D)
     n_active_eval: int
     n_inactive_eval: int
     n_forced_active: int
     n_natural: int
+    has_inactive: np.ndarray | None = None  # [n] bool; False for p_i = 1 (setting D); None = all True
+    n_forced_inactive: int = 0
 
 
 def eval_seed(train_seed: int, instance: int, params: EvalParams) -> int:
@@ -102,6 +104,46 @@ def build_eval_set(n: int, p: float, seed: int, params: EvalParams) -> EvalSet:
         for i in range(n):
             idx_inact[:, i] = torch.nonzero(~active[:, i]).squeeze(1)[:n_inact]
     return EvalSet(torch.cat(blocks, 0), idx_act, idx_inact, float(p), params.n_active, n_inact, n_forced, n_nat)
+
+
+def build_eval_set_vec(n: int, p: np.ndarray, seed: int, params: EvalParams) -> EvalSet:
+    """Setting D: per-feature frequencies. A natural batch of ``n_nat_min`` rows; per feature, the active stratum
+    is the first ``n_active`` natural active rows or a forced-active batch, and the inactive stratum is the first
+    ``n_inactive`` natural inactive rows or a forced-inactive batch (no common minimum, so frequent head features
+    do not shrink everyone's stratum). Features with ``p_i = 1`` have no inactive stratum (``has_inactive`` False).
+    """
+    p = np.asarray(p, dtype=np.float64)
+    n_nat = params.n_nat_min
+    sampler = FeatureSampler(n, torch.as_tensor(p, dtype=torch.float32), n_instances=1, seed=seed, n_chunks=1)
+    X = sampler.sample(n_nat)[0]
+    active = X > 0
+    blocks = [X]
+    offset = n_nat
+    idx_act = torch.empty(params.n_active, n, dtype=torch.long)
+    idx_inact = torch.zeros(params.n_inactive, n, dtype=torch.long)
+    has_inactive = p < 1.0
+    n_forced_act = n_forced_inact = 0
+    for i in range(n):
+        rows = torch.nonzero(active[:, i]).squeeze(1)
+        if rows.numel() >= params.n_active:
+            idx_act[:, i] = rows[: params.n_active]
+        else:
+            blocks.append(sampler.sample_conditional(params.n_active, feature=i, active=True)[0])
+            idx_act[:, i] = torch.arange(offset, offset + params.n_active)
+            offset += params.n_active
+            n_forced_act += 1
+        if not has_inactive[i]:
+            continue
+        rows_in = torch.nonzero(~active[:, i]).squeeze(1)
+        if rows_in.numel() >= params.n_inactive:
+            idx_inact[:, i] = rows_in[: params.n_inactive]
+        else:
+            blocks.append(sampler.sample_conditional(params.n_inactive, feature=i, active=False)[0])
+            idx_inact[:, i] = torch.arange(offset, offset + params.n_inactive)
+            offset += params.n_inactive
+            n_forced_inact += 1
+    return EvalSet(torch.cat(blocks, 0), idx_act, idx_inact, p, params.n_active, params.n_inactive, n_forced_act,
+                   n_nat, has_inactive=has_inactive, n_forced_inactive=n_forced_inact)  # fmt: skip
 
 
 def forward_single(
@@ -147,6 +189,12 @@ def stratum_stats(es: EvalSet, out: torch.Tensor, pre: torch.Tensor | None, para
         near = None
         if pre is not None:
             near = ((pre[es.idx_inact, ar] - params.tau).abs() <= params.near_eps).double().mean(0).numpy()
+        if es.has_inactive is not None:  # setting D: p_i = 1 features have no inactive stratum
+            mask = torch.as_tensor(~es.has_inactive)
+            leak = leak.masked_fill(mask, float("nan"))
+            false_act = false_act.masked_fill(mask, float("nan"))
+            if near is not None:
+                near = np.where(es.has_inactive, near, np.nan)
     return StratumStats(
         cond_mse.numpy().astype(np.float64),
         peak.numpy().astype(np.float64),
@@ -158,7 +206,7 @@ def stratum_stats(es: EvalSet, out: torch.Tensor, pre: torch.Tensor | None, para
     )
 
 
-def fp_geometry(W: torch.Tensor, b: torch.Tensor, p: float, params: EvalParams) -> dict[str, np.ndarray]:
+def fp_geometry(W: torch.Tensor, b: torch.Tensor, p: float | np.ndarray, params: EvalParams) -> dict[str, np.ndarray]:
     """FP geometry predictors for one instance (``W [m, n]``)."""
     W3, b2 = W[None], b[None]
     return {
@@ -184,7 +232,7 @@ def evaluate_instance(
     params: EvalParams,
     configs: list[QuantConfig],
     importance: np.ndarray,
-    p: float,
+    p: float | np.ndarray,
     instance: int = 0,
     train_seed: int = 0,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -227,7 +275,7 @@ def evaluate_instance(
         rows = {
             "feature": np.arange(n),
             "importance": importance,
-            "p": np.full(n, p),
+            "p": np.broadcast_to(np.asarray(p, dtype=np.float64), (n,)).copy(),
             "bits": cfg.bits,
             "granularity": cfg.granularity,
             "method": cfg.method,
@@ -243,7 +291,7 @@ def evaluate_instance(
             "p99_out_fp": fp.p99_out,
             "mse_fp": mse_fp,
             "R2_fp": r2_fp,
-            "var_x": np.full(n, var),
+            "var_x": np.broadcast_to(np.asarray(var, dtype=np.float64), (n,)).copy(),
             "eligible": eligible,
             "cond_mse_q": q.cond_mse,
             "false_act_q": q.false_act,
@@ -271,6 +319,14 @@ def evaluate_instance(
             "n_active_eval": es.n_active_eval,
             "n_inactive_eval": es.n_inactive_eval,
             "forced_active": (es.idx_act >= es.n_natural).all(0).numpy(),
+            "forced_inactive": (
+                (
+                    (es.idx_inact >= es.n_natural).all(0).numpy()
+                    & (es.has_inactive if es.has_inactive is not None else True)
+                )
+                if es.idx_inact is not None
+                else np.zeros(n, dtype=bool)
+            ),
         }
         feat_frames.append(pd.DataFrame(rows))
         loss_q = float((importance * mse_q).sum())

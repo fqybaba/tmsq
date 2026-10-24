@@ -1,0 +1,21 @@
+# Setting D (Phase 4): n=200, m=20, uniform importance, power-law frequencies, Liu-Liu-Gore weight-decay knob.
+# Recipe and deviations: CLAUDE.md "Setting D recipe"; every deviation is logged in notes/LOG.md.
+experiment: setting_d
+n_features: 200
+n_hidden: 20
+importance_r: 1.0
+alphas: [1.0, 1.5]
+ks: [2, 5]
+gammas: [0.1, -1.0]       # +0.1 intended weak, -1.0 intended strong; the regime is VERIFIED with phi_half
+n_seeds: 5
+seed: 11                  # base seed; the gamma-split runs use seed + 100 * gamma_index (11, 111)
+init_std: null            # TMS keep: per-instance Xavier normal, b = 0 (Liu et al. use randn/sqrt(m) and random b)
+train:
+  steps: 20000
+  batch: 1024              # TMS keep (Liu et al.: 2048)
+  lr: 0.01
+  lr_schedule: warmup_cosine
+  warmup_steps: 2000
+  min_lr_frac: 0.05
+  decay_mode: liu
+  snapshot_half: true

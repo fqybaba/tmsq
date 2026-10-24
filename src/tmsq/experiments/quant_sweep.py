@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from ..analysis import EvalParams, build_eval_set, eval_seed, evaluate_instance
+from ..analysis import EvalParams, build_eval_set, build_eval_set_vec, eval_seed, evaluate_instance
 from ..plots_quant import plot_arrows_fp_vs_q, plot_metric_vs_bits, plot_rtn_vs_noise
 from ..quantize import build_configs
 from .common import (
@@ -44,9 +44,10 @@ def parse() -> argparse.Namespace:
 
 
 def select_instances(final: dict, S_values: list[float] | None) -> np.ndarray:
-    S = 1.0 - np.asarray(final["density"], dtype=np.float64)
-    if S_values is None:
-        return np.arange(len(S))
+    dens = np.asarray(final["density"], dtype=np.float64)
+    if S_values is None or dens.ndim == 2:  # setting D (per-feature frequencies): every instance
+        return np.arange(len(dens))
+    S = 1.0 - dens
     keep = np.zeros(len(S), dtype=bool)
     for s in S_values:
         keep |= np.abs(S - float(s)) < 2e-3
@@ -129,17 +130,27 @@ def main() -> None:
     t0 = time.perf_counter()
     for k in tqdm(inst, desc=f"quant_sweep {args.setting}", dynamic_ncols=True):
         k = int(k)
-        p = float(density[k])
-        es = build_eval_set(W_all.shape[2], p, eval_seed(train_seed, k, params), params)
+        vector_p = density.ndim == 2
+        p = density[k] if vector_p else float(density[k])
+        builder = build_eval_set_vec if vector_p else build_eval_set
+        es = builder(W_all.shape[2], p, eval_seed(train_seed, k, params), params)
         feats, models = evaluate_instance(
             W_all[k], b_all[k], es, params, configs, importance, p, instance=k, train_seed=train_seed
         )
         for df in (feats, models):
             df.insert(0, "setting", args.setting)
-            df.insert(1, "S", np.float64(1.0 - p))
+            df.insert(1, "S", np.float64(np.nan) if vector_p else np.float64(1.0 - p))
             df.insert(2, "seed_idx", int(seed_idx[k]))
             df.insert(3, "instance", k)
         feats["n_forced_active"] = es.n_forced_active
+        if vector_p:  # setting D metadata
+            for key in ("alpha", "k", "gamma"):
+                if key in final:
+                    val = float(np.asarray(final[key])[k])
+                    feats[key] = val
+                    models[key] = val
+            feats["freq_rank"] = np.tile(np.arange(W_all.shape[2]), len(feats) // W_all.shape[2])
+            feats["n_forced_inactive"] = es.n_forced_inactive
         feat_frames.append(feats)
         model_frames.append(models)
     feats = pd.concat(feat_frames, ignore_index=True)
