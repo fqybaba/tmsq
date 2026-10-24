@@ -1287,3 +1287,162 @@ Pre-check (`python -m tmsq.experiments.phase4 --config configs/phase4.yaml --pre
   control should show the same improvement.
 
 ---
+
+## 2026-10-24 — Phase 4 results: H4 head vs tail (setting D)
+
+Goal: test H4 under the pre-registration committed as `a11e490`, using the frozen analysis code.
+- Analysis run: `results/phase4/20261024-152919-H4`.
+- Re-run after a cosmetic figure fix: `results/phase4/20261024-153307-H4`. primary.json, precheck.json and all
+  three CSVs are equal between the two runs.
+
+Config:
+- Setting D, n = 200, m = 20, uniform importance; p_i = min(1, c (i+1)^-alpha) for alpha in {1.0, 1.5} and
+  k in {2, 5}, 5 seeds each.
+- WEAK: gamma = 7, phi_half 0.107-0.197. STRONG: gamma = -1, phi_half 1.00 / 0.62 / 1.00 / 0.99.
+- RTN plus 5 matched-noise seeds x 3 granularities x 6 bit widths.
+- The per-feature stratified eval set: 2,000 active and 20,000 inactive rows per feature.
+
+### Primary (registered): Spearman(p_i, rel_damage_i) within instance, per-row, 3 bits, RTN, eligible features
+
+| Regime | Mean rho [95% t] | n | p (t) | p (sign-flip) | Cluster bootstrap | Holm p | sqrt(ICC) | Category |
+|---|---|---|---|---|---|---|---|---|
+| strong | -0.212 [-0.273, -0.151] | 20 | 6.6e-7 | 1.3e-5 | [-0.267, -0.158] | 1.3e-6 | 0.56 | tail loses a larger relative fraction |
+| weak | +0.002 [-0.146, +0.150] | 20 | 0.98 | - | - | - | 0.22 | STOP (pre-check), descriptive only |
+
+- The strong effect size is BORDERLINE. |rho| = 0.212 only just clears the registered 0.2 "[small]" tag.
+- The registered strong-regime sensitivity (phi_half >= 0.9, 15 instances) gives -0.174 [-0.243, -0.105],
+  p = 9.1e-5. The sign agrees, but the sensitivity alone would carry the "[small]" tag. The primary decides.
+- Holm stayed over both regimes after the weak STOP, as registered; this is conservative for strong.
+- Registered out-of-sample test of the Phase 3 mechanism: **not confirmed**. The strong half predicted
+  rho > 0 and the observed value is -0.21; the weak half cannot be evaluated (STOP).
+
+### Registered secondaries (strong, per-row, 3 bits unless stated; BH within the family)
+
+- rho(p, dLoss) = +0.72: absolute damage sits in the head (mechanically proportional to p).
+- **rho(p, dR2) = -0.03 [-0.09, +0.03], q = 0.42: no frequency dependence in dR2 itself.**
+- Split of dR2:
+  - Active term: rho(p, dR2_active_term) = +0.38, with rho(p, dcond_mse) = +0.37. Toward the head.
+  - Inactive term: rho(p, dR2_inactive_term) = -0.20. Toward the tail, via the 1/Var(x) ~ 3/p factor.
+- Partial rho(p, rel_damage | .): near_thr -0.18, D -0.21, bias -0.13.
+- Single-variable rho with rel_damage: near_thr -0.16, bias -0.17, D +0.04 (q = 0.08).
+- Noise control (single-draw rho averaged over 5 seeds): -0.235 [-0.27, -0.20]. Same as RTN, so the effect is
+  not specific to rounding.
+- By granularity, at 3 / 4 / 5 bits:
+  - tensor: -0.25 / -0.12 / -0.02
+  - column: -0.24 / -0.08 / -0.01
+  - row: -0.21 / -0.08 / -0.06
+- Head minus tail (top 10% / bottom 50% of eligible features), per-row 3 bits:
+  - rel_damage: head 0.102, tail 0.212, difference -0.110 [-0.146, -0.073].
+  - dLoss: head 0.0041, tail 0.0002, difference +0.0040 [+0.0025, +0.0055].
+  - Weak regime: the head bucket holds about 2 features per instance.
+
+**Reading (the decomposition belongs with the headline).** Under the pre-registered relative-retention
+outcome the tail loses a larger fraction. This is a property of the normalization, not of the perturbation
+response:
+- dR2 is null with frequency, because its active term (toward the head) and its inactive term (toward the
+  tail through 1/Var) cancel.
+- The net negative sign of rel_damage = dR2 / R2_fp comes from the denominator: R2_fp is 0.61 for the tail and
+  0.94 for the head, with rho(p, R2_fp) = +0.96.
+- Absolute damage (dLoss) and raw leakage (post hoc, below) both sit in the head.
+- The perturbation itself does not depend on frequency (post hoc: rho(p, dW) = +0.03,
+  rho(p, d_norm2) = -0.01).
+- No clean comparison with Wu et al. is possible: their retention is accuracy-based, with no normalization by
+  feature variance, and their head/tail are entity-popularity groups. Chang et al.'s "long-tail" is not a
+  frequency. What the toy model does show: which bucket "loses more" flips with the outcome normalization.
+
+### Post hoc (NOT registered; `results/phase4_posthoc/diagnostics_20261024.txt`)
+
+(B) Raw leakage in the strong regime (per-row, 3 bits):
+- rho(p, dleak_energy) = +0.52 and rho(p, dfalse_act) = +0.52.
+- rho(near_thr, dfalse_act) = +0.55.
+- dfalse_act is 0.080 in the head vs 0.003 in the tail.
+- The tail's dR2 of 0.125 comes from a leak energy of only 0.0002 divided by Var(x) ~ 0.0012.
+
+(D) The median version (per-instance median(head) - median(tail) of rel_damage) is robust to the rel_damage
+outliers, which reach about 6: per-row -0.067 [-0.083, -0.051], tensor -0.121, column -0.048.
+
+**Error in the pre-registration (owned).** The mechanism test used the wrong outcome:
+- The Phase 3 mechanism is a leakage mechanism, and design note 12 maps leakage to dfalse_act. The
+  out-of-sample mechanism test should have used dfalse_act, not rel_damage.
+- The pre-registration argued that the strong half was "discriminating" because it ran against the 1/p tilt.
+  That argument was wrong: a test on rel_damage discriminates only if the mechanism effect is larger than the
+  normalization tilt, and it was not.
+- The registered verdict "not confirmed" STANDS. The post-hoc leakage reading is consistent with the mechanism
+  but is NOT a confirmation.
+- near_thr -> dfalse_act is also close to definitional: a feature whose FP inactive pre-activation sits within
+  0.05 of tau flips under almost any perturbation. The only informative part is that this transfers to
+  setting D, where frequency and near_thr are collinear (rho = 0.94).
+
+### Weak regime: diagnosis of "quantization improves the model" (post hoc; corrects the pre-check entry)
+
+- The candidate explanation logged in the pre-check (E||delta||^2 undoes the shrinkage, so matched noise should
+  improve the model too) is **falsified by its own stated test**.
+- At 2 bits, matched noise RAISES the loss and RTN LOWERS it (mean relative loss change):
+
+  | Granularity | Noise | RTN |
+  |---|---|---|
+  | column | +1.0% | -16.7% |
+  | row | +1.9% | -20.0% |
+  | tensor | +7.6% | -10.7% |
+
+- d_norm2 of eligible features is +0.25 under RTN and +0.06 under noise.
+- Corrected mechanism (verified):
+  - With gamma = 7 the decay shrinks W. Eligible features have FP self-gain ||W_i||^2 = 0.36 and bias +0.04,
+    so the clean response at x = 1 is 0.40, not about 1.
+  - 2-bit RTN is ternary. Per-row, 17.9 of the 20 entries of an eligible column get the code +-s.
+  - Those entries contribute +0.262 to d_norm2; the entries rounded to 0 contribute -0.011. The net +0.251
+    matches the stored d_norm2, and all 392 eligible columns have d_norm2 > 0.
+  - A larger self-gain means better reconstruction: per-instance rho(d_norm2, -dR2) = +0.49.
+- **Limitation of the setup, not a head-vs-tail finding:**
+  - gamma = 7 was forced, because gamma = 0.1 is not weak at n = 200, m = 20.
+  - The resulting model is far from the reconstruction optimum, so "damage relative to FP" is ill-defined in
+    this regime.
+  - Phase 4 therefore answers H4 for the strong regime only.
+
+### Literature check (antipodal fragility, Phase 3b)
+
+The check was a workflow with 3 search angles plus a synthesis. It found no source that reports the finding;
+its premise is known:
+- TMS: negative bias "can convert small positive interferences into essentially being negative interferences".
+- Chen et al. 2023 (arXiv 2310.06301), Table A.1: b* = 0 for the 4-gon and increasingly negative values for
+  the 5- and 6-gon.
+- Tlaie 2024: "the bias vector is not negative until larger sparsities (when the antipodal structure is lost)".
+
+The closest robustness results are model-level and input-space:
+- TMS: adversarial vulnerability rises with superposition.
+- Stevinson et al. 2025 (arXiv 2510.11709).
+- Gorton & Lewis report a vulnerability "dip" at antipodal superposition that they leave unexplained. This goes
+  the other way for input attacks, in a different perturbation space.
+
+Sentence suggested for the write-up, still to be checked by the owner: "It is known that antipodal features
+need no negative bias while crowded polytopes learn increasingly negative ones (Elhage et al. 2022; Chen et
+al. 2023). To our knowledge, this work is the first to show that this makes antipodal features the most
+fragile under post-training weight quantization and matched weight noise. Prior robustness results that link
+superposition to fragility concern input-space adversarial attacks at the model level."
+
+To check by hand before publishing:
+- The agents' quotes from Chen et al. 2023 and Stevinson et al. 2025.
+- The title of Duan (2026, arXiv 2606.03002). The agent reports the v1 title "How Quantization Changes
+  Interpretable Features: A Sparse Autoencoder Analysis of Language Models", while CLAUDE.md uses "Perplexity
+  Can Miss SAE Feature Damage Under Quantization", perhaps a later version. CLAUDE.md is not changed without
+  checking.
+
+### Post-freeze changes (cosmetic only)
+
+- `src/tmsq/experiments/phase4.py`: the figures now label the stopped regime "STOP (descriptive only)", and the
+  head-tail figure has wider panel spacing (its y-labels overlapped).
+- Before and after: all numerical outputs are identical (see above).
+- The setting-D sweep figures were regenerated from the saved data (`quant_D_*`).
+
+### Surprises
+
+1. The weak regime improves under 2-bit RTN, explained above.
+2. The registered relative outcome and raw leakage point in opposite directions.
+3. The mechanism-test outcome was chosen wrongly in the pre-registration.
+
+### Next
+
+Phase 4 is closed. Next per PROMPTS.md: Phase 5. The owner should review the H4 framing and the weak-regime
+limitation before the write-up.
+
+---

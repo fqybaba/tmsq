@@ -165,3 +165,17 @@ Phase 3 用全新的确认集 K 检验了预注册的 H1–H3：
 - `sign_flip_p` was made exact and fast (meet-in-the-middle), with output verified identical on all stored
   Phase 3/3b inputs. The test suite went from 245 s to 23 s.
 - 15:17 Pre-registration and frozen code committed (`a11e490`). Setting-D sweeps started (~25 min).
+
+- 15:22-15:33 Setting-D sweeps finished. A crash in the post-save figure code (S is NaN in setting D) was fixed
+  and the figures regenerated from the saved data.
+- Pre-check: strong passes; weak STOP. In the weak regime 2-bit RTN IMPROVES the model. The pre-check was
+  logged and committed (`7f8483f`) before the analysis ran.
+- 15:29 Frozen H4 analysis. Strong: rho(p, rel_damage) = -0.21, so "the tail loses a larger relative fraction"
+  (borderline). The out-of-sample test of the Phase 3 mechanism: not confirmed.
+- Post-hoc decomposition (advisor-reviewed): the sign comes from the R2_fp normalization. dR2 does not depend on
+  frequency, and raw leakage sits in the head, consistent with the Phase 3 mechanism.
+- Owned error: the registered mechanism test should have used dfalse_act (design note 12).
+- Weak-regime mechanism verified: ternary RTN inflates the norms of a model shrunk by weight decay; matched
+  noise does not.
+- The literature check found no prior report of the antipodal-fragility result (the premise is known); the
+  "to our knowledge" wording is in the LOG.

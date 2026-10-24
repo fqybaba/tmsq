@@ -57,7 +57,7 @@ def precheck(df: pd.DataFrame, sanity: dict, n_instances: int) -> dict:
             "icc_primary": icc, "sqrt_icc_primary": {k: P3.sqrt_icc(v) for k, v in icc.items()}}  # fmt: skip
 
 
-def plot_reldamage_vs_rank(dfs: dict, stem: Path) -> None:
+def plot_reldamage_vs_rank(dfs: dict, stem: Path, stopped: frozenset = frozenset()) -> None:
     style()
     fig, axes = plt.subplots(1, len(dfs), figsize=(5.0 * len(dfs), 3.6), squeeze=False, sharey=True)
     for ax, (name, df) in zip(axes[0], dfs.items(), strict=True):
@@ -66,23 +66,26 @@ def plot_reldamage_vs_rank(dfs: dict, stem: Path) -> None:
         ax.set_xscale("log")
         ax.axhline(0, color=MUTED, lw=0.8)
         ax.set_xlabel("frequency rank i + 1 (1 = most frequent)")
-        ax.set_title(f"{name} regime", fontsize=9)
+        ax.set_title(
+            f"{name} regime" + (" (STOP: sanity failed, descriptive only)" if name in stopped else ""), fontsize=9
+        )
         ax.grid(True, color=GRID)
     axes[0, 0].set_ylabel("relative damage dR2 / R2_fp (eligible)")
     fig.suptitle("Setting D, per-row 3 bits: relative damage vs frequency rank", fontsize=10, color=INK)
     save(fig, stem)
 
 
-def plot_head_tail(tab: pd.DataFrame, stem: Path) -> None:
+def plot_head_tail(tab: pd.DataFrame, stem: Path, stopped: frozenset = frozenset()) -> None:
     style()
-    fig, axes = plt.subplots(1, 2, figsize=(9.0, 3.4), squeeze=False)
+    fig, axes = plt.subplots(1, 2, figsize=(10.0, 3.6), squeeze=False)
+    fig.subplots_adjust(wspace=0.38)
     for ax, value in zip(axes[0], ("rel_damage", "dLoss"), strict=True):
         t = tab[(tab.value == value) & (tab.granularity == P4.PRIMARY_GRAN)]
         for j, regime in enumerate(P4.REGIMES):
             tt = t[t.regime == regime].sort_values("bits")
             x = np.arange(len(tt)) + (j - 0.5) * 0.3
             ax.errorbar(x, tt["mean"], yerr=[tt["mean"] - tt.ci_lo, tt.ci_hi - tt["mean"]], fmt="o", ms=5,
-                        color=CATEGORICAL[j], label=f"{regime}", capsize=0, elinewidth=1.6)  # fmt: skip
+                        color=CATEGORICAL[j], label=regime + (" (STOP, descriptive only)" if regime in stopped else ""), capsize=0, elinewidth=1.6)  # fmt: skip
             ax.set_xticks(np.arange(len(tt)))
             ax.set_xticklabels([f"{int(b)} bits" for b in tt.bits])
         ax.axhline(0, color=MUTED, lw=0.8)
@@ -182,8 +185,9 @@ def main() -> None:
     desc.to_csv(run_dir / "bucket_geometry.csv", index=False)
 
     fig_dir = run_figure_dir(run_dir)
-    plot_reldamage_vs_rank(dfs, fig_dir / "phase4_reldamage_vs_rank")
-    plot_head_tail(ht, fig_dir / "phase4_head_tail")
+    stopped = frozenset(r for r in P4.REGIMES if pres[r]["stop"])
+    plot_reldamage_vs_rank(dfs, fig_dir / "phase4_reldamage_vs_rank", stopped)
+    plot_head_tail(ht, fig_dir / "phase4_head_tail", stopped)
     publish_figures(fig_dir, args.tag)
 
     print("\n=== H4 primary (per-row, 3 bits; Spearman(p, rel_damage) within instance) ===")
