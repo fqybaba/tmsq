@@ -1,0 +1,14 @@
+# Phase 3: pre-registered hypothesis tests (notes/LOG.md, pre-registration v2 f76b49a + clarifications d3b8bfa).
+experiment: phase3
+sets:
+  E:   # exploration set, 5 instances per S (labelled exploratory)
+    sweep: results/quant_sweep/20261024-093058-C
+    min_valid: 4
+    instances_per_S: 5
+  K:   # confirmation set, 10 fresh instances per S; verdicts are decided here
+    sweep_glob: results/quant_sweep/*-C_confirm   # the single untagged C_confirm sweep
+    min_valid: 8
+    instances_per_S: 10
+descriptive:   # secondary 8, settings A and B (no verdicts)
+  A: results/quant_sweep/20261024-092937-A
+  B: results/quant_sweep/20261024-092954-B

@@ -35,3 +35,9 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/tmsq/phase3.py" = ["E501"]
+"src/tmsq/plots_phase3.py" = ["E501"]
+"src/tmsq/experiments/phase3.py" = ["E501"]
+"tests/test_phase3.py" = ["E501"]

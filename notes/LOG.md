@@ -735,3 +735,66 @@ set. None of them changes a primary specification.
    instances.
 
 ---
+
+## 2026-10-24 — Phase 3 analysis code: exploration run, pre-freeze review, freeze
+
+Code: `src/tmsq/phase3.py`, `src/tmsq/experiments/phase3.py`, `src/tmsq/plots_phase3.py`,
+`configs/phase3.yaml`, `tests/test_phase3.py` (16 tests on synthetic data). It was run on E
+(`results/phase3/20261024-134227-E-dev`, then `...-140808-E-dev2` after the fixes below). From this point the
+E predictor–outcome associations had been seen.
+
+Pre-freeze review (three independent reviewers, plus refutation of each bug; no K data existed):
+- Independent replication. A reviewer re-implemented the primary analysis and the pre-checks from the
+  pre-registration text alone, without reading the code. All 497 compared numbers agree to 1e-6, including
+  verdicts, cell lists and invalid-instance lists.
+- 5 confirmed bugs, all in secondary or reporting parts, none affecting a primary number. All fixed:
+  1. The break_bits rank-biserial used the AUC instance rule instead of the registered per-instance rule
+     (clarification 1). This changed n_valid and the means at S = 0.9 on E.
+  2. The registered "Holm decision on the sign-flip p, and any disagreement reported" was missing.
+  3. sqrt(ICC_noise) was not reported next to every per-instance mean ρ: downgrade cells, the D_plus
+     companion, the leak-free sensitivity, secondary 5 and secondary 8.
+  4. Secondary 7 was not gated by the label rules.
+  5. The primary cell's label-rule status was not reported next to the primary verdicts.
+- Smaller fixes:
+  - Non-summarised cells no longer report an interval or p.
+  - The dMSE split now gives both terms.
+  - Downgrade cells carry dropped rows and an explicit "not testable" status.
+  - Invalid instances are listed per secondary row.
+  - Under STOP, secondary tables are flagged descriptive-only and BH significance is suppressed.
+  - The STOP check now requires all three monotonicity flags.
+  - Pearson-only damaged counts are reported per cell.
+  - An E-vs-K comparison mode (`--compare`) implements the registered disagreement rule.
+  - Pooled AUCs are labelled, and cluster bootstraps carry the undercoverage note.
+  - GroupKFold test-fold composition is recorded.
+  - A completeness check (instances per S, all bit widths, 5 noise seeds) and the clarification-6 label
+    reproduction check run before any analysis and abort it on failure.
+  - plot_auc no longer crashes when no cell passes.
+  - Pairs without a registered sign show none.
+
+Implementation readings made AFTER the E associations had been seen. Per the plan, they are logged as
+"deviation after seeing E". None touches a primary specification:
+- 8. A break_bits relabelling uses the binary "break_bits equals the larger of its two values". This equals
+  clarification 1's "damaged at 3 bits" whenever the values are {2, 3}, which holds for every E cell. It
+  avoids a constant label if K had other values.
+- 9. Secondary 6 now follows the registered order literally: OLS residualization of raw dW on raw norm and
+  peak_ratio, then rank-standardization of every variable. The first version rank-transformed before
+  residualizing.
+- 10. Secondary 7 runs in every cell that passes the cell rule, not only in the primary cell. The plan names
+  no cell, and secondary 3, which it re-labels, covers every passing cell.
+- 11. The identifiability statistic ρ(norm, D) uses the registered per-instance validity rule and a NaN-safe
+  mean.
+
+E results, exploratory only (5 instances, df = 4; the verdicts are decided on K):
+- H1: mean ρ +0.275 [−0.063, +0.613], Holm p 0.261, Not supported. The point estimate has the sign of the
+  registered threshold-density reading.
+- H2: +0.197 [−0.060, +0.453], Holm p 0.261, Not supported. Its downgrade cells point the same way
+  (+0.19 to +0.31).
+- H3: +0.026, Not supported.
+- D_plus companion: +0.192.
+- Sign-flip Holm decisions agree with the t-test everywhere. sqrt(ICC_noise): 0.74 for dfalse_act and 0.35
+  for dR2.
+
+The primary specification is unchanged. The analysis code is frozen in the commit that adds this entry, and
+its hash is recorded in the next entry before the K sweep is run.
+
+---
