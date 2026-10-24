@@ -1796,3 +1796,15 @@ Next: Phase 6 (write-up). The owner should review the Phase 4 framing and the Ph
 blog post is drafted.
 
 ---
+
+## 2026-10-24 — Post-hoc scripts saved for traceability
+
+- `notes/posthoc/phase4_diagnostics.py` reproduces every number in `results/phase4_posthoc/diagnostics_20261024.txt`.
+  The rerun output (`diagnostics_rerun_20261024.txt`) is identical. The archived file also contains the traceback
+  of a failed first attempt of block (C): the ad hoc script passed `W[k]` instead of `W[k][None]` to `rtn`. That
+  attempt produced no numbers.
+- `notes/posthoc/phase5_d_frequency_confound.py` produced
+  `results/phase5_posthoc/d_frequency_confound_20261024.txt`.
+- Both scripts are post hoc and labelled as such; neither is part of a frozen analysis.
+
+---
