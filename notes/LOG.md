@@ -1446,3 +1446,34 @@ Phase 4 is closed. Next per PROMPTS.md: Phase 5. The owner should review the H4 
 limitation before the write-up.
 
 ---
+
+## 2026-10-24 — Phase 4 descriptive table (PROMPTS.md: every bit width, per config, mean ± std over seeds)
+
+Command: `python -m tmsq.experiments.phase4_table --config configs/phase4.yaml`. Output:
+`results/phase4/20261024-153800-table/head_tail_by_config.csv`, with a per-instance version alongside. It covers
+all 6 bit widths × 3 granularities × 2 bucket definitions and is descriptive only; it is not a test.
+
+STRONG regime, per-row, eligible-feature buckets. Mean ± std over 5 seeds of rel_damage, head vs tail:
+
+| alpha, k | phi_half | 4 bits head | 4 bits tail | 3 bits head | 3 bits tail | 2 bits head | 2 bits tail |
+|---|---|---|---|---|---|---|---|
+| 1.0, 2 | 1.00 | 0.011 ± 0.002 | 0.018 ± 0.003 | 0.084 ± 0.014 | 0.145 ± 0.023 | 1.85 ± 0.21 | 9.5 ± 0.9 |
+| 1.0, 5 | 0.62 | 0.016 ± 0.003 | 0.022 ± 0.004 | 0.088 ± 0.016 | 0.199 ± 0.031 | 1.93 ± 0.39 | 8.5 ± 1.4 |
+| 1.5, 2 | 1.00 | 0.012 ± 0.003 | 0.027 ± 0.009 | 0.091 ± 0.016 | 0.219 ± 0.066 | 2.65 ± 0.79 | 19.8 ± 2.3 |
+| 1.5, 5 | 0.99 | 0.022 ± 0.006 | 0.034 ± 0.012 | 0.147 ± 0.040 | 0.283 ± 0.094 | 2.30 ± 0.84 | 12.4 ± 2.6 |
+
+- At 2 bits, rel_damage > 1, which means R2 goes negative (worse than predicting the mean).
+- dLoss runs the other way in every config and at every bit width ≤ 4. Example at 3 bits, (1.0, 2): head
+  0.0013, tail 0.0001.
+- The direction is the same in all four configs and at every bit width ≤ 4: the tail has larger relative
+  damage and the head has larger absolute damage. At 6 and 8 bits both are ≈ 0.
+
+Selection effect (bucket over ALL 200 features, 3 bits, per-row; eligible fraction of the bucket):
+- STRONG, k = 2: the head is 100% eligible and the tail 97–98%. The eligible "tail" is the true tail.
+- STRONG, k = 5: the head is 100% eligible but only 4.0% (alpha 1.0) and 5.6% (alpha 1.5) of the true tail is
+  eligible. The H4 "tail of eligible features" there is mostly mid-frequency features.
+- WEAK: the head is 76–95% eligible and 0% of the true tail is eligible.
+
+The write-up must state these fractions next to the H4 result, per design note 8c.
+
+---
