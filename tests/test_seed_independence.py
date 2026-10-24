@@ -75,3 +75,24 @@ def test_known_preexisting_collision_is_exactly_one():
     assert _train_sampler_seeds(K) & _noise_seeds(E) == {2_000_043}
     c = QuantConfig(5, "row", "noise", noise_seed=2)
     assert noise_generator_seed(c, 0, 0) == 2_000_043
+
+
+P5_SET = {"train_seed": 13, "K": 40}  # Phase 5 setting-C set, results/rep_dims_p5
+D_STRONG = {"train_seed": 111, "K": 20}  # Phase 4/5 setting-D strong regime, results/setting_d/*-g-1
+
+
+def _cal_seeds(s):
+    from tmsq.phase5 import cal_seed
+
+    return {cal_seed(s["train_seed"], k) for k in range(s["K"])}
+
+
+def test_phase5_streams_are_new_and_calibration_is_disjoint():
+    p5 = _init_seeds(P5_SET) | _train_sampler_seeds(P5_SET) | _eval_seeds(P5_SET)
+    every = set()
+    for s in (E, K, K2, D_STRONG):
+        every |= _init_seeds(s) | _train_sampler_seeds(s) | _eval_seeds(s) | _noise_seeds(s)
+    assert not (p5 & every)
+    cal = _cal_seeds(P5_SET) | _cal_seeds(D_STRONG)
+    assert len(cal) == P5_SET["K"] + D_STRONG["K"]
+    assert not (cal & (every | p5 | _noise_seeds(P5_SET)))

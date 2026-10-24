@@ -1,0 +1,22 @@
+# Setting C, fresh set P5 for Phase 5 (pre-registration in notes/LOG.md, 2026-10-24).
+# Identical to configs/rep_dims.yaml except: seed 13, 10 seeds, grid indices [3, 4, 5, 7] (S = 0.7488, 0.8415, 0.9000, 0.9602).
+experiment: rep_dims_p5
+figure_prefix: rep_dims_p5
+n_features: 100
+n_hidden: 20
+importance_r: 1.0
+density_grid: {start: 1.0, stop: 0.001, num: 16, keep: [3, 4, 5, 7]}
+n_seeds: 10
+seed: 13
+init_std: null
+train:
+  steps: 15000
+  batch: 1024
+  lr: 0.001
+  weight_decay: 0.01
+  decay_bias: true
+  lr_schedule: constant
+  snapshot_half: true
+acceptance:
+  sticky_tol: 0.05
+  sticky_min_seeds: 3

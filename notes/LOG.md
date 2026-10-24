@@ -1477,3 +1477,161 @@ Selection effect (bucket over ALL 200 features, 3 bits, per-row; eligible fracti
 The write-up must state these fractions next to the H4 result, per design note 8c.
 
 ---
+
+## 2026-10-24 — Phase 5 plan and pre-registration: geometry-aware quantization at a fixed bit budget
+
+Status: written BEFORE any Phase 5 code or outcome exists. Owner away; decided by Claude Code under the
+standing instruction and logged for review (the owner can veto).
+
+Question (PROMPTS.md Phase 5): at the same average bits per weight (4.0), can a geometry-aware bit
+allocation or rounding rule reduce damage relative to uniform 4-bit RTN?
+
+### Models
+- Setting C, a NEW set "P5": `configs/rep_dims_p5.yaml`. It is identical to `configs/rep_dims.yaml` except
+  for seed 13, 10 seeds and the grid indices [3, 4, 5, 7], i.e. S = 0.7488, 0.8415, 0.9000, 0.9602. The set is
+  new so that the arms motivated by Phase 3/3b are not scored on the models that motivated them.
+- Setting D, strong regime (gamma = −1), the 20 Phase 4 models (`results/setting_d/20261024-145113-g-1`).
+  The weak regime is excluded: Phase 4 showed its FP model is far from the reconstruction optimum, so 2-bit
+  RTN can even improve it.
+
+### Arms
+
+All arms use per-column scales s_i = max|W_i| / qmax(b_i) with the eps guard of design note 2, symmetric RTN,
+and tied weights. b stays in FP32.
+- (a) U4: every column at 4 bits.
+- Allocation arms (b) to (d) share one split. The represented columns (norm_i > 0.5), R of them, are
+  ranked by the arm's key. The first floor(R/2) get 5 bits and the last floor(R/2) get 3 bits. If R is odd,
+  the middle column gets 4 bits. Unrepresented columns get 4 bits. The average is exactly 4.0 bits per
+  weight, and the scale overhead (one FP scale per column) is identical across arms.
+  - (b) MARGIN-LOW, as PROMPTS.md specifies: smallest margin_i first. margin_i = −b_i − max(0,
+    max_overlap_i); margin_tau has the same ranking.
+  - (b2) MARGIN-HIGH: largest margin_i first. Registered because Phase 3 found the opposite sign of H1
+    (ρ(margin_tau, dfalse_act) = +0.49 on K).
+  - (b3) NEAR-THR: highest near_thr_i first, the threshold density behind the Phase 3/3b mechanism.
+    near_thr is computed on the CALIBRATION set (inactive natural samples), never on the eval set.
+  - (c) NORM: largest norm_i first (magnitude heuristic).
+  - (d) RANDOM: 20 seeded random rankings per instance. The arm's value is the mean over the 20 draws;
+    their spread is reported.
+- Rounding arms, at 4 bits everywhere (same codebook as U4):
+  - (e) LEAK-ROUND: per column, greedily choose round-down or round-up for single entries, minimising the
+    calibration leak energy sum_j I_j · mean_s[ReLU(pre_sj)² · 1(x_sj = 0)].
+  - (e2) LOSS-ROUND (secondary): the same algorithm minimising the calibration weighted MSE. It separates "leak
+    specific" from generic loss-aware rounding.
+  - Greedy algorithm, for both (e) and (e2):
+    - Start from the RTN codes.
+    - Passes over the represented columns, in index order.
+    - In each column, evaluate every single-entry flip to the other neighbouring grid point in parallel.
+      Accept the best flip only if it strictly lowers the objective. Repeat up to 5 times per column.
+    - 2 passes.
+    - Every code stays within one grid step of W/s and inside ±qmax.
+    - Pre-activation updates are exact rank-1 updates (tied weights: changing W_ki by δ changes h_k by δ x_i
+      and pre_i by δ h_k + δ x_i (W_ki + δ)).
+- Reference only (not compared): uniform 3 and 5 bits.
+
+### Data
+- Calibration set: 8,192 natural-distribution samples, with a seed disjoint from every eval-set seed. It is
+  used only by (b3), (e) and (e2).
+- Evaluation: THE stratified eval set of design note 4, with the same seeds as Phase 2/4, so FP and every arm
+  see identical inputs.
+
+### Outcomes (per model)
+- Primary: the relative loss increase r = loss_q / loss_fp − 1, with the loss computed from the strata as in
+  Phase 2.
+- Secondary: the composite survival fraction among eligible features, the worst-feature dR2 (maximum over
+  eligible features) and the mean dR2.
+
+### Primary test
+- Cell: setting C, S = 0.7488 (the Phase 3 primary cell), 10 P5 instances.
+- For each of (b), (b3) and (e), the per-instance paired difference d_k = r_arm − r_U4. Summary: the mean
+  with a 95% t-interval; two-sided one-sample t-test; Holm over the 3 arms.
+- Categories:
+  - "better than uniform": Holm p < 0.05 and mean d < 0.
+  - "worse than uniform": Holm p < 0.05 and mean d > 0.
+  - "no detectable difference": otherwise.
+- The relative size, mean d / mean r_U4, is reported next to each category.
+
+### Secondary (estimation only; BH within one family; none changes a category)
+- All arms vs U4 and the allocation arms vs RANDOM, at every S of setting C and on setting D strong.
+- The three secondary outcomes.
+- The noise-free FP sanity check: U4 here must reproduce the Phase 2 per-column 4-bit RTN loss to float
+  precision on the same model type. On P5 models this is checked by recomputing through the Phase 2
+  `apply_quant` path.
+
+### Predictions registered now (not tests)
+- Random 3/5 mixing should be WORSE than U4. With comparable column scales, the mean squared rounding error
+  of a 3/5 mix is about (4^-3 + 4^-5)/2 ÷ 4^-4 ≈ 2.1× that of U4, so a gain over U4 needs strongly
+  heterogeneous column sensitivity.
+- Given the Phase 3 H1 result, (b) MARGIN-LOW protects the crowded, buffered columns, so it is expected to
+  do no better than RANDOM. (b2) and (b3) are expected to do better than (b).
+- (e) may trade active-stratum accuracy for leakage and lose on total loss; (e2) is the control for that.
+
+### Stop rules
+- If U4 fails the reproduction check, STOP and report.
+- If the greedy objective ever increases on the calibration set, that is a bug: STOP.
+- An incomplete run (instances or arms missing) aborts the analysis.
+
+### Budget
+- P5 training: about 5–8 min.
+- Evaluation: about 30 quantized models per instance, plus greedy rounding (rank-1 updates; estimated
+  < 30 s per instance).
+- Each entry point should stay under 10 min. Timing is measured on one instance first.
+
+### Limitation stated in advance
+Per-column (per-feature) bit allocation has no direct analog in real models, where features are not
+axis-aligned (design note 6). Phase 5 is a mechanism demonstration in the toy model, not a deployable method.
+
+### Amendments after the advisor review of this draft (before committing; still before any outcome)
+
+1. Ranking edge cases:
+   - A NaN key, which happens only for near_thr_cal of p = 1 features in setting D (no inactive samples), takes
+     that column out of the ranked pool, and the column gets 4 bits.
+   - Ties are broken by a stable sort on the feature index.
+   - In the greedy rounding, an entry already on the grid, such as the column maximum with code ±qmax, is
+     never flipped. Every other entry moves only between floor(W/s) and ceil(W/s), both inside ±qmax.
+2. Seeds:
+   - The calibration generator seed is `cal_seed(train_seed, instance) = 7,000,000,000,003 + 1,000,033 ·
+     train_seed + 7919 · instance`.
+   - `tests/test_seed_independence.py::test_phase5_streams_are_new_and_calibration_is_disjoint` asserts that
+     these seeds are disjoint from every init, training, eval and noise stream of E, K, K2, P5 and D-strong.
+     It also asserts that the P5 training and eval streams are new.
+   - The random arm's draw d uses `numpy.random.default_rng([5150005, train_seed, instance, d])`.
+3. Two registered families, each with its own claim:
+   - **Family 1** (arms vs U4: (b), (b3), (e); Holm over 3) answers the deployable question: does a
+     geometry-aware rule beat uniform 4-bit at the same budget?
+   - **Family 2** (allocation vs RANDOM at the same 3/5 mix: (b), (b2), (b3), (c); Holm over 4) answers the
+     mechanistic question: does geometry tell us which columns to protect, net of the penalty for mixing
+     3 and 5 bits?
+   - Both families are tested in the primary cell, with the same categories, worded "better/worse than random"
+     for Family 2.
+   - The write-up attributes each claim only to its family.
+4. Registered mechanism checks (descriptive; t-intervals over instances):
+   - Allocation arms: per instance, the mean dR2 of eligible features in 5-bit columns minus that in 3-bit
+     columns. For RANDOM, this is computed per draw and then averaged.
+   - Rounding arms: the accepted-flip count, and the calibration objective J_final / J0.
+   - Rounding arms: on the eval set, the changes relative to U4 of the active component sum_i p_i·dcond_mse_i
+     and of the inactive component sum_i (1 − p_i)·dleak_energy_i, reported separately.
+5. The exact sign-flip p is reported beside every t-test p.
+6. Code freeze:
+   - Frozen with this commit: `src/tmsq/phase5.py`, `src/tmsq/experiments/phase5.py` (runner) and
+     `src/tmsq/experiments/phase5_analysis.py`.
+   - Tests: `tests/test_phase5.py` (13 tests) checks four things. Mixed RTN with uniform bits equals the
+     Phase 2 per-column RTN bit for bit. The rank-1 flip deltas and the incremental state equal brute-force
+     recomputation, for both objectives. The greedy objective never increases, and its tracked value equals
+     the recomputed one. Codes stay within one grid step and inside ±qmax, and zero passes reproduce RTN.
+   - `tests/test_phase5_e2e.py` runs the analysis end to end on synthetic runner output.
+   - 261 tests pass.
+7. Facts gathered before freezing. None of them is an arm outcome.
+   - P5 training (`results/rep_dims_p5/20261024-154441`, 277 s): D* = m/||W||_F² ≈ 0.43 / 0.29 / 0.21 / 0.155
+     at the four S values; plateau ratios 1.000 / 1.000 / 0.999 / 0.998.
+   - Timing smoke on 1 setting-D instance (`results/phase5/20261024-154755-D_strong-timing`; its arm outcomes
+     were not read):
+     - 36.6 s per instance, of which greedy rounding takes 16 s (leak) and 14 s (loss).
+     - The D-strong runner is therefore about 12 min, over the 10-min budget. The owner is away, so this is
+       logged instead of asked.
+     - Sanity: U4 is bitwise equal to the Phase 2 `apply_quant` per-column 4-bit result; U4's loss equals the
+       Phase 4 sweep's stored per-column 4-bit loss (relative difference 0.0); greedy tracking error 4e-11.
+     - The greedy accepted 1,656 (leak) and 1,434 (loss) flips over about 200 columns. Many columns reach the
+       registered cap of 5 flips per pass, so the result is a budget-limited greedy, not a converged one; this
+       is stated with the results.
+
+---
