@@ -962,3 +962,59 @@ Stop rules: if the K2 sweep's `bits8_pass` is false, or any granularity is non-m
 have 20 instances, 6 bit widths and 5 noise seeds, STOP and report with no verdict.
 
 ---
+
+## 2026-10-24 — Phase 3b RESULTS: the antipodal-class finding is confirmed on fresh models
+
+Runs:
+- K2 training: `results/rep_dims_confirm2/20261024-141902` (20 instances, seed 7, 137 s; D* 0.404–0.456,
+  plateau 1.000).
+- K2 sweep: `results/quant_sweep/20261024-142123-C_confirm2`. bits8_pass true; monotone under all three
+  granularities.
+- Analysis: `results/phase3b/20261024-142225-K2`, frozen code `f45a856`, unchanged.
+
+**H5 verdict: Supported.**
+- Primary statistic (C, S = 0.7488, per-row, 3 bits): mean Δ(damaged fraction, antipodal − other) =
+  +0.529, 95% t-interval [+0.483, +0.575]. 18 of 20 instances are valid; instances 0 and 4 have no antipodal
+  feature. t-test p = 1.4e-14 and sign-flip p = 7.6e-6.
+- E and K, post hoc: +0.448 [+0.375, +0.521] and +0.574 [+0.553, +0.594].
+
+Secondary (estimation only):
+
+| statistic (antipodal − other, per instance) | K2 mean | 95% t-interval |
+|---|---|---|
+| dR2, row 3 bits (threshold-free) | +0.039 | [+0.027, +0.051] |
+| dleak_energy, row 3 bits (threshold-free) | +0.0020 | [+0.0015, +0.0024] |
+| dfalse_act, row 3 bits | +0.228 | [+0.221, +0.236] |
+| damaged fraction, per-column 3 bits | +0.559 | [+0.501, +0.616] |
+| damaged fraction, per-tensor 3 bits | +0.282 | [+0.241, +0.323] |
+| damaged fraction, per-row 4 bits | +0.984 | [+0.975, +0.993] |
+| damaged fraction under matched noise, row 3 bits | +0.513 | [+0.486, +0.541] |
+
+Class means in K2 (antipodal vs other):
+
+| | n | D | bias | near_thr | FP false_act | R2_fp | damaged | dR2 | dfalse_act |
+|---|---|---|---|---|---|---|---|---|---|
+| antipodal | 166 | 0.500 | +0.010 | 0.65 | 0.000 | 0.85 | 1.00 | 0.102 | 0.273 |
+| other | 741 | 0.427 | −0.080 | 0.13 | 0.146 | 0.71 | 0.46 | 0.072 | 0.047 |
+
+Reading:
+- In this setting, features that sit in antipodal pairs (D ≈ 0.5) are the ones that break first under RTN.
+  At 4 bits essentially only they break. The mechanism is the one sketched post hoc in Phase 3 and
+  registered in advance as H1's threshold-density reading:
+  - They have no positive interference, so they learn a bias of about 0 and never false-activate in FP.
+  - Their inactive pre-activation sits at the 0.05 detection threshold.
+  - Any weight perturbation of the matched size, whether rounding or Gaussian, pushes it over.
+- Crowded features carry a negative bias of about −0.08 that buffers them.
+- The binary-label gap is driven mostly by the leakage condition. The threshold-free damage (dR2, leak energy)
+  is also larger for antipodal features, but by a smaller margin: 0.102 vs 0.072 in R².
+
+Limitations:
+- One setting (n = 100, m = 20) at one sparsity, the only one where antipodal pairs and denser polytopes
+  coexist.
+- The detection threshold tau = 0.05 matters for the label.
+- Per-tensor scaling shows a smaller gap (+0.28).
+
+To our knowledge, this toy-model mechanism (zero-bias antipodal features are the most quantization-fragile) has
+not been reported. That claim should be checked against the literature before the write-up.
+
+---

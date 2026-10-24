@@ -116,3 +116,24 @@ Status at 13:47:
   as a result. The Phase 3b pre-registration was committed (`326fc7c`) before any training. Seed 7 was chosen
   because seed 2 would have repeated one integer seed of E's noise control.
 - 14:18 Phase 3b code committed (`f45a856`). K2 training (20 instances) and its sweep were started.
+
+- 14:22 **Phase 3b verdict: Supported.** On 20 fresh models, antipodal-pair features are damaged far more often
+  at 3 bits: +0.53, 95% CI [+0.48, +0.58], p = 1e-14. They are 100% damaged vs 46% for the others; at 4 bits
+  the gap is +0.98. The threshold-free dR2 gap is smaller (+0.04). The same gap appears under matched noise.
+  Phone notification sent.
+
+### 阶段小结（中文，给 owner）
+
+Phase 3 用全新的确认集 K 检验了预注册的 H1–H3：
+- H1（margin 越小，泄漏增加越多）：显著，但方向相反，ρ = +0.49。方向与事先登记的"阈值密度"解读一致。
+- H2（越拥挤，损伤越大）：显著，但方向相反，ρ = +0.40。事后分析显示，这主要来自天花板效应。
+- H3（范数越大，损伤越小）：零结果。不过 Duan 的峰值激活变量方向正确，AUC 为 0.70。
+
+事后分析发现，效应来自一个离散的几何类：反极对特征（D≈0.5）。Phase 3b 在 20 个新模型上做了预注册的确认，
+结果为 Supported：3 bit 下反极对 100% 受损，其他特征为 46%。
+
+机制：反极对没有需要抑制的正向干扰，学到的 bias 约为 0，非激活时恰好停在检测阈值上。任何同等大小的扰动，
+无论是舍入还是高斯噪声，都会让它们误激活。拥挤的特征则有约 −0.08 的负 bias 作为缓冲。
+
+局限：只在 S=0.7488 一个稀疏度成立（反极对与更密的多面体在这里共存）。二值标签依赖 0.05 的检测阈值；
+与阈值无关的 dR2 差距较小（0.102 对 0.072）。
