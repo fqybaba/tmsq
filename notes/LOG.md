@@ -1120,3 +1120,111 @@ therefore 1.5× m/n rather than ≈ m/n, and that is reported next to every numb
 and gamma −1.0 (seed 111), 4 configs × 5 seeds each. `configs/setting_d.yaml` now lists gammas [7.0, −1.0].
 
 ---
+
+## 2026-10-24 — Phase 4 pre-registration: H4 head vs tail (written BEFORE the quantization sweep)
+
+Status: written after setting-D FP training and an FP-only evaluation (eligibility, geometry). No setting-D
+quantization outcome exists, apart from an 8-bit timing smoke of one instance whose numbers were not read.
+Decided by Claude Code under the owner's standing instruction; the owner can veto.
+
+Models (FP facts):
+- WEAK: gamma = 7, `results/setting_d/20261024-144457-g+7`, phi_half 0.107–0.197.
+- STRONG: gamma = −1, `results/setting_d/20261024-145113-g-1`, phi_half 1.00 / 0.62 / 1.00 / 0.99 for (alpha, k)
+  = (1, 2), (1, 5), (1.5, 2), (1.5, 5); the (1, 5) config is not strong.
+- 20 instances per regime: (alpha, k) ∈ {1.0, 1.5} × {2, 5}, 5 seeds each.
+
+Sweep: `configs/quant_sweep_d.yaml`, settings D_weak and D_strong; RTN plus 5 noise seeds × 3 granularities
+× 6 bit widths; no ablations. Each regime takes about 12–13 min, over the ~10 min budget. The owner is away,
+so this is logged here instead of asked.
+
+FP-only facts that shape the plan (mean within-instance Spearman over eligible features):
+- STRONG: 97–200 eligible features per instance. ρ(p, near_thr) = +0.94, ρ(p, bias) = +0.86,
+  ρ(p, R2_fp) = +0.96, ρ(p, D) = −0.16. Head (top 10% of eligible): bias −0.13, near_thr 0.13. Tail (bottom
+  50%): bias −0.55, near_thr 0.004.
+- WEAK: 14–26 eligible features per instance, 90% of them with frequency rank < 20, so the "tail" of the
+  eligible set is mid-frequency, not the true tail (selection effect, design note 8c). ρ(p, D) = +0.89,
+  ρ(p, bias) = +0.94, ρ(p, norm) = +0.88, ρ(p, near_thr) = +0.50. Head: bias +0.20, near_thr 0.20. Tail:
+  bias +0.01, near_thr 0.81.
+- Frequency and geometry are confounded by construction, and in the strong regime frequency and threshold
+  proximity are nearly collinear (0.94). A frequency effect is therefore reported as "frequency, or the
+  geometry it determines here", never as frequency per se.
+
+Primary test H4 (per regime; exploratory and two-sided, per CLAUDE.md):
+- Cell: per-row, 3 bits, RTN, eligible features (norm > 0.5 and R2_fp ≥ 0.5). Same cell definition as
+  Phase 3's primary.
+- Statistic: within each instance, the Spearman ρ between frequency p_i and relative damage
+  rel_damage_i = dR2_i / R2_fp_i (threshold-free). An instance is valid iff it has ≥ 10 eligible features and
+  both variables take ≥ 5 distinct values. Summary: the mean of the valid ρ with a 95% t-interval. Two-sided
+  one-sample t-test; Holm over the two regimes. A regime is summarised only if ≥ 16 of 20 instances are valid.
+- Categories (the code is `tmsq.phase4.decide`):
+  - "head loses a larger relative fraction": Holm p < 0.05 and mean ρ > 0.
+  - "tail loses a larger relative fraction": Holm p < 0.05 and mean ρ < 0.
+  - Either category is tagged "[small]" if |mean ρ| < 0.2.
+  - "No detectable frequency effect": Holm p ≥ 0.05.
+  - "Not testable (outcome dominated by the perturbation draw)": Holm p ≥ 0.05 and ICC_noise(rel_damage) <
+    0.10.
+  - "Not testable (too few valid instances)".
+
+Out-of-sample test of the Phase 3 mechanism (registered now): Phase 3/3b found that features whose inactive
+pre-activation sits near the threshold (high near_thr, bias ≈ 0) are the fragile ones. The FP facts above
+then PREDICT the signs:
+- STRONG: mean ρ > 0. The head is near the threshold; the tail sits far below it with bias −0.55.
+- WEAK: mean ρ < 0. The tail of the eligible set is near the threshold; the head carries bias +0.20.
+- The mechanism is "confirmed out of sample" iff both regimes reach Holm p < 0.05 with the predicted signs;
+  "partly" iff exactly one does; otherwise "not confirmed". The primary H4 categories above do not depend on
+  this prediction.
+
+Secondary (estimation, BH within one family; none changes a category):
+- Spearman of p with dLoss (absolute damage, mechanically ∝ p) and with dR2, at bits {3, 4, 5} × the three
+  granularities.
+- Partial ρ(p, rel_damage | D) and (… | bias).
+- ρ of D, bias and near_thr with rel_damage.
+- The noise control: single-draw ρ averaged over the 5 seeds.
+- Head − tail per-instance differences (head = top 10%, tail = bottom 50% of eligible) of rel_damage and dLoss,
+  with t-intervals.
+- An FP geometry table per bucket.
+- phi_half and the eligible fraction are reported next to every number.
+
+Amendments after the advisor review of this draft (before committing; still before any outcome):
+- Mechanical tilts of the two outcomes, in opposite directions:
+  - dLoss tilts toward the head, because it is ∝ p.
+  - rel_damage tilts toward the TAIL. With Var(x_i) ≈ p_i/3 and MSE_i = p_i·cond_mse_i + (1−p_i)·leak_i, a
+    leak-energy change enters dR2 as about 3·Δleak/p_i. So a given leakage change is amplified about 19× for
+    a weak-regime tail feature (p ≈ 0.035) relative to its head (p ≈ 0.67).
+  - Consequence for the registered mechanism test: in the WEAK regime the Phase 3 prediction (ρ < 0) points
+    the same way as the tilt, so a negative ρ there is overdetermined and not a clean test. In the STRONG
+    regime the prediction (ρ > 0) runs AGAINST the tilt, so that half is the discriminating one. The
+    write-up says this next to the mechanism result.
+  - Wu et al.'s "relative retention" is accuracy-based and has no such normalization.
+- Added secondaries:
+  - ρ(p, dcond_mse): active-stratum error, not weighted by p.
+  - The per-feature split of dR2 into its active term p·dcond_mse/Var and inactive term
+    (1−p)·dleak_energy/Var, each correlated with p.
+  - Partial ρ(p, rel_damage | near_thr).
+- Strong-regime sensitivity: both summaries of the strong primary are repeated without the instances with
+  phi_half < 0.9; on the FP facts these are the 5 instances of (alpha 1.0, k 5). The cell is summarised if
+  ≥ 12 of the 15 are valid. If the two disagree, the primary decides and the sensitivity is reported beside it.
+- 8-bit contingency: if a regime's bits8_pass is false, recompute the 8-bit median |dR2| over eligible
+  features with p ≥ 0.05. If that is < 0.01, the regime is NOT stopped (the failure is the 1/p effect on rare
+  features) and this is reported.
+- In the weak regime the head bucket holds about 2 eligible features per instance. The head-minus-tail
+  interval is a 2-feature comparison and is labelled as such.
+- Implementation note: `sign_flip_p` (in `src/tmsq/phase3.py`) was rewritten as an exact meet-in-the-middle
+  enumeration. n = 20 now takes 9 ms instead of about 1 s. It gives identical p-values on random inputs
+  (max |diff| 0) and reproduces every stored Phase 3 E/K and Phase 3b sign-flip p exactly. This is a
+  performance change to frozen code with verified-identical output.
+- An end-to-end smoke test on synthetic sweep directories (`tests/test_phase4_e2e.py`) runs the frozen Phase 4
+  entry point completely before any real input. 246 tests pass.
+
+Stop rules: if a regime's `bits8_pass` is false or a granularity is non-monotone, that regime is STOP and
+descriptive only. An incomplete sweep (20 instances, 6 bit widths, 5 noise seeds) aborts the analysis.
+The analysis code (`src/tmsq/phase4.py`, `src/tmsq/experiments/phase4.py`) is committed before the sweep and
+is not changed after the sweep's features are read. Any later change is reported with results before and
+after it.
+
+Comparison with the literature (for the write-up): Wu et al. find that head knowledge loses a larger relative
+fraction (positive ρ here); Chang et al. find "long-tail" examples less affected (also positive ρ, with the
+caveats in CLAUDE.md). The toy model can at most show which regime, or which geometry, reproduces which
+pattern.
+
+---

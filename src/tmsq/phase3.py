@@ -207,15 +207,26 @@ def instance_rhos(
     return rhos, invalid, dropped
 
 
+def _signed_sums(v: np.ndarray) -> np.ndarray:
+    """All 2^len(v) values of sum(s_i v_i), s_i in {+1, -1}, in itertools.product((1, -1)) order."""
+    signs = np.array(list(itertools.product((1.0, -1.0), repeat=len(v))))
+    return signs @ v
+
+
 def sign_flip_p(v: np.ndarray) -> float:
-    """Exact two-sided sign-flip permutation p-value of the mean (all 2^n sign patterns)."""
+    """Exact two-sided sign-flip permutation p-value of the mean (all 2^n sign patterns).
+
+    Meet-in-the-middle: the 2^n signed sums are the outer sum of the two halves' signed sums, so n = 20
+    needs two 2^10 enumerations instead of a 2^20 x 20 sign matrix. Still exact; identical to the brute force.
+    """
     v = np.asarray(v, dtype=float)
     n = len(v)
     if n == 0:
         return float("nan")
     obs = abs(v.mean())
-    signs = np.array(list(itertools.product((1.0, -1.0), repeat=n)))
-    means = np.abs((signs * v).mean(axis=1))
+    h = n // 2
+    total = _signed_sums(v[:h])[:, None] + _signed_sums(v[h:])[None, :] if h else _signed_sums(v)[None, :]
+    means = np.abs(total / n)
     return float(np.mean(means >= obs - 1e-12))
 
 
