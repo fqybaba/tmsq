@@ -1107,3 +1107,16 @@ FP-only sweep (20k steps, one seed per (alpha, k); `results/setting_d/20261024-1
   their decay is about n times stronger relative to the loss gradient.
 
 ---
+
+## 2026-10-24 — Phase 4 weak-gamma selection (applying the deviation rule)
+
+Refinement sweep: `results/setting_d/20261024-143917-gsweep-regime-refine`, FP only. Mean phi_half over the
+four configs, with the minimum in brackets: gamma 3: 0.304 (0.240); 4: 0.241 (0.190); 5: 0.199 (0.180);
+6: 0.191 (0.170); 7: 0.156 (0.115); 9: 0.003 (0.000, fails the ≥ 0.05 floor).
+
+**WEAK gamma = 7**, the closest to 0.10 among the gammas that pass the floor; 23–35 represented features per
+config. The transition from gamma 7 (about 0.16) to gamma 9 (collapse) is steep. Our "weak" regime is
+therefore 1.5× m/n rather than ≈ m/n, and that is reported next to every number. Main runs: gamma 7 (seed 11)
+and gamma −1.0 (seed 111), 4 configs × 5 seeds each. `configs/setting_d.yaml` now lists gammas [7.0, −1.0].
+
+---
