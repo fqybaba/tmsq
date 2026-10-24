@@ -1,0 +1,24 @@
+# Setting C, CONFIRMATION set for Phase 3 (pre-registered 2026-10-24, see notes/LOG.md).
+# Identical to configs/rep_dims.yaml except: fresh seed (1 instead of 0), 10 seeds instead of 5, and only the
+# four sparsity values used by Phase 3, taken from the same 16-point grid by index so the densities are
+# bitwise identical to the exploration set: index 3 -> S = 0.7488, 4 -> 0.8415, 5 -> 0.9000, 7 -> 0.9602.
+experiment: rep_dims_confirm
+figure_prefix: rep_dims_confirm
+n_features: 100
+n_hidden: 20
+importance_r: 1.0
+density_grid: {start: 1.0, stop: 0.001, num: 16, keep: [3, 4, 5, 7]}
+n_seeds: 10
+seed: 1
+init_std: null
+train:
+  steps: 15000
+  batch: 1024
+  lr: 0.001
+  weight_decay: 0.01
+  decay_bias: true
+  lr_schedule: constant
+  snapshot_half: true
+acceptance:
+  sticky_tol: 0.05
+  sticky_min_seeds: 3

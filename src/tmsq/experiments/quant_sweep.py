@@ -35,7 +35,7 @@ from .common import (
 def parse() -> argparse.Namespace:
     ap = argparse.ArgumentParser(description="Phase 2 quantization sweep")
     ap.add_argument("--config", type=Path, required=True)
-    ap.add_argument("--setting", type=str, required=True, choices=["A", "B", "C"])
+    ap.add_argument("--setting", type=str, required=True, help="a key of `settings` in the config (A, B, C, C_confirm)")
     ap.add_argument("--bits", type=str, default=None, help="comma-separated override, e.g. 8,4 (smoke)")
     ap.add_argument("--noise-seeds", type=int, default=None, help="override (smoke)")
     ap.add_argument("--max-instances", type=int, default=None, help="override (smoke)")
@@ -80,6 +80,8 @@ def main() -> None:
     cfg = load_config(args.config)
     set_seed(0)
     apply_runtime(cfg)
+    if args.setting not in cfg["settings"]:
+        raise SystemExit(f"--setting {args.setting!r} not in config settings {sorted(cfg['settings'])}")
     s_cfg = cfg["settings"][args.setting]
     src_run = PROJECT_ROOT / s_cfg["run"]
     final = load_weights(src_run / "final.pt")

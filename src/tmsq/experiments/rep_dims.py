@@ -55,6 +55,8 @@ def main() -> None:
     apply_runtime(cfg)
     g = cfg["density_grid"]
     dens_grid = log_density_grid(g["start"], g["stop"], g["num"])
+    if g.get("keep") is not None:  # subset of grid indices, bitwise identical to the full grid's values
+        dens_grid = dens_grid[np.asarray(g["keep"], dtype=int)]
     density, sweep_idx, seed_idx = expand_sweep(dens_grid, cfg["n_seeds"])
     model, sampler = build_model_and_sampler(cfg, density)
     importance = importance_curve(cfg["n_features"], cfg["importance_r"])

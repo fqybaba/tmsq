@@ -4,6 +4,8 @@ settings:
   A: {run: results/rep_5in2/20261024-062922, S_values: null}      # null = every S in the run
   B: {run: results/rep_20in5/20261024-063030, S_values: null}
   C: {run: results/rep_dims/20261024-063236, S_values: [0.0, 0.6019, 0.7488, 0.8415, 0.9, 0.9602, 0.9749, 0.99]}
+  # Phase 3 confirmation set (fresh seed 1, 10 instances per S); sealed until the pre-registration is approved.
+  C_confirm: {run: results/rep_dims_confirm/20261024-130737, S_values: null}
 bits: [8, 6, 5, 4, 3, 2]
 granularities: [tensor, column, row]
 noise_seeds: 5

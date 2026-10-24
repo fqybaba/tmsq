@@ -5,8 +5,8 @@ How to use:
 1. Put `CLAUDE.md` in the project root (Claude Code reads it automatically).
 2. Paste **one phase at a time**. Do not paste the whole file at once.
 3. Before moving on, check that phase's acceptance criteria yourself.
-4. CLAUDE.md governs: its canonical definitions and its "Design notes" apply to every phase. Where a prompt
-   below is less specific than CLAUDE.md, CLAUDE.md wins.
+4. CLAUDE.md governs: its canonical definitions and the design notes in `notes/DESIGN_NOTES.md` apply to every
+   phase. Where a prompt below is less specific than CLAUDE.md or the design notes, they win.
 
 ---
 
@@ -119,7 +119,7 @@ Then:
    p_i is constant within a model instance in settings A–C, so it is not a predictor here; it belongs to
    Phase 4.
 2. Univariate AUC for predicting "damaged" (the label fixed in Step 0), over eligible features and only in
-   the cells that pass the rule fixed in Step 0 (CLAUDE.md design note 7).
+   the cells that pass the rule fixed in Step 0 (design note 7, notes/DESIGN_NOTES.md).
 3. Standardized logistic regression with GroupKFold by model instance. Compare predictor sets:
    {peak_out} vs {margin} vs {D_i} vs {all}. Report cross-validated AUC with bootstrap CIs computed as
    specified in CLAUDE.md (Statistics paragraph and design note 7).
@@ -169,7 +169,7 @@ Plan first, wait for approval.
 Compare at the same AVERAGE bits per weight (e.g. 4.0, as a mix of 3-bit and 5-bit columns):
 (a) uniform 4-bit RTN, per-column;
 (b) margin-based allocation: 5 bits to the half of the columns with the smallest margin (restricted to
-    represented columns, CLAUDE.md design note 3), 3 bits to the rest;
+    represented columns, design note 3, notes/DESIGN_NOTES.md), 3 bits to the rest;
 (c) norm-based allocation (magnitude heuristic baseline);
 (d) random allocation (baseline);
 (e) margin-preserving rounding: per column, greedily choose round-up vs round-down to minimize leakage on a
