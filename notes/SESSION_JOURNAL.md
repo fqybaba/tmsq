@@ -241,3 +241,36 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - leak_round 的取舍预测得到确认：漏激活确实减少了，但活跃时的重构误差增加得更多，S 越大越糟。
 
 下一步：Phase 6 写作。动笔前建议你先看两处：Phase 4 头尾结论的表述方式，和 Phase 5 setting D 的频率混杂。
+
+## 2026-10-24 16:05–16:30 (owner away): Phase 5 closed, Phase 6 drafted, autonomous run stopped
+
+- 16:01 Frozen Phase 5 analysis run, then post-hoc checks for the setting-D frequency confound (advisor
+  review). Results committed (`38ec67b`); phone notification sent.
+- The Phase 4 post-hoc diagnostics were saved as a script; it reproduces the archived output exactly.
+- Phase 6 draft: `writeup/post.md`, `README.md` and the `phase3b_antipodal` figure. Advisor review
+  corrections applied: phi_half and eligible fractions in Section 6, the scope of "every setting", post-hoc
+  labelling in the TL;DR, and the literature-check output archived in the repo.
+- The optional real-model bridge was NOT started, because it needs the owner's approval to download a model.
+- Stopping here. Everything remaining is the owner's decision: framing, citations, the bridge, publishing.
+  No push, no deletion, no force operation was done in this session.
+
+### 阶段小结（中文，给 owner）：Phase 6（写作草稿）
+
+- 博客草稿在 `writeup/post.md`（LessWrong 风格）。每个数字都在文末的来源表里对应到 `results/` 目录，新颖性的
+  说法都带 “to our knowledge”。advisor 审阅后做了四处修正：
+  - 头尾部分补上了 phi_half 和尾部合格比例。
+  - “所有设置”的说法限定为 A–C。
+  - TL;DR 里的事后结论标上了 post hoc。
+  - 文献检查的原始输出存进了 `notes/litcheck_2026-10-24.md`。
+- README 已重写：项目状态、结果摘要、每张图一条复现命令。
+- 新增一张核心图 `figures/phase3b_antipodal.png`：左边是 bias 和 D 的散点图，右边是每个模型里 antipodal
+  特征和其他特征的损坏比例。
+- **没做的**：真实模型桥接（Pythia-70M + SAE）。它要下载模型，按 PROMPTS.md 必须先问你。
+- **需要你决定的**（草稿末尾也列了）：
+  1. Phase 4 的表述方式。
+  2. Phase 5 setting D 的结果按“频率分配”来写，你是否同意。
+  3. 几条引文要人工核对（Chen 2023、Stevinson 2025、Tlaie 2024，以及 Duan 论文的标题：v1 和当前版本标题
+     不同）。
+  4. 新颖性那句话。
+  5. 是否先做真实模型桥接再发布。
+  6. 文章的口吻。

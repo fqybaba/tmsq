@@ -23,8 +23,8 @@
   the cause is perturbation sensitivity, not something special about rounding.
 - **Head vs tail depends on what you divide by.** Under a power-law feature frequency, the rare (tail)
   features lose a larger *relative* fraction of their R², but that comes entirely from normalization: the
-  change in R² itself does not depend on frequency. Absolute damage and new false activations both sit in
-  the frequent (head) features.
+  change in R² itself does not depend on frequency. Absolute damage sits in the frequent (head) features,
+  and so do new false activations (post hoc).
 - **Using geometry to allocate bits does not beat uniform 4-bit RTN.** At a fixed 4.0 bits per weight,
   mixing 3- and 5-bit columns costs about 2× the loss increase, and no geometry-based ranking recovers that.
   A generic loss-aware rounding removes about half of the quantization loss in one setting, but it does not
@@ -53,8 +53,9 @@ trains in seconds. Our question:
 **Model.** Features x ∈ R^n are independent: x_i = 0 with probability S, otherwise Uniform[0, 1]. The model
 is h = Wx and x̂ = ReLU(Wᵀh + b), with W ∈ R^{m×n} tied as encoder and decoder. The loss is the
 importance-weighted MSE. Training follows the official notebook's setup (AdamW with weight decay 0.01,
-lr 1e-3, batch 1024); the paper itself states no hyperparameters. Every configuration is trained as many
-instances in parallel, and we report all seeds.
+lr 1e-3, batch 1024); the paper itself states no hyperparameters. Setting D instead uses Liu, Liu & Gore's
+(2025) recipe: their weight-decay knob γ on W only, lr 1e-2 with 2,000 warm-up steps and cosine decay, and
+20k steps. Every configuration is trained as many instances in parallel, and we report all seeds.
 
 | Setting | n | m | Importance | Sparsity | Used for |
 |---|---|---|---|---|---|
@@ -118,8 +119,9 @@ seed 7). Post-hoc analyses are labelled as post hoc throughout. Where we made a 
 
 ## 4. The quantization sweep
 
-- **8 bits is lossless in practice**: the median |dR2| is ≤ 4e-4 in every setting.
-- **Damage rises monotonically as bits fall**, for every setting and granularity.
+- **8 bits is lossless in practice**: the median |dR2| is ≤ 4e-4 in settings A–C.
+- **Damage rises monotonically as bits fall**, for every granularity in settings A–C. Setting D's weak
+  regime is the exception (Section 6).
 - **Rounding is about as damaging as matched noise in B and C.** The RTN/noise ratio of the mean loss
   increase is 0.89–1.06. In the 2-D setting A, rounding is 2–4× *less* damaging: with per-column scales,
   the dominant coordinate of a 2-vector is represented exactly.
@@ -193,6 +195,15 @@ The real-model literature disagrees on whether quantization hurts frequent or ra
 - Feature frequencies follow a power law (n = 200, m = 20), and the degree of superposition is controlled
   with Liu, Liu & Gore's (2025) weight-decay knob γ.
 - Liu et al.'s "weak" value, γ = 0.1, is not weak at our size; we had to use γ = 7.
+- The regime is verified by phi_half, the fraction of features with norm > 1/2. There are 5 models per
+  (α, k) for α ∈ {1.0, 1.5} and k = Σp ∈ {2, 5}.
+  - Strong (γ = −1): phi_half is 1.00 / 0.62 / 1.00 / 0.99 for (α, k) = (1, 2) / (1, 5) / (1.5, 2) /
+    (1.5, 5). So (1, 5) is not strongly superposed. The registered sensitivity analysis drops it.
+  - Weak (γ = 7): phi_half is 0.11–0.20.
+- Head and tail are the top 10% and bottom 50% of the *eligible* features. In the strong regime with k = 2,
+  97–98% of the true bottom-50% tail is eligible. With k = 5 only 4–6% is, so there the eligible "tail"
+  consists mostly of mid-frequency features (a selection effect). In the weak regime none of the true tail
+  is eligible.
 - **Strong regime (γ = −1).** Per-row 3-bit, within-model Spearman of frequency with relative damage
   dR2/R2_fp: **ρ = −0.21 [−0.27, −0.15]**, Holm p = 1e-6. The pre-registered category is "the tail loses a
   larger relative fraction". The effect is borderline: |ρ| only just clears our 0.2 size threshold, and the
@@ -331,7 +342,7 @@ decision and deviation is logged in `notes/LOG.md` and `notes/SESSION_JOURNAL.md
 | 6 | weak-regime diagnosis; raw leakage (post hoc) | `results/phase4_posthoc/diagnostics_20261024.txt` (script `notes/posthoc/phase4_diagnostics.py`) |
 | 7 | Phase 5 families and secondaries | `results/phase5/20261024-160152-analysis` |
 | 7 | setting-D frequency confound (post hoc) | `results/phase5_posthoc/d_frequency_confound_20261024.txt` (script `notes/posthoc/phase5_d_frequency_confound.py`) |
-| 9 | literature check | workflow run on 2026-10-24, summarized in `notes/LOG.md` (Phase 4 results entry) |
+| 9 | literature check | `notes/litcheck_2026-10-24.md` (archived workflow output: synthesis, 30 candidates with URLs and the agents' quotes) |
 
 ## Review points for the owner (delete before publishing)
 
@@ -339,12 +350,13 @@ decision and deviation is logged in `notes/LOG.md` and `notes/SESSION_JOURNAL.md
    borderline effect size stated clearly enough?
 2. **Phase 5, setting D** (Section 7). The threshold-density "win" is presented as frequency allocation. Do
    you agree?
-3. **Citations to check by hand.**
+3. **Citations to check by hand.** The agents' quotes and URLs are in `notes/litcheck_2026-10-24.md`.
    - The quotes from Chen et al. 2023 (Table A.1, b* values), Stevinson et al. 2025 and Tlaie 2024 (biases not
      negative until the antipodal structure is lost).
-   - Duan's title: arXiv v1 is reported as "How Quantization Changes Interpretable Features: A Sparse
-     Autoencoder Analysis of Language Models", while CLAUDE.md uses "Perplexity Can Miss SAE Feature Damage
-     Under Quantization".
+   - Duan's title: one agent read the arXiv v1 HTML as "How Quantization Changes Interpretable Features: A
+     Sparse Autoencoder Analysis of Language Models". Another read the abs page, which shows the current
+     version, as "Perplexity Can Miss SAE Feature Damage Under Quantization", the title CLAUDE.md uses. Most
+     likely the paper was retitled between versions; cite the current title.
 4. **The novelty sentence** (TL;DR and Section 9). Keep "to our knowledge", or weaken it further?
 5. **The real-model bridge** (Section 10). Run it before publishing, or publish the toy-model results first?
 6. **Tone and voice.** This draft uses "we" throughout. Adjust it to how you want to present the

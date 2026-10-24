@@ -1808,3 +1808,37 @@ blog post is drafted.
 - Both scripts are post hoc and labelled as such; neither is part of a frozen analysis.
 
 ---
+
+## 2026-10-24 — Phase 6 (draft): blog post and README, for the owner's review
+
+Done:
+- `writeup/post.md`: a LessWrong-style draft. Every number traces to a `results/` directory listed in the
+  provenance table. "To our knowledge" is used for the antipodal-fragility claim.
+  - Sections: TL;DR, motivation, setup, replication, sweep, the antipodal finding (Phase 3/3b), head vs tail
+    (Phase 4), geometry-aware allocation (Phase 5), limitations, related work, next steps.
+  - After an advisor review, four corrections went in:
+    1. Section 6 states phi_half per (alpha, k) and the eligible fraction of the true tail, as CLAUDE.md and
+       design note 8c require. It notes that setting D used Liu et al.'s schedule.
+    2. Section 4's "every setting" claims are restricted to settings A–C.
+    3. In the TL;DR, the post-hoc part of the head/tail claim is labelled.
+    4. The literature-check output is archived as `notes/litcheck_2026-10-24.md`: the synthesis plus 30
+       candidates with URLs and the agents' quotes, which are data and not yet checked by a human.
+- `README.md` rewritten: status, results summary, a table with one command per figure, layout.
+- `src/tmsq/experiments/figure_antipodal.py` produces `figures/phase3b_antipodal.*`, a write-up figure of the
+  registered Phase 3b result. It reads the K2 sweep and changes no number.
+
+Not done, on purpose:
+- The optional real-model bridge (PROMPTS.md Phase 6 step 3). It downloads a model, and PROMPTS.md says to
+  ask the owner first.
+- Nothing has been pushed or published.
+
+Review points for the owner, also at the end of the draft:
+1. The Phase 4 framing ("it depends on what you divide by"; the effect is borderline).
+2. The Phase 5 setting-D result, presented as frequency allocation.
+3. Citations to check by hand: Chen et al. 2023, Stevinson et al. 2025, Tlaie 2024, and Duan's current title
+   (the arXiv v1 HTML and the abs page show different titles).
+4. The novelty sentence.
+5. Whether to run the bridge before publishing.
+6. Voice and tone.
+
+---
