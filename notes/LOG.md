@@ -1897,3 +1897,149 @@ Changes:
 Next: the bridge plan, for the owner's approval. No download before approval.
 
 ---
+
+## 2026-10-24 — Phase 6b (real-model bridge): PLAN, awaiting the owner's approval
+
+Goal (PROMPTS.md Phase 6 step 3): use Pythia-70M-deduped with a pretrained SAE (SAELens), quantize the model
+with RTN, and test whether a margin analog of each SAE feature predicts its survival beyond peak activation,
+mirroring Duan (2026). The owner decided the bridge runs before publication. Nothing has been downloaded or
+installed. The facts below come from a research workflow (`bridge-research`, 5 agents, with a cross-checker
+that re-read the critical sources).
+
+### Verified facts the plan rests on
+
+- SAE: SAELens release `pythia-70m-deduped-res-sm`, sae_id `blocks.4.hook_resid_post`. It points to the HF
+  repo `ctigges/pythia-70m-deduped__res-sm_processed`, folder `4-res-sm`. This is Duan's exact choice; his
+  script uses the same release and id.
+  - cfg: standard ReLU architecture; d_in 512, d_sae 32768; apply_b_dec_to_input true; normalize_activations
+    none; context_size 128; prepend_bos false. The training data was the Pile.
+  - Encode: f = ReLU((x - b_dec) W_enc + b_enc).
+- SAELens 6.54.12 (2026-10-20, Python >= 3.10). `SAE.from_pretrained(release, sae_id, device, dtype)` returns
+  ONE SAE object. The tuple form is `from_pretrained_with_cfg_and_sparsity`; the docs misname it
+  `load_from_pretrained_with_cfg_and_sparsity`. SAELens pins transformer-lens < 4.0, so 3.9.0 would install,
+  and `import sae_lens` requires transformer-lens.
+- Duan's method, from the paper v2 plus his released code (anonymized mirror, Appendix M):
+  - Survival c_j is the Pearson correlation over ALL 199,680 token positions, zeros included, with float64
+    sums. A feature is active if its FP firing rate over all tokens is > 0.001. Survived means c_j > 0.9;
+    damaged means c_j < 0.5.
+  - Data: WikiText-2-raw TRAIN split. Non-empty lines are joined with "\n\n" and tokenized without special
+    tokens. The first 390 x 512 tokens are used, with no BOS and position 0 kept.
+  - Quantized: the transformer-block linear weights only (Q, K, V, O, MLP in/out). Embeddings, unembedding,
+    LayerNorm, biases and the SAE are untouched. Bit widths 8 to 4.
+  - His code runs TransformerLens `HookedTransformer.from_pretrained` with the defaults: fold_ln,
+    center_writing_weights, center_unembed and fold_value_biases, in float32. So:
+    - the quantized weights are LN-folded and centered;
+    - the SAE sees per-token mean-centered residuals;
+    - the scale is taken over all dimensions but the last. For W_Q/W_K/W_V ([8, 512, 64]) that means 64 scales
+      shared across heads, which is NOT the per-output-channel method the paper describes.
+  - His "FP16" baseline is nominal: fp16-stored weights computed in fp32.
+  - Pythia-70M results in Table 1, as survived% and perplexity change. INT8 98.3 / +1.0%. INT7 86.3 / +2.3%.
+    INT6 62.4 / +14.7%. INT5 38.0 / +71%. INT4 14.5 / +371%. FP perplexity is 67.84, and there are 5,688 active
+    features. Table H.1 says 5,686 (two runs).
+  - The four predictors are rarity, log mean (over all tokens), log peak (max over tokens) and log
+    concentration. INT6 logistic CV AUC is 0.924. **No univariate AUC is reported for peak**: "strongest
+    marginal predictor" rests on Figure 3's quartiles.
+  - No geometry, bias, pre-activation or overlap analysis was tried.
+- HF transformers 5.20.2: `hidden_states[5]` (or a forward hook on `gpt_neox.layers[4]`) is the raw block-4
+  output. `from_pretrained` defaults to fp16 for Pythia, so pass `dtype=torch.float32`.
+- The Sparse Feature Circuits paper (Marks et al.) reports for this layer-4 residual SAE: 88% variance
+  explained and L0 61, on Pile at context 128. Whether the SAE expects raw or centered residuals is NOT stated
+  anywhere; that is why there is a gate below.
+- Measured on this machine (synthetic GEMM): about 1 TFLOP/s. The estimate is 1–2 min per model variant, with
+  streamed sufficient statistics: dense activations would need 26 GB.
+
+### Decisions, with recommendations (the owner chooses; the pre-registration fixes them before any quantized run)
+
+D1. Two arms.
+- **Code arm (primary, recommended):** Duan's released pipeline: TL default processing, scales over all dims
+  but the last, centered residual into the SAE. It is the only arm that can be checked against Duan's
+  Table 1. The shared Q/K/V scales are logged as an inherited deviation, not fixed.
+- **Stated arm (secondary):** HF raw weights with true per-row scales (one per output row of
+  query_key_value, dense, dense_h_to_4h and dense_4h_to_h), and the raw block-4 output, or the convention
+  chosen by gate G1, into the SAE.
+
+D2. Gates, with their rules registered before the numbers are seen.
+- G1, FP only (decides only the stated arm's SAE input; the code arm feeds centered residuals as Duan did):
+  - Compute the SAE's FVU and L0 on raw vs per-token-centered layer-4 residuals, positions < 128.
+  - Pick the convention with the lower FVU. If the two are within 0.01 FVU, use raw.
+- G2, replication gate: the first quantized run, code arm, aggregates only.
+  - Tolerances: active features 5,688 ± 30; INT6 survived 62.4 ± 3.0 points; FP perplexity 67.84 ± 1.0.
+  - Fail means STOP and report. No tuning.
+  - The per-feature file is not opened before the pre-registration hash is in this LOG.
+
+D3. Predictors, all computed on the FP model only. Notation: e_j = W_enc[:, j], d_k = W_dec[k], the
+effective bias beta_j = b_enc_j - e_j . b_dec, and mu_j+ = the mean of f_j over the tokens where it is active.
+- **M (PROMPTS's margin analog, from encoder bias and decoder overlaps):**
+  `margin_j = ( -beta_j - max(0, max_{k != j, k active} (e_j . d_k) * mu_k+) ) / mu_j+`
+  This mirrors the toy-model margin `-b_i - max(0, max_j W_i.W_j)` with x_j <= 1: interference from feature
+  k at its typical active size, in units of feature j's own typical response. It needs all 32768^2 overlaps,
+  computed in chunks (about 1 TFLOP).
+- **T (the confirmed toy-model mechanism, threshold density):**
+  `near_thr_j = P_t( -0.05 * mu_j+ < z_j <= 0 )`, where z_j is the pre-activation. This is the fraction of
+  tokens where feature j is off but within 5% of its typical activation of switching on, the analog of the
+  toy model's 0.05.
+- Secondary: bias only, `-beta_j / mu_j+` (the analog of "antipodal features have b ≈ 0"); the
+  density-weighted interference `sum_k p_k (e_j . d_k)+ mu_k+`; Duan's four predictors.
+- Peak's univariate AUC is computed here as the baseline, since Duan reports none.
+
+D4. Outcomes: two families, Holm over all four tests. This applies the lesson of design note 12 and the
+Phase 4 mistake: test a leakage mechanism on leakage.
+- **Family A, survival (comparable to Duan):** INT6, all-token Pearson c_j > 0.9, active features.
+  - Statistic: dAUC = repeated (20x) 5-fold stratified CV AUC of the logistic model (log peak + predictor)
+    minus that of (log peak).
+  - Minimum effect: dAUC >= 0.02.
+  - p-value: permutation of the predictor within log-peak deciles, 1,000 permutations.
+- **Family B, leakage:** INT6, new false activations
+  `dfalse_j = P_t( f_j^Q > 0.05 * mu_j+ | f_j^FP = 0 )`.
+  - Statistic: partial Spearman of the predictor with dfalse_j given log peak.
+  - Same permutation scheme. Minimum |rho| 0.1.
+- Directions:
+  - T is predicted: more near-threshold mass gives lower survival and more leakage.
+  - M is two-sided. In the toy model the margin hypothesis came out with the opposite sign, so no direction is
+    claimed.
+- Secondary outcomes: active-stratum Pearson (never mixed with Family A); other bit widths; the stated arm;
+  disjoint token halves (stability, not independent evidence); positions < 128 only (the SAE was trained at
+  context 128, Duan uses 512).
+- Honest limit: this is one model, and its roughly 5,700 features are not independent. There are no
+  instances to cluster on, and CLAUDE.md forbids bootstrapping features. Permutation within peak strata is the
+  substitute, and feature-level p-values here are weaker evidence than the toy-model ones.
+
+D5. Runs, each under 10 min with an ETA printed. The FP pass is reused across variants. The FP pass is the
+same for every bit width within an arm, so it runs once per arm; the 1–2 min per variant is from a synthetic
+benchmark, and real overhead may be 2–3x higher.
+- Run 1: FP passes (G1, predictors); code arm INT6 (G2).
+- Run 2: code arm INT8/7/5/4.
+- Run 3: stated arm FP + INT8 to INT4.
+- Run 4: matched-noise control at INT6, 1 seed, code arm (each output row's rounding error replaced by a
+  Gaussian direction of the same norm).
+
+D6. Install route.
+- **Recommended:** a separate `.venv-bridge`, gitignored, with sae-lens==6.54.12 (which pulls
+  transformer-lens 3.9.0 and transformers >= 5.9) and torch 2.13.0 CPU. The main venv and its 261 tests stay
+  untouched. Cost: about 400–500 MB of packages, including torch again.
+- **Alternative:** the main venv, with a constraints file pinning torch and numpy, after a
+  `pip install --dry-run`. This would upgrade huggingface_hub and tokenizers and add wandb, plotly, nltk and
+  others.
+
+D7. Downloads, about 310 MB of data. The HF cache stays outside OneDrive (default ~/.cache/huggingface).
+- EleutherAI/pythia-70m-deduped: model.safetensors (166 MB) plus tokenizer and config (2.1 MB). The duplicate
+  pytorch_model.bin is skipped.
+- ctigges/pythia-70m-deduped__res-sm_processed, folder 4-res-sm only (134.5 MB).
+- Salesforce/wikitext wikitext-2-raw-v1, train parquet only (6.4 MB). It is read with pandas, without
+  `datasets`.
+
+Deviations from Duan, logged up front:
+- FP32 compute rather than a nominal "FP16".
+- Library versions: his are unpinned, ours are pinned.
+- The paper's 5,686 vs 5,688 inconsistency is noted.
+- Run 4, the noise control, is ours.
+
+CLAUDE.md correction in this commit, with the evidence: Duan's grid is nominally [-2^(b-1), 2^(b-1)-1].
+With s = max|W|/qmax we have |W/s| <= qmax, so the lower clip never binds in fp32, and the effective grid is
+the same symmetric 2^b - 1 levels as ours. The old CLAUDE.md text said "2^b values, unlike our symmetric
+grid".
+
+Next: the owner approves (or edits) D1–D7. After that: install, download, FP-only work and gate G1, then the
+pre-registration is committed. Only then is the first quantized run made.
+
+---

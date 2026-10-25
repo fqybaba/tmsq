@@ -291,3 +291,13 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - In parallel, a research workflow is collecting the facts the bridge plan needs: the SAELens API, the SAE
   release, the residual-stream processing, Duan's exact method and the install footprint. Nothing is
   downloaded or installed before the owner approves the plan.
+
+## 2026-10-24 (owner back): bridge plan written, waiting for approval
+
+- The research workflow `bridge-research` (5 agents, about 30 min) finished. Its key finding: "mirror Duan" is
+  two different pipelines. The paper describes per-output-channel RTN on raw weights, while the released code
+  quantizes TransformerLens-processed weights, with Q/K/V scales shared across heads and centered residuals
+  fed to the SAE. Only the code version can be checked against his Table 1.
+- The plan (decisions D1–D7) is in `notes/LOG.md`. CLAUDE.md's statement about Duan's quantization grid was
+  corrected: the effective grid is the same symmetric 2^b-1 levels as ours.
+- Nothing has been installed or downloaded. Waiting for the owner's reply.

@@ -21,7 +21,10 @@ Rigor and honesty matter more than speed or impressive-looking plots.
 
 - **Duan (2026), arXiv 2606.03002, "Perplexity Can Miss SAE Feature Damage Under Quantization"** — In Pythia-70M
   and Gemma-2-2B, SAE features degrade under per-output-channel RTN (INT8 → INT4; signed range
-  `[-2^(b-1), 2^(b-1)-1]`, i.e. 2^b values, unlike our symmetric grid) while perplexity can stay flat or even
+  `[-2^(b-1), 2^(b-1)-1]` nominally; but the scale is `s = max|W| / qmax` with `qmax = 2^(b-1)-1`, so
+  `|W/s| <= qmax` and the lower clip never binds in fp32: the effective grid is our symmetric `2^b - 1`-level
+  grid [corrected 2026-10-24]; his released code shares one scale per d_head index across heads for
+  W_Q/W_K/W_V in TransformerLens layout, see `notes/LOG.md`, bridge plan) while perplexity can stay flat or even
   improve. Survival = Pearson correlation between FP16 and quantized SAE activations over identical tokens,
   survived if `c_j > 0.9`, damaged if `c_j < 0.5` (the provenance of our 0.9 threshold). Survival is predictable
   from full-precision statistics (cross-validated AUC 0.92–0.97, peak activation = strongest *marginal*
