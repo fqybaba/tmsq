@@ -2361,3 +2361,58 @@ Bridge conclusion for the write-up:
 - The registered "margin adds beyond peak" is, post hoc, Duan's statistics in another form.
 
 ---
+
+## 2026-10-25 — Phase 6b: EXPLORATORY ablation of Duan's code vs his stated method (not pre-registered)
+
+Why: the owner's review asked what drives the INT6 survival gap, code arm 62.4% vs stated arm 85.3%, before
+anything is published about it. Module `src/tmsq/experiments/bridge_ablation.py` (it reuses the frozen bridge
+code unchanged). Runs: `results/bridge_ablation/20261025-024313-r1-int6`, `-024807-c1-int6`, `-025332-c2-int6`,
+`-025755-r2-int6`. Every run passes `fp_sanity`.
+
+Five factors differ between the arms:
+- F: fold_ln;
+- C: center_writing_weights;
+- B: fold_value_biases;
+- Q: W_Q/W_K/W_V scales shared across heads (s) or per output channel (p);
+- I: SAE input centered (c) or raw (r).
+
+Each variant is INT6 in TransformerLens with explicit flags and differs from one end in exactly one factor.
+Code arm A0 = F1 C1 B1 Qs Ic; stated arm S = F0 C0 B0 Qp Ir.
+
+| Variant | F C B Q I | Survived | Damaged | Mean corr | Perplexity change |
+|---|---|---|---|---|---|
+| A0 (Duan's code) | 1 1 1 s c | 62.41% | 1.00% | 0.888 | +14.7% |
+| A0-Q | 1 1 1 **p** c | **94.30%** | 0.00% | 0.968 | +2.2% |
+| A0-F | **0** 1 1 s c | 59.86% | 3.76% | 0.868 | +22.5% |
+| A0-B | 1 1 **0** s c | 62.66% | 0.98% | 0.889 | +14.6% |
+| A0-C | 1 **0** 1 s c | 62.48% | 0.98% | 0.888 | +14.9% |
+| A0-CI | 1 **0** 1 s **r** | 62.18% | 1.05% | 0.887 | +14.9% |
+| S (stated method) | 0 0 0 p r | 85.31% | 0.02% | 0.954 | +4.8% |
+| S-Q | 0 0 0 **s** r | **59.56%** | 3.94% | 0.867 | +22.2% |
+| S-F | **1** 0 0 p r | **94.60%** | 0.00% | 0.968 | +2.0% |
+| S-B | 0 0 **1** p r | 85.22% | 0.02% | 0.954 | +4.8% |
+| S-I | 0 0 0 p **c** | 85.57% | 0.02% | 0.955 | +4.8% |
+| S-CI | 0 **1** 0 p **c** | 85.69% | 0.02% | 0.955 | +5.0% |
+
+Checks: TL S reproduces the HF stated arm R3 (85.31% vs 85.3%), and A0 reproduces R1 (62.41%).
+
+Reading:
+- **The shared Q/K/V scales explain most of the gap.** Changing only that factor moves survival from 62.4% to
+  94.3% at the code end, and from 85.3% to 59.6% at the stated end.
+- **fold_ln is second and interacts with Q.**
+  - With per-channel scales, folding the LayerNorm gains into the weights before quantizing raises survival
+    from 85.3% to 94.6%.
+  - With shared scales, folding changes it only from 59.9% to 62.4%.
+- **Weight centering, value-bias folding and the SAE input convention each move survival by ≤ 0.5 points.**
+  The input mismatch found by gate G1 (FVU 0.232 vs 0.193) barely affects survival.
+- Implication, descriptive: Duan's headline INT6 number depends mainly on one implementation choice. With
+  per-channel Q/K/V scales, 94% of features survive at INT6, not 62%.
+- The exact Table 1 match (above) shows that the released code produced the paper's numbers. The mismatch is
+  between that code and the method as described in §3.2 / Appendix L.
+
+Code version: anonymous mirror `sae-feature-survival-quantization-0141`. Its API reports
+sourceCommitDate 2026-06-08T22:05Z and anonymizedAt 2026-06-09. The README links "Current paper version" to
+arXiv 2606.03002, titled "Perplexity Can Miss SAE Feature Damage Under Quantization", which is v2 of
+4 June 2026. The script is `scripts/02_pythia_phase2b_streaming_final.py`.
+
+---
