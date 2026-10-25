@@ -274,3 +274,20 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   4. 新颖性那句话。
   5. 是否先做真实模型桥接再发布。
   6. 文章的口吻。
+
+## 2026-10-24 (owner back): review of draft v1, draft v2
+
+- Shen reviewed the draft. Their decisions are recorded in `notes/LOG.md` (Phase 6: owner's review):
+  - Phase 4 demoted to a short side section in a fixed order.
+  - Phase 5 framing agreed.
+  - "I" voice with an explicit statement that Claude was used.
+  - The bridge runs before publication.
+  - Claude chat's citation check was supplied.
+- Claude Code re-checked each citation claim on the primary pages (arXiv abs/HTML, the ICML poster page)
+  before editing. All of Claude chat's corrections held. One addition: Chen 2026's co-author "Beyer" was
+  confirmed from the arXiv page.
+- Draft v2, the README and the CLAUDE.md Duan entry were updated and committed separately from anything
+  bridge-related.
+- In parallel, a research workflow is collecting the facts the bridge plan needs: the SAELens API, the SAE
+  release, the residual-stream processing, Duan's exact method and the install footprint. Nothing is
+  downloaded or installed before the owner approves the plan.

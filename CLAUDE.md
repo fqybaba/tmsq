@@ -27,7 +27,12 @@ Rigor and honesty matter more than speed or impressive-looking plots.
   from full-precision statistics (cross-validated AUC 0.92–0.97, peak activation = strongest *marginal*
   predictor). Real models, no ground-truth features; the only mechanism offered is an untested heuristic
   ("quantization perturbations compete with each feature's activation signal"); no geometry or superposition
-  quantity is measured. → We aim to supply and test the mechanism with known geometry.
+  quantity is measured. → We aim to supply and test the mechanism with known geometry. The current version is
+  v2 (4 June 2026); v1 had a different title. v2 also reports that "non-survival rises with firing rate"
+  (§4.4, INT6) and that rarer features "are not more fragile and if anything survive better" once the other
+  statistics are controlled for (§5.4). It extends Borobia, Seguí-Mas & Tormo-Carbó (2026, arXiv 2603.25325,
+  "How Pruning Reshapes Features"), who find that rare SAE features survive pruning better. (Checked against
+  arXiv on 2026-10-24.)
 - **Tlaie (LessWrong, Aug 2024), "Toy Models of Superposition: what about BitNets?"** — trains BitLinear networks
   in TMS (n=20, m=5; quantization-aware training from scratch), compares geometry qualitatively, and the author
   warns it is "too little work to extract strong conclusions". Not PTQ, no per-feature damage.

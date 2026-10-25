@@ -1842,3 +1842,58 @@ Review points for the owner, also at the end of the draft:
 6. Voice and tone.
 
 ---
+
+## 2026-10-24 — Phase 6: owner's review of draft v1, draft v2, citations re-checked
+
+Owner's decisions (Shen, back from being away):
+1. Phase 4 framing: acceptable but not a headline. The order is: the registered result, flagged as weak and not
+   robust; then the decomposition as content; then the frequency–geometry confound. The section is cut to a
+   short side section, and the main line of the post is the Phase 3b antipodal finding.
+2. Phase 5 setting D presented as frequency allocation: agreed.
+3. Voice: first person ("I") plus an explicit statement that Claude was used. Claude Code agreed, with one
+   condition. "I" covers design, decisions and interpretation. Actions Claude Code took on its own while the
+   owner was away keep Claude Code as the explicit actor: the Phase 3 test run, the pre-registrations for
+   Phases 3b–5, the wrong-outcome Phase 4 mechanism test, and the post-hoc analyses.
+4. The real-model bridge (Pythia-70M + SAE) runs BEFORE publication. Its plan comes to the owner for approval
+   before any download (PROMPTS.md).
+5. Citations: the owner had Claude chat verify the four flagged citations. Claude Code re-checked every claim
+   against the primary pages before editing.
+   - Duan, arXiv 2606.03002. The abs page shows the title "Perplexity Can Miss SAE Feature Damage Under
+     Quantization", with v1 on 2 Jun 2026 and v2 on 4 Jun 2026.
+     - v2 §4.4: "non-survival rises with firing rate—high-firing features are more vulnerable" (INT6).
+     - v2 §5.4: "controlling for the other variables, rarer features are not more fragile and if anything
+       survive better."
+     - v2 cites Borobia et al.
+     - Setup, for the bridge: SAE pythia-70m-deduped-res-sm at blocks.4.hook_resid_post; 200k WikiText-2-raw
+       tokens; per-output-channel RTN with q in [-2^(b-1), 2^(b-1)-1]; transformer-block linear weights only.
+   - Chen, Beyer, Zhu & Chen (2026), arXiv 2609.11716: the authors are confirmed, so "Chen, Beyer et al." is
+     correct.
+   - Borobia, Seguí-Mas & Tormo-Carbó (2026), arXiv 2603.25325, "How Pruning Reshapes Features: Sparse
+     Autoencoder Analysis of Weight-Pruned Language Models": the abs page confirms that rare features survive
+     pruning better.
+   - Stevinson, Prieto, Barsbey & Birdal: the ICML 2026 poster page (icml.cc/virtual/2026/poster/62594) is
+     titled "Adversarial Vulnerability from Interference Between Features in Superposition". The arXiv
+     2510.11709 title differs. The PMLR volume and pages are not known yet and were not guessed.
+   - Chen, Lau, Mendel, Wei & Murfet (2023), arXiv 2310.06301. Table A.1 gives the 4-gon l* = 1, b* = 0; the
+     5-gon b* = -0.28230; the 6-gon b* = -0.61814. The paper works in the high-sparsity limit ("This is the
+     high sparsity limit of the TMS input distribution") with r = 2 hidden dimensions, and its loss has no
+     importance weights. The post now states this scope.
+
+Changes:
+- `writeup/post.md` is now draft v2:
+  - "How this was made" moved under the byline.
+  - First-person voice, with the attribution condition above.
+  - TL;DR reordered so the antipodal finding leads; head/tail is a short side bullet.
+  - Section 6 rewritten in the owner's order (a)/(b)/(c). It uses only existing numbers: the FP-only facts in
+    the Phase 4 pre-registration (rho(p, near_thr) = +0.94, rho(p, bias) = +0.86) and the H4 secondaries. No
+    new analysis was run.
+  - Duan and Borobia added as "consistent direction, not confirmation" (different metric).
+  - Section 9 rewritten: the two Chens are disambiguated (Chen, Beyer et al. 2026 is now cited); Stevinson is
+    cited as ICML 2026; Borobia added.
+  - New References section; the review points are pruned to the four still open.
+- `README.md`: the status line and the head/tail bullet now match the demoted framing.
+- `CLAUDE.md`: the Duan entry now notes v2, the frequency statements and Borobia, quoted above.
+
+Next: the bridge plan, for the owner's approval. No download before approval.
+
+---

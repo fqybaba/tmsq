@@ -4,8 +4,9 @@ A replication of key results from *Toy Models of Superposition* (Elhage et al., 
 extension: which features stored in superposition does post-training weight quantization (RTN) break first,
 and can superposition geometry predict this in advance?
 
-Status (2026-10-24): Phases 0–5 are complete. Phase 6 (write-up) exists as a draft in `writeup/post.md`,
-awaiting the owner's review. The optional bridge to a real model (Pythia-70M + SAE) has not been started.
+Status (2026-10-24): Phases 0–5 are complete. Phase 6 (write-up) exists as draft v2 in `writeup/post.md`,
+revised after the owner's review. The bridge to a real model (Pythia-70M + SAE) is planned before
+publication, and its plan is awaiting the owner's approval.
 `notes/LOG.md` is the lab notebook, with every result, pre-registration and deviation. `CLAUDE.md` and
 `notes/DESIGN_NOTES.md` hold the canonical definitions.
 
@@ -25,10 +26,14 @@ awaiting the owner's review. The optional bridge to a real model (Pythia-70M + S
     difference is +0.53 [+0.48, +0.58]. At 4 bits, essentially only they break. Matched Gaussian noise gives
     the same pattern.
   - To our knowledge, this mechanism has not been reported before.
-- **Head vs tail depends on the normalization** (setting D, strong superposition).
-  - Rare features lose a larger *relative* fraction of their R² (ρ = −0.21, borderline).
-  - The change in R² itself does not depend on frequency.
-  - Absolute damage and new false activations sit in the frequent features.
+- **Head vs tail is a weak side result** (setting D, strong superposition).
+  - The pre-registered test leans toward "rare features lose a larger *relative* fraction of their R²"
+    (ρ = −0.21). The effect is borderline and not robust: the sensitivity analysis gives −0.17, and the effect
+    shrinks at 4 and 5 bits.
+  - It comes from the normalization. The change in R² itself does not depend on frequency, while absolute
+    damage and new false activations sit in the frequent features.
+  - Frequency is nearly collinear with threshold proximity in these models (ρ = 0.94), so frequency and
+    geometry cannot be separated.
   - The weak-superposition regime was stopped by a sanity rule: heavy weight decay makes 2-bit RTN *improve*
     the model.
 - **Geometry-aware bit allocation does not beat uniform 4-bit RTN** at an equal budget.
