@@ -2516,3 +2516,15 @@ Other post/README fixes (wording, labels, provenance):
   reference gives the arXiv ID only.
 
 ---
+
+Addendum to the corrections entry, after the recheck workflow `post-audit-recheck`. It found 29 confirmed
+items, all regressions or imprecisions introduced by the first round; all are fixed in the post and README.
+- Max-overlap bounds cited in post Section 5, from the K sweep (S = 0.7488, per-row 3 bits, RTN, eligible):
+  - the 92 antipodal features (D_i ≥ 0.48) have max_overlap ≤ 0.0158;
+  - every other eligible feature has ≥ 0.0888;
+  - the class table's margin class (margin_tau > 0.015, n = 93) also contains one feature with D = 0.46 and
+    max_overlap 0.096.
+- In Section 4, at C S = 0.60, the median dR2 is 5e-5 to 3e-4 across granularities; about 38 of 100 features
+  are represented there.
+- The p-value floor statement is restricted to the four registered decision tests. The S1 secondaries are
+  not at the floor.

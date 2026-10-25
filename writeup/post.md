@@ -24,7 +24,8 @@
 - For the real-model bridge (Sections 8–9), I approved Claude Code's plan and chose one of its definitions (the
   encoder bias in the margin analog). Claude Code then wrote the pre-registration, had it checked by a
   separate multi-agent AI review that it ran itself (not human reviewers), and froze it before any quantized
-  run. At my request it also ran the bridge's post-hoc checks and the ablation.
+  run. At my request it also ran the ablation and re-ran the registered tests on the described method. The
+  first post-hoc check of the margin result (Section 9) it ran on its own, prompted by an AI advisor review.
 
 "I" below means me. Every decision and deviation, with who made it and when, is logged in `notes/LOG.md` and
 `notes/SESSION_JOURNAL.md`.
@@ -34,15 +35,17 @@
 - Anthropic's toy model of superposition (a tied ReLU autoencoder) has known ground-truth features. I quantize
   its weights after training with round-to-nearest (RTN) and measure the damage to each feature.
 - **The intuitive prediction fails.** I expected crowded, low-margin features in dense superposition to break
-  first. Among the setting-C sparsities I quantized (n = 100, m = 20), S = 0.75 is the only one where
-  per-feature damage is reliable enough to test. There, two of the three pre-registered predictors (margin and
-  crowding) point the *opposite* way, and the third (feature norm) predicts nothing.
+  first. Of the four setting-C sparsities (n = 100, m = 20) whose reliability I checked before the tests
+  (S = 0.75–0.96), S = 0.75 is the only one where per-feature damage is reliable enough to test. There, two of
+  the three pre-registered predictors (margin and crowding) point the *opposite* way, and the third (feature
+  norm) predicts nothing.
 - **The fragile features are the zero-bias antipodal pairs.**
   - Antipodal-pair features (D_i ≈ 0.5) have no positive interference to suppress and learn a bias of about
-    +0.01 (my post-hoc reading: they have no reason to pay for a negative one). Their output on inputs where
-    they should be off sits just above zero, just below the 0.05 cutoff used to count false activations, so a
-    3- or 4-bit perturbation pushes it over.
-  - Crowded features learn negative biases (about −0.08), and those biases act as a buffer.
+    +0.01 (as Elhage et al. (2022) note, they have no reason to pay for a negative one). Their output on inputs
+    where they should be off sits just above zero, just below the 0.05 cutoff used to count false
+    activations, so a 3- or 4-bit perturbation pushes it over.
+  - Crowded features learn negative biases (about −0.08). The post-hoc reading, not tested by intervention, is
+    that these biases act as a buffer.
   - The confirmation ran on 20 fresh, pre-registered models. At 3-bit per-row RTN every antipodal feature is
     damaged, against 46% of the other features. At 4 bits, almost only antipodal features break.
   - Isotropic Gaussian noise of the same size gives the same picture, so the cause is sensitivity to any
@@ -54,15 +57,15 @@
     allocation.
   - A generic loss-aware rounding removes about half of the 4-bit loss increase at one sparsity (and 7–31% at
     others), but it does not rescue the fragile features.
-- **Real model: Duan replicates exactly; post hoc, the toy predictors add almost nothing beyond his
-  statistics.**
+- **Real model: Duan's numbers replicate almost exactly; post hoc, the toy predictors add almost nothing
+  beyond his statistics.**
   - On Pythia-70M with a pretrained SAE, Duan's survival and perplexity numbers reproduce to within 0.02.
   - His released code shares Q/K/V quantization scales across heads. In an exploratory ablation, per-channel
     scales keep 94% of features at INT6 instead of 62%.
   - Three of the four pre-registered tests cleared their minimum effect against peak activation alone.
     Post hoc, against all four of Duan's statistics, no toy-model predictor adds more than 0.004 AUC for
-    survival on either pipeline. A small association with new false activations remains (ρ ≈ 0.11), and it
-    depends on the controls.
+    survival on either pipeline. Threshold density keeps a small association with new false activations
+    (ρ ≈ 0.11 given all four statistics; about 0 given only peak and rarity).
 - **Head vs tail is a weak side result.** Under a power-law frequency, the pre-registered test leans toward
   "the tail loses a larger relative fraction". The effect is weak and not robust, it comes from the
   normalization, and frequency is nearly collinear with geometry in those models.
@@ -102,9 +105,10 @@ trains in seconds. My question:
 - Settings A–C use the official notebook's optimizer settings: AdamW with weight decay 0.01 on W and b,
   constant lr 1e-3, batch 1024. They train longer than the notebook's 10k steps: 20k steps for A and B, and
   15k for C. The paper itself states no hyperparameters.
-- Setting D borrows two things from Liu, Liu & Gore (2025): their weight-decay knob γ (on W only) and their
-  learning-rate schedule (lr 1e-2, 2,000 warm-up steps, cosine decay, 20k steps). Everything else is as in
-  A–C. The deviations from their recipe are logged.
+- Setting D borrows three things from Liu, Liu & Gore (2025): power-law feature frequencies (with total
+  density Σ p_i = k ∈ {2, 5} instead of their 1), their weight-decay knob γ (on W only) and their
+  learning-rate schedule (lr 1e-2, 2,000 warm-up steps, cosine decay, 20k steps). The activations,
+  initialization, loss and batch size are as in A–C. The deviations from their recipe are logged.
 - Every configuration is trained as many instances in parallel, and all seeds are reported.
 
 | Setting | n | m | Importance | Sparsity | Used for |
@@ -133,8 +137,8 @@ recorded quantities are:
 
 Pearson survival alone turned out to be almost useless in the toy model. This is Duan's criterion, adapted
 here to the feature's active stratum, so it cannot see false activations; Section 8 uses his all-token
-version. At ≥ 4 bits essentially every feature "survives" even when its R² drops a lot (Section 4). A feature is *eligible* if
-its norm is > 0.5 and its FP R² is ≥ 0.5.
+version. At ≥ 4 bits essentially every feature "survives" even when its R² drops a lot (Section 4). A
+feature is *eligible* if its norm is > 0.5 and its FP R² is ≥ 0.5.
 
 **Discipline.**
 - Every hypothesis test was pre-registered in `notes/LOG.md`, together with its primary cell, outcome,
@@ -144,7 +148,7 @@ its norm is > 0.5 and its FP R² is ≥ 0.5.
   seed 1).
 - A finding discovered post hoc on K was then confirmed on a third fresh set (K2, seed 7).
 - Post-hoc analyses are labelled as post hoc throughout.
-- Mistakes are reported where they happened (Sections 6, 9 and 10).
+- Mistakes are reported where they happened (Sections 6, 7, 9 and 10).
 
 ## 3. Replication sanity checks
 
@@ -179,10 +183,10 @@ its norm is > 0.5 and its FP R² is ≥ 0.5.
 ## 4. The quantization sweep
 
 - **8 bits is lossless in loss and R²**: the median |dR2| is ≤ 4e-4 in settings A–C. It is not always
-  damage-free under the composite label. In C at S = 0.60, where almost every feature is in an antipodal pair
-  with a small positive bias (≈ +0.04), 7–23% of eligible features already count as damaged at 8 bits. The
-  trigger is a rise in false activations past the 0.05 cutoff, while dR2 stays ≈ 3e-4 (see Section 5's
-  limits).
+  damage-free under the composite label. In C at S = 0.60, where every represented feature (about 38 of 100;
+  the rest are dead) is in an antipodal pair with a small positive bias (≈ +0.04), 7–23% of eligible features
+  already count as damaged at 8 bits. The trigger is a rise in false activations past the 0.05 cutoff, while
+  the median dR2 stays between 5e-5 and 3e-4 (see Section 5's limits).
 - **Mean damage rises monotonically as bits fall** (eligible-feature dR2 pooled over S, and the total loss
   increase), for every granularity in settings A–C. Setting D's weak regime is the exception (Section 6).
 - **With per-column scales, rounding is about as damaging as matched noise in B and C.**
@@ -210,7 +214,7 @@ its norm is > 0.5 and its FP R² is ≥ 0.5.
 | H3: larger norm → smaller dR2 | +0.00 | [−0.17, +0.17] | 0.98 | not supported (null) |
 
 - H1's opposite sign was registered in advance as an alternative, the "threshold density" reading: features
-  whose inactive pre-activation sits close to the threshold should flip most easily.
+  whose inactive pre-activation sits close to the 0.05 false-activation cutoff should flip most easily.
 - In an exploratory secondary analysis, Duan's own predictor holds here: higher FP peak output means less
   damage (Spearman with dR2 −0.36; AUC 0.70), whereas feature norm predicts nothing.
 
@@ -238,8 +242,10 @@ classes. The fragile class is the antipodal pairs, D_i ≈ 0.5 (K, per-row 3 bit
 **Proposed mechanism.** The threshold-density reading was registered in advance as H1's alternative. The bias
 story behind it was found post hoc on K and reproduced descriptively on K2. Nothing was tested by intervening on
 b or W.
-- In this cell the antipodal pairs are the only features with no positive interference: their largest overlap
-  with any other feature is at most 0.016, against at least 0.088 for every other eligible feature. When its
+- In this cell the antipodal pairs (D_i ≥ 0.48: 92 of the table's 93) are the only features with no
+  positive interference: their largest overlap with any other feature is at most 0.016, against at least
+  0.088 for every other eligible feature. (The 93rd member of the table's class has D = 0.46 and overlap
+  0.096.) When its
   partner is active, feature i's pre-activation is negative and the ReLU removes it. So, as Elhage et al.
   (2022) note, the model has no reason to pay for a negative bias, and it learns b_i ≈ 0 (here +0.01).
 - Its output on the inactive stratum then sits just above zero and just below the 0.05 cutoff for false
@@ -255,9 +261,10 @@ b or W.
   (S ≈ 0.75 for n/m = 5; on the finer full-precision grid this is a narrow window, roughly S ≈ 0.70–0.75). At
   S ≥ 0.84, per-feature damage in setting C is dominated by the random draw of the perturbation and is not
   reliably predictable.
-- The binary label depends on the 0.05 detection cutoff. Features whose inactive output sits just below it are
-  flagged by small perturbations: at S = 0.60, antipodal models are flagged even at 8 bits (Section 4). The
-  threshold-free differences point the same way but are smaller.
+- The binary label depends on the 0.05 detection cutoff. Post hoc, a plausible reading is that features whose
+  inactive output sits just below it are flagged by small perturbations: at S = 0.60, where every represented
+  feature is antipodal with bias ≈ +0.04, 7–23% of eligible features are flagged even at 8 bits (Section 4).
+  The threshold-free differences point the same way but are smaller.
 
 ## 6. Side result: head vs tail is weak, and frequency is tangled with geometry
 
@@ -300,9 +307,9 @@ power law (n = 200, m = 20).
   perturbation each feature receives.
 
 **(c) Frequency and geometry cannot be separated here.**
-- In the strong-regime models, frequency is almost collinear with how close a feature's inactive
-  pre-activation sits to the threshold (ρ = +0.93 recomputed from the saved sweep; the pre-registration
-  logged 0.94), and strongly correlated with its bias (+0.86).
+- In the strong-regime models, frequency is almost collinear with how much of a feature's inactive
+  pre-activation sits near the 0.05 false-activation cutoff (ρ = +0.93 recomputed from the saved sweep; the
+  pre-registration logged 0.94), and strongly correlated with its bias (+0.86).
 - A frequency effect in this model is therefore "frequency, or the geometry it determines". Partial
   correlations are not trustworthy at this collinearity.
 - The same confound explains the setting-D allocation result in Section 7.
@@ -342,11 +349,12 @@ confirmation.
 **Results.**
 - **Nothing geometric beats uniform 4-bit.**
   - At the primary cell (C, S = 0.7488), uniform 4-bit RTN raises the loss by 0.89%.
-  - Random 3/5 mixing raises it to 2.62%, 2.9× uniform's. The pre-registration predicted that mixing would be
-    worse, estimating about 2.1× from a 4^-b approximation of the rounding error. With this grid's actual steps
-    (qmax = 3, 7, 15) the same argument gives about 2.8×. The direction was right; the registered size was an
-    underestimate.
-  - Every geometric ranking is also worse than uniform: smallest margin +1.87, threshold density +1.56.
+  - Random 3/5 mixing raises the loss by 2.62% (+1.73 points over uniform), 2.9× uniform's increase. The
+    pre-registration predicted that mixing would be worse, estimating about 2.1× from a 4^-b approximation of
+    the rounding error. With this grid's actual steps (qmax = 3, 7, 15) the same argument gives about 2.8×. The
+    direction was right; the registered size was an underestimate.
+  - Every geometric ranking is also worse than uniform: smallest margin 2.77% (+1.87 points over uniform),
+    threshold density 2.45% (+1.56).
   - None is distinguishable from random after Holm correction. Geometry carries a little information: there
     are a few BH-significant gains over random at other sparsities, all ≤ 0.6 points. That is never enough to
     pay the mixing penalty.
@@ -399,6 +407,7 @@ confirmation.
   perplexity within 0.02.
 
 ![replication vs Duan's Table 1](../figures/bridge_replication.png)
+
 - Duan's four-statistic predictor gives AUC 0.924 here, as in his Table 2.
 - Peak activation alone gives AUC 0.879. Duan does not report this number. It means the other three
   statistics add about 0.045.
@@ -435,6 +444,7 @@ gives 85.3% survival.
   points.
 
 ![one change at a time, INT6](../figures/bridge_ablation.png)
+
 - So Duan's headline INT6 survival depends mainly on one implementation detail. I contacted the author on
   25 October 2026 and will update this note with his reply.
 - The registered tests below use the released code, so they are comparable with the paper. They were re-run
@@ -517,13 +527,14 @@ registered secondary run) has 5,717; applying the registered verdict rules to it
     1/2 on the coarse grid. The 1/2 plateau passed on the registered fine-grid follow-up.
   - The Phase 5 write-up compared the extra loss of random mixing (1.9×) with a registered prediction about
     the total (2.1×). The total ratio is 2.9× (Section 7). The pre-publication audit caught this.
-  - A first pre-registration draft for Phase 3 picked a primary cell whose outcome was unreliable. Review
-    caught this before any test ran.
+  - A first pre-registration draft for Phase 3 picked a primary cell whose outcome was unreliable. A
+    multi-agent AI review run by Claude Code caught this before any test ran.
   - The Phase 4 mechanism test used the wrong outcome (Section 6).
   - The Phase 5 setting-D allocation result is confounded with frequency (Section 7).
 - **The real-model bridge is one model, one SAE, one layer.**
-  - With about 5,700 features, every registered permutation p-value sits at its floor (1/1001 or 1/10001).
-    The features are also not independent, so those p-values overstate the evidence. The pre-registered
+  - With about 5,700 features, the permutation p-values of all four registered decision tests sit at their
+    floor (1/1001 or 1/10001). The features are also not independent, so those p-values overstate the
+    evidence. The pre-registered
     minimum effect sizes carry the decisions.
   - The margin result was explained away post hoc, because the registered baseline was peak activation
     alone rather than Duan's full model (Section 9).
@@ -550,9 +561,9 @@ registered secondary run) has 5,717; applying the registered verdict rules to it
 - **Quantization damage to features in real models.**
   - Duan (2026) studies per-feature quantization damage in real models without geometry. In a toy model where
     the features are known, this project proposes a geometric mechanism and, in an exploratory secondary
-    analysis, agrees with Duan's peak-activation predictor. On Pythia-70M, the SAE-level proxies of that
-    mechanism add at most 0.004 AUC for survival beyond Duan's statistics (Section 9), so the mechanism is not
-    shown to transfer.
+    analysis, agrees with Duan's peak-activation predictor. On Pythia-70M, post hoc, the SAE-level proxies of
+    that mechanism add at most 0.004 AUC for survival beyond Duan's statistics (Section 9), so the mechanism
+    is not shown to transfer.
   - Borobia et al. (2026) do the same kind of SAE analysis for pruning.
 - **Why PTQ works at all.** Chen, Beyer et al. (2026) explain it at the level of hidden states (errors
   counteracting across layers), not individual features.
@@ -598,14 +609,14 @@ registered secondary run) has 5,717; applying the registered verdict rules to it
 
 | Section | Numbers | Source |
 |---|---|---|
+| 2 | setup constants (steps, schedules, eval-set sizes) | `configs/*.yaml`; each run's `config.yaml` |
 | 3 | setting A pentagon fractions and angles | `results/rep_5in2/20261024-062922` |
 | 3 | setting B Spearman 0.998; bias table | `results/rep_20in5/20261024-063030` |
 | 3 | setting C D* (coarse grid; fine-grid plateau) | `results/rep_dims/20261024-063236`, `results/rep_dims_fine/20261024-064438` |
 | 4 | 8-bit sanity; RTN/noise ratios; survival fractions | `results/quant_sweep/20261024-092937-A`, `-092954-B`, `-093058-C` |
-| 2 | setup constants (steps, schedules, eval-set sizes) | `configs/*.yaml`; each run's `config.yaml` |
 | 5 | H1–H3 verdicts; peak_out | `results/phase3/20261024-141233-K` |
 | 5 | E-vs-K forest figure | `results/phase3/20261024-141338-compare` |
-| 5 | class table (post hoc); max-overlap bounds | computed from the K sweep `results/quant_sweep/20261024-140931-C_confirm/features.parquet` (S = 0.7488, per-row 3 bits, eligible features) and recorded in `notes/LOG.md`, Phase 3 post-hoc item 1 |
+| 5 | class table (post hoc); max-overlap bounds | class table: `notes/LOG.md`, Phase 3 post-hoc item 1, read with the 2026-10-25 corrections entry (item 7); both recomputed from the K sweep `results/quant_sweep/20261024-140931-C_confirm/features.parquet` (S = 0.7488, per-row 3 bits, RTN, eligible features); the max-overlap bounds (D_i ≥ 0.48 vs the rest) are recorded in the corrections entry |
 | 5 | Phase 3b verdict and secondaries; figure | `results/phase3b/20261024-142225-K2`, `results/quant_sweep/20261024-142123-C_confirm2` |
 | 6 | phi_half; frequency–geometry correlations (0.93, 0.86) | phi_half: `results/setting_d/20261024-145113-g-1`; correlations recomputed from `results/quant_sweep/20261024-152211-D_strong/features.parquet` (the pre-registration's FP facts in `notes/LOG.md` logged 0.94) |
 | 6 | H4 primary, sensitivity and secondaries (incl. 4/5 bits) | `results/phase4/20261024-152919-H4` (rerun `-153307-H4` is identical) |

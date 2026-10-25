@@ -10,6 +10,7 @@ Status (2026-10-25):
 - The write-up exists as a draft in `writeup/post.md`. Every number was audited against its source on
   2026-10-25; it awaits the owner's review before publishing.
 - Duan was emailed on 2026-10-25 about the implementation note (shared Q/K/V scales); his reply is pending.
+
 `notes/LOG.md` is the lab notebook, with every result, pre-registration and deviation. `CLAUDE.md` and
 `notes/DESIGN_NOTES.md` hold the canonical definitions.
 
@@ -38,12 +39,12 @@ Status (2026-10-25):
     shrinks at 4 and 5 bits.
   - It comes from the normalization. The change in R² itself does not depend on frequency, while absolute
     damage sits in the frequent features, and so, post hoc, do new false activations.
-  - Frequency is nearly collinear with threshold proximity in these models (ρ = 0.93), so frequency and
-    geometry cannot be separated.
+  - Frequency is nearly collinear with proximity to the 0.05 false-activation cutoff in these models
+    (ρ = 0.93), so frequency and geometry cannot be separated.
   - The weak-superposition regime was stopped by a sanity rule: heavy weight decay makes 2-bit RTN *improve*
     the model.
-- **Real model: Duan (2026) replicates exactly; post hoc, the toy predictors add almost nothing beyond his
-  statistics.**
+- **Real model: Duan (2026) replicates almost exactly; post hoc, the toy predictors add almost nothing beyond
+  his statistics.**
   Setup: Pythia-70M, the layer-4 residual SAE `pythia-70m-deduped-res-sm`, and RTN, as in Duan.
   - With his released code (mirror `sae-feature-survival-quantization-0141`, 2026-06-08), survival and
     perplexity reproduce his Table 1 to within 0.02 at INT8–INT4. Peak activation alone predicts survival with
@@ -59,7 +60,8 @@ Status (2026-10-25):
     density with new false activations remains (ρ ≈ 0.11), depending on the controls.
     - The margin passed its pre-registered test against peak activation alone (+0.024). Post hoc, Duan's
       statistics explain it; the registered baseline should have been his full model.
-    - Threshold density's link to new false activations is feature frequency.
+    - Threshold density's strong link to new false activations is feature frequency: given peak and rarity it
+      falls to about 0.
 - **Geometry-aware bit allocation does not beat uniform 4-bit RTN** at an equal budget in setting C.
   - Mixing 3- and 5-bit columns roughly triples the loss increase (2.9×). The pre-registration predicted it
     would be worse, but its 4^-b estimate (2.1×) undershot; the grid's actual steps give about 2.8×. No
@@ -74,7 +76,8 @@ Status (2026-10-25):
 This is a collaboration between a person and AI assistants. The roles are as follows:
 
 - **Shen Yuting**: designed the research question, the overall architecture and the phase plan, and made
-  the approval and scope decisions while present, including the project's evidence-first rule. Claude (claude.ai) helped
+  the approval and scope decisions while present, including the project's evidence-first rule. Claude
+  (claude.ai) helped
   only to write that design up as the Markdown files `CLAUDE.md` and `PROMPTS.md` and with a few simple
   lookups.
 - **Claude Code** (Anthropic): checked the plan against primary sources, implemented the package, ran the
