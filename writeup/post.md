@@ -21,6 +21,7 @@
   instruction Claude Code ran the Phase 3 tests, decided to confirm the post-hoc antipodal finding on fresh
   models (Phase 3b), wrote the pre-registrations for Phases 3b–5, chose the setting-D weak-regime γ under a
   logged deviation rule, and did the post-hoc analyses of Phases 3–5. These are marked where they appear.
+  I reviewed the Phase 3b–5 pre-registrations afterwards.
 - For the real-model bridge (Sections 8–9), I approved Claude Code's plan and chose one of its definitions (the
   encoder bias in the margin analog). Claude Code then wrote the pre-registration, had it checked by a
   separate multi-agent AI review that it ran itself (not human reviewers), and froze it before any quantized
@@ -636,9 +637,7 @@ registered secondary run) has 5,717; applying the registered verdict rules to it
 
 1. **Duan's reply.** Shen emailed him on 2026-10-25. When he replies, summarize the answer in Section 8's
    implementation note.
-2. **"How this was made."** If Shen has read the Phase 3b–5 pre-registrations, add "and I reviewed them
-   afterwards"; otherwise leave the sentence as it is.
-3. **Stevinson et al.** The PMLR volume and pages are not out yet. Add them when the proceedings appear; do not
+2. **Stevinson et al.** The PMLR volume and pages are not out yet. Add them when the proceedings appear; do not
    guess them.
-4. **Duan's title.** Version 1 (2 June 2026) was titled "How Quantization Changes Interpretable Features: A
+3. **Duan's title.** Version 1 (2 June 2026) was titled "How Quantization Changes Interpretable Features: A
    Sparse Autoencoder Analysis of Language Models". The current version, v2 (4 June 2026), is cited.
