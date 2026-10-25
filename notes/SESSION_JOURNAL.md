@@ -377,3 +377,23 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   updated with the one-factor comparisons (S → S-F: fold_ln only; S → S-I: SAE input only).
 - Post v4 and README updated. Still the owner's: sending the email and filling in the date, the remaining
   review points, and publishing.
+
+## 2026-10-25: Duan emailed; figures; pre-publication audit and corrections
+
+- The owner sent the email to Duan (2026-10-25). The post's implementation note records the date.
+- Figures `bridge_replication` and `bridge_ablation` were added (`src/tmsq/experiments/figure_bridge.py`).
+- Audit workflow `post-number-audit` (120 agents) found 99 confirmed items, about 45 edit points.
+- **Owned errors**:
+  - the Phase 5 mixing ratio: 1.9× extra was compared with a 2.1× total prediction; the total ratio is 2.9×;
+  - the Setting C ≈ 10 → ≈ 16;
+  - the Setting A noise ratio being per-column only;
+  - the A square;
+  - "6–8 bits damages nothing", which is false at C S = 0.60;
+  - 0.94 → 0.93;
+  - two class-table cells.
+- **Claims tightened**:
+  - the mechanism is now "proposed", the inactive output sitting just below the 0.05 cutoff;
+  - the transfer conclusion is scoped to survival, with the ρ ≈ 0.11 leakage residual named;
+  - the attribution wording now says AI review, not independent review, and names the decisions Claude Code
+    made while the owner was away.
+- All fixes are applied in the post and README; the LOG received an append-only corrections entry.

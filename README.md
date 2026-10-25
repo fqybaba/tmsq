@@ -4,10 +4,12 @@ A replication of key results from *Toy Models of Superposition* (Elhage et al., 
 extension: which features stored in superposition does post-training weight quantization (RTN) break first,
 and can superposition geometry predict this in advance?
 
-Status (2026-10-24):
+Status (2026-10-25):
 - Phases 0–5 are complete, and so is the pre-registered bridge to a real model (Pythia-70M with a pretrained
   SAE).
-- The write-up exists as draft v4 in `writeup/post.md`, awaiting the owner's review before publishing.
+- The write-up exists as a draft in `writeup/post.md`. Every number was audited against its source on
+  2026-10-25; it awaits the owner's review before publishing.
+- Duan was emailed on 2026-10-25 about the implementation note (shared Q/K/V scales); his reply is pending.
 `notes/LOG.md` is the lab notebook, with every result, pre-registration and deviation. `CLAUDE.md` and
 `notes/DESIGN_NOTES.md` hold the canonical definitions.
 
@@ -17,27 +19,31 @@ Status (2026-10-24):
   - The pentagon in 5→2: 4/5, 3/5 and 5/5 seeds at S = 0.9, 0.95 and 0.99.
   - Superposition grows with sparsity in 20→5 (Spearman 0.998).
   - The D* = 1/2 plateau in 100→20, on a fine sparsity grid.
-  - Two pre-registered criteria failed as written; they are reported as such in the LOG.
+  - Three pre-registered criteria failed as written: B's bias criterion, and C's plateaus at 1 and at 1/2 on
+    the coarse grid. The 1/2 plateau passed on the registered fine-grid follow-up.
 - **The fragile features are the zero-bias antipodal pairs, not the crowded ones** (setting C, S = 0.75).
-  - The pre-registered predictors (smaller margin, smaller D) point the *opposite* way: ρ = +0.49 and +0.40
-    on 10 fresh models.
+  - Two of the three pre-registered predictors (smaller margin, smaller D) point the *opposite* way:
+    ρ = +0.49 and +0.40 on 10 fresh models. Feature norm predicts nothing.
   - Post hoc, and then confirmed on 20 further fresh models: antipodal-pair features (D ≈ 0.5) learn a bias of
-    about 0, so their inactive pre-activation sits at the threshold.
+    about +0.01, so their output on inputs where they should be off sits just below the 0.05 cutoff for false
+    activations.
   - At 3-bit per-row RTN, all of them are damaged, against 46% of the other features. The per-model
     difference is +0.53 [+0.48, +0.58]. At 4 bits, essentially only they break. Matched Gaussian noise gives
     the same pattern.
-  - To our knowledge, this mechanism has not been reported before.
+  - The binary label depends on that cutoff; the threshold-free outcomes agree in sign with smaller gaps.
+  - To our knowledge, this result has not been reported before.
 - **Head vs tail is a weak side result** (setting D, strong superposition).
   - The pre-registered test leans toward "rare features lose a larger *relative* fraction of their R²"
     (ρ = −0.21). The effect is borderline and not robust: the sensitivity analysis gives −0.17, and the effect
     shrinks at 4 and 5 bits.
   - It comes from the normalization. The change in R² itself does not depend on frequency, while absolute
-    damage and new false activations sit in the frequent features.
-  - Frequency is nearly collinear with threshold proximity in these models (ρ = 0.94), so frequency and
+    damage sits in the frequent features, and so, post hoc, do new false activations.
+  - Frequency is nearly collinear with threshold proximity in these models (ρ = 0.93), so frequency and
     geometry cannot be separated.
   - The weak-superposition regime was stopped by a sanity rule: heavy weight decay makes 2-bit RTN *improve*
     the model.
-- **Real model: Duan (2026) replicates exactly; the toy predictors add nothing beyond his statistics.**
+- **Real model: Duan (2026) replicates exactly; post hoc, the toy predictors add almost nothing beyond his
+  statistics.**
   Setup: Pythia-70M, the layer-4 residual SAE `pythia-70m-deduped-res-sm`, and RTN, as in Duan.
   - With his released code (mirror `sae-feature-survival-quantization-0141`, 2026-06-08), survival and
     perplexity reproduce his Table 1 to within 0.02 at INT8–INT4. Peak activation alone predicts survival with
@@ -45,32 +51,38 @@ Status (2026-10-24):
   - Implementation note:
     - The code shares Q/K/V quantization scales across heads. With per-channel scales, 94.3% of features
       survive INT6 instead of 62.4%.
-    - Folding the LayerNorm gains before per-channel quantization accounts for the remaining gap to the
-      described method (85.3% → 94.6%).
+    - The described method gives 85.3%. Folding the LayerNorm gains in before per-channel quantization
+      raises that to 94.6%.
     - The ablation is exploratory.
-  - Threshold density and a margin analog add at most 0.004 AUC beyond Duan's four statistics, on both his
-    pipeline and the described method.
+  - Post hoc, threshold density and a margin analog add at most 0.004 AUC for survival beyond Duan's four
+    statistics, on both his pipeline and the described method. A small residual association of threshold
+    density with new false activations remains (ρ ≈ 0.11), depending on the controls.
     - The margin passed its pre-registered test against peak activation alone (+0.024). Post hoc, Duan's
       statistics explain it; the registered baseline should have been his full model.
     - Threshold density's link to new false activations is feature frequency.
-- **Geometry-aware bit allocation does not beat uniform 4-bit RTN** at an equal budget.
-  - Mixing 3- and 5-bit columns costs about 2× the loss increase (1.9× measured, 2.1× predicted), and no
-    geometric ranking recovers that.
-  - Generic loss-aware rounding halves the loss increase in setting C but does not rescue the fragile
-    features.
+- **Geometry-aware bit allocation does not beat uniform 4-bit RTN** at an equal budget in setting C.
+  - Mixing 3- and 5-bit columns roughly triples the loss increase (2.9×). The pre-registration predicted it
+    would be worse, but its 4^-b estimate (2.1×) undershot; the grid's actual steps give about 2.8×. No
+    geometric ranking recovers the penalty.
+  - In setting D a threshold-density ranking does beat uniform (α = 1.5 only); post hoc, it is frequency
+    allocation in disguise.
+  - Generic loss-aware rounding halves the loss increase at the primary cell of setting C (and lowers it by
+    7–31% at higher sparsities), but does not rescue the fragile features.
 
 ## How this project was made
 
 This is a collaboration between a person and AI assistants. The roles are as follows:
 
 - **Shen Yuting**: designed the research question, the overall architecture and the phase plan, and made
-  every approval and scope decision, including the project's evidence-first rule. Claude (claude.ai) helped
+  the approval and scope decisions while present, including the project's evidence-first rule. Claude (claude.ai) helped
   only to write that design up as the Markdown files `CLAUDE.md` and `PROMPTS.md` and with a few simple
   lookups.
 - **Claude Code** (Anthropic): checked the plan against primary sources, implemented the package, ran the
-  experiments and analyses, and ran independent review workflows on its own code and plans. It works within
-  the owner's approved plans. Under the owner's standing instruction it also wrote the pre-registrations for
-  Phases 3b–5 while the owner was away, logging every decision for review.
+  experiments and analyses, and ran multi-agent AI review workflows on its own code, plans and drafts (not
+  human review). It works within the owner's approved plans. While the owner was away, under their standing
+  instruction, it also made some scope decisions: it added the Phase 3b confirmation, wrote the
+  pre-registrations for Phases 3b–5, and chose the setting-D weak-regime γ under a logged deviation rule.
+  Every decision is logged for review.
 
 `notes/SESSION_JOURNAL.md` records who decided what and when.
 
@@ -113,6 +125,7 @@ their figures to `figures/`. Times are for a desktop CPU.
 | 6b runs | `... bridge quant --config configs/bridge.yaml --arm code --bits 6` (R1); `--bits 8 7 5 4` (R2); `--arm stated --bits 8 7 6 5 4` (R3); `--bits 6 --noise-seed 0` (R4) | — | 2–6 min each |
 | 6b tests | `... bridge analyze --config configs/bridge.yaml --primary <R1> --extra <R2> <R3> <R4>` | — | 18 min |
 | 6b ablation | `... bridge_ablation --config configs/bridge.yaml --group r1` (also `c1`, `c2`, `r2`) | — | 5 min each |
+| 6b figures | `python -m tmsq.experiments.figure_bridge` (main venv; reads R1–R3 and the ablation runs) | `bridge_replication`, `bridge_ablation` | 10 s |
 
 Configs that consume earlier runs (`quant_sweep*.yaml`, `phase4.yaml`, `phase5.yaml`) name the exact result
 directories used in the LOG. On a fresh checkout, point them at your own runs. Post-hoc analyses are scripts in

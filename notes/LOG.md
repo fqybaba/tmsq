@@ -2458,3 +2458,61 @@ The email to Duan is in the owner's Gmail drafts (unsent, no recipient). It now 
 attribution of the gap between 85.3% and about 94% to LayerNorm folding, at the owner's request.
 
 ---
+
+## 2026-10-25 — Corrections found by the pre-publication audit (workflow `post-number-audit`)
+
+Scope: 11 auditors checked about 600 numeric claims in `writeup/post.md` and `README.md` against `results/`,
+this LOG and the scripts, with one skeptic per flagged item. 99 items were confirmed (about 45 distinct edit
+points after merging duplicates) and 10 refuted. Pre-registration entries above are left byte-identical; the
+errors below are corrected in the post, the README and here.
+
+Errors in earlier LOG entries (the original lines stay; read them with these corrections):
+1. **Phase 5 ratio (owned error).**
+   - The Phase 5 results entries say "random 3/5 mixing raises r by +0.0173, 1.9× U4's own loss increase,
+     against the predicted ≈ 2.1×" and call it "held almost exactly". That compares the EXTRA loss with a
+     prediction about the TOTAL.
+   - The registered prediction was the ratio of total mean squared rounding error, (4^-3 + 4^-5)/2 ÷ 4^-4 ≈ 2.1.
+     The observed total ratio is r_random / r_U4 = 0.0262 / 0.0089 = **2.9×**.
+   - With the grid's actual steps (qmax = 3, 7, 15) the same argument gives about 2.8×, and the realized
+     ‖Q(W) − W‖² ratio is 2.75×.
+   - Correct statement: the direction was predicted, but the registered size was an underestimate caused by
+     the 4^-b approximation.
+2. **Setting C representation.** "Every feature is represented from 1/(1−S) ≈ 10" should read ≈ 16. At
+   1/(1−S) = 10, 95–97 of 100 are represented.
+3. **Setting A noise ratio.** "Rounding is 2–4× less damaging" holds for per-column scales only, where it is
+   1.5–4.4×. With per-row or per-tensor scales the ratio is 0.37–1.17 in A and 0.53–1.52 in B and C. The B/C
+   "about as damaging as noise" (0.89–1.06) is also per-column.
+4. **Setting A square.** The alternative solution does not always drop the least important feature. At
+   S = 0.95, feature 2 falls below threshold instead.
+5. **"6–8 bits damages nothing"** is false for C at S = 0.602. There, an antipodal-dominated model with bias
+   ≈ +0.044 has 7–23% of eligible features labelled damaged at 8 bits (49–57% at 6 bits). The label is
+   triggered by false activations past 0.05, while dR2 stays ≈ 3e-4.
+6. **ρ(p, near_thr) in the strong setting-D regime.** Recomputed from the saved sweep
+   (`results/quant_sweep/20261024-152211-D_strong`) it is 0.931. The pre-registration's FP facts logged 0.94.
+   The post now cites 0.93 and notes the logged 0.94.
+7. **Phase 3 class table.** The intermediate class's D is 0.445 (the post had rounded it to 0.45; it is now
+   0.44). The crowded class's near_thr is 0.0946, i.e. 0.09, not 0.10. near_thr there is P(inactive
+   pre-activation in [0, 0.1]), i.e. within 0.05 of the 0.05 detection cutoff, not of the ReLU threshold.
+8. **Mechanism wording.** Antipodal features' inactive output sits just above zero and just below the 0.05
+   false-activation cutoff ("at the threshold" was imprecise). The mechanism is a post-hoc reading, consistent
+   with the registered H1 alternative, and was not tested by intervention. The post now says "Proposed
+   mechanism".
+9. **Failed sanity criteria.** Three pre-registered criteria failed as written, not two: B's bias criterion,
+   and C's coarse-grid plateaus at 1 and at 1/2.
+10. **Attribution.** The bridge pre-registration was reviewed by a multi-agent AI workflow that Claude Code ran
+    itself, not independently or by humans. While the owner was away, Claude Code also made some scope
+    decisions (Phase 3b, γ = 7). The post and README now say both.
+
+Other post/README fixes (wording, labels, provenance):
+- Post-hoc and exploratory labels were added where missing (TL;DR, Sections 5–9).
+- "Adds nothing beyond Duan's statistics" is scoped to survival, and the ρ ≈ 0.11 leakage residual is named.
+- Three of the four registered bridge tests cleared their minimum effect against peak (the TL;DR had said one).
+- Duan's implementation note was made precise. The paper keeps LayerNorm in full precision, which TL's fold_ln
+  contradicts; the residual convention is unspecified.
+- Missing provenance rows were added (Section 2 constants, the E-vs-K forest, the K sweep for the class table,
+  the D_strong sweep, the figure script). The class-table row now points to the K sweep and this LOG, not to
+  `results/phase3/20261024-141422-posthoc`.
+- Biderman et al. (Pythia) was checked against arXiv 2304.01373 on 2026-10-25. arXiv lists no venue, so the
+  reference gives the arXiv ID only.
+
+---
