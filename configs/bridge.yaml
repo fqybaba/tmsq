@@ -1,0 +1,20 @@
+# Phase 6b bridge (notes/LOG.md, Phase 6b). Run with .venv-bridge.
+model: EleutherAI/pythia-70m-deduped
+model_revision: e93a9faa9c77e5d09219f6c868bfc7a1bd65593c
+tl_name: pythia-70m-deduped
+sae_release: pythia-70m-deduped-res-sm
+sae_id: blocks.4.hook_resid_post
+sae_repo: ctigges/pythia-70m-deduped__res-sm_processed
+sae_revision: 4de021e0701171e7a0be1fb711d278ec5c0ebd4d
+layer: 4
+dataset: Salesforce/wikitext
+dataset_file: wikitext-2-raw-v1/train-00000-of-00001.parquet
+dataset_revision: b08601e04326c79dfdd32d625aee71d232d685c3
+n_blocks: 390          # Duan: 390 x 512 = 199,680 tokens, no BOS, position 0 kept
+block_len: 512
+batch_blocks: 4        # Duan's perplexity batches of 4 blocks
+half_split_block: 196  # stability halves: blocks [0, 196) and [196, 390) (196 is a batch boundary)
+pos_split: 128         # the SAE's training context_size; positions < 128 are a registered sensitivity
+g1_fvu_tol: 0.01       # G1: pick the convention with lower FVU; within 0.01, use raw
+threads: 0             # 0 = torch default; meta.json records the count used
+fp_run: results/bridge/20261024-224808-fp  # FP stage with the reviewed code (pre-registration)

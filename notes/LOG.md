@@ -2043,3 +2043,179 @@ Next: the owner approves (or edits) D1–D7. After that: install, download, FP-o
 pre-registration is committed. Only then is the first quantized run made.
 
 ---
+
+## 2026-10-24 — Phase 6b (bridge): PRE-REGISTRATION, written before any quantized run
+
+The owner approved plan D1–D7 ("同意 D1–D7"). This pre-registration fixes every definition and decision
+rule before the first quantized forward pass.
+- Frozen code, at the commit that adds this entry:
+  - `src/tmsq/bridge.py`, with tests in `tests/test_bridge.py` (16 tests);
+  - `src/tmsq/experiments/bridge.py`.
+- Inputs: pinned in `configs/bridge.yaml`, including `fp_run`. Download manifest:
+  `results/bridge/20261024-220300-fetch`.
+- Environment: `.venv-bridge`, with system torch 2.13.0+cpu, sae-lens 6.54.12, transformer-lens 3.9.0 and
+  transformers 5.20.2.
+
+### FP-only facts, seen before registration (`results/bridge/20261024-224808-fp`)
+
+That run is the FP stage re-run with the reviewed code. Every predictor is identical to the first FP run,
+`20261024-220859-fp`, except interf_sum, whose normalization changed (see the corrections below).
+- G1, positions < 128 (49,920 tokens):
+  - Raw residual: FVU 0.193, L0 73.9.
+  - Per-token-centered residual: FVU 0.232, L0 69.0.
+  - Raw is lower by 0.039, more than the 0.01 tolerance, so the stated arm uses the raw residual.
+  - Side observation, not a test: the SAE fits the raw residual better. Duan's pipeline (the code arm) feeds
+    it the convention it fits worse.
+- Code arm: 5,688 active features, exactly Duan's Table 2 count. FP perplexity 67.839 (Duan 67.84). Mean L0
+  71.8.
+- Stated arm: 5,717 active features, FP perplexity 67.839, mean L0 76.1.
+- Predictors, code arm, active features (Spearman):
+  - near_thr: median 0.0004, 90th percentile 0.0016. Its correlation with log peak is -0.002, **but with
+    rarity it is -0.93**. Near-threshold mass is almost a frequency proxy, hence secondary S1 below.
+  - margin (b_enc): positive for 94% of features (median 1.12). Correlations: log peak -0.58, bias_only +0.87,
+    near_thr +0.10.
+  - margin_beta: positive for 29%. Spearman with margin 0.60 (stated arm 0.35). The e_j . b_dec term has a
+    median of 1.6 x |b_enc|.
+  - All 5,688 encoder biases are negative.
+  - interf_sum vs log peak: -0.32.
+
+### Corrections to the approved plan, all made before any quantized run
+
+1. **Margin bias (D3).** D3 wrote the "effective bias" beta_j = b_enc_j - e_j . b_dec. That is the bias with
+   respect to the raw origin x = 0, which is not a "no features present" point of the residual stream.
+   - The SAE subtracts b_dec before encoding (apply_b_dec_to_input = true), so its zero-feature input is
+     x = b_dec. There, z_j = b_enc_j.
+   - With x - b_dec ≈ sum_k f_k d_k, the pre-activation is z_j = sum_k f_k (e_j . d_k) + b_enc_j, the analog of
+     the toy model's sum_k (W_j . W_k) x_k + b_j. This holds for whatever residual the SAE is given, centered
+     or raw.
+   - `test_margin_analog_reproduces_toy_margin` checks that the analog reduces to the toy-model margin (the
+     pentagon example, -0.059) when encoder = decoder, mu+ = 1 and b_enc = b.
+   - **The owner chose b_enc as the primary** (question answered about 22:50, before any quantized run).
+     margin_beta is a labelled secondary, and so is the matching bias_only_beta = -beta/mu+.
+2. **interf_sum** now follows D3 exactly: sum_k rate_k (e_j . d_k)+ mu_k+. A pre-review draft also divided by
+   mu_j+.
+3. **Statistics, after the independent review** (workflow `bridge-prereg-review`: 3 reviewers, one skeptic per
+   finding; 9 findings confirmed, 6 refuted).
+   - Family B: the first draft residualized on one global linear fit but permuted within deciles. That is
+     anti-conservative when the predictor and dfalse both depend nonlinearly on the control. The reviewer
+     showed false "threshold geometry" verdicts in S1 under a frequency-only null built on the real near_thr.
+     **Fixed:** the residualization now uses cell fixed effects plus within-cell slopes on the control ranks,
+     with the same cells as the permutation.
+   - Family A: the base model was linear in the controls. **Fixed:** the base is now an additive cubic spline
+     (6 knots per control), fit within each training fold.
+   - Under the U-shaped confounder of `test_nonlinear_shared_confounder_is_not_a_finding`, both fixed
+     statistics stay null. The old Family B statistic gives rho > 0.3 on the same data.
+4. **Killed features.** A quantized feature that never fires now gets c_j = 0 exactly, as in Duan's code. The
+   first draft's fp32 shifted sums could give ±1. Sums are now unshifted fp64.
+   `test_killed_features_get_zero_correlation` covers this.
+5. **Token-half secondary.** It now uses each half's own dfalse.
+
+### Definitions (all on the arm's FP pass, over the 199,680 tokens)
+
+- Active feature: FP firing rate > 0.001 (Duan). Only active features are analysed.
+- mu_j+: the mean of f_j over the tokens where it is active. z_j: the pre-activation.
+- **T (threshold density):** near_thr_j = P_t(-0.05 mu_j+ < z_j <= 0).
+- **M (margin analog):** margin_j = (-b_enc_j - max(0, max_{k != j, k active} (e_j . d_k) mu_k+)) / mu_j+.
+- Duan's predictors, as in his code:
+  - rarity = -log(rate);
+  - log_mean;
+  - log_peak (max over tokens);
+  - log_conc = max(0, log(peak/mean)).
+  - Inputs are floored at 1e-8.
+- Survival c_j: Duan's all-token Pearson correlation of FP and quantized f_j, from fp64 sums.
+  - Survived means c_j > 0.9; degraded means 0.5 <= c_j <= 0.9; damaged means c_j < 0.5.
+  - A feature that never fires after quantization gets c_j = 0.
+- New false activations: dfalse_j = P_t(f_j^Q > 0.05 mu_j+ | f_j^FP = 0).
+
+### Gate G2 (replication), checked first on run R1, aggregates only
+
+- The FP part (active count 5,688 ± 30; FP perplexity 67.84 ± 1.0) has already passed: 5,688 and 67.839.
+- INT6 survived must be 62.4 ± 3.0 percent of active features (Duan, Table 1).
+- If it fails: STOP and report. No tuning, and the per-feature analysis is not run.
+
+### Primary cell and tests (`registered()` in `tmsq.experiments.bridge`)
+
+Cell: code arm, INT6, layer 4, all token positions, active features.
+
+| Test | Outcome | Predictor | Statistic | Minimum effect | Predicted direction |
+|---|---|---|---|---|---|
+| A_T | survived (c_j > 0.9) | near_thr | dAUC over log peak | 0.02 | negative coefficient |
+| A_M | survived | margin (b_enc) | dAUC over log peak | 0.02 | none (two-sided) |
+| B_T | dfalse | near_thr | cell-consistent partial Spearman given log peak | abs 0.10 | positive |
+| B_M | dfalse | margin (b_enc) | cell-consistent partial Spearman given log peak | abs 0.10 | none (two-sided) |
+
+- **dAUC:** CV AUC of logistic(spline(log peak) + predictor) minus that of logistic(spline(log peak)).
+  - The spline is cubic with 6 knots.
+  - The predictor is standardized within the training fold.
+  - L2 penalty, C = 1.
+  - 20 repeats of stratified 5-fold CV, with fold seeds 6060 + r.
+- **p for dAUC:** 1,000 permutations of the predictor within log-peak deciles, with generator seed 6060. The
+  statistic is the dAUC on the first 5 repeats, observed vs permuted. p = (1 + #(null >= obs)) / 1001.
+- **Coefficient sign:** from the logistic fit of [spline basis, z(predictor)] on all features.
+- **Partial Spearman:** the Pearson correlation of the rank residuals.
+  - Residuals come from a fit with log-peak-decile fixed effects plus within-decile slopes on rank(log peak).
+  - Two-sided p from 10,000 permutations of rank(predictor) within the same deciles, with seed 6061.
+- **Holm** over the four tests, alpha 0.05.
+- **Verdict strings** (`decide_a`, `decide_b`, `registered()`):
+  - "supported" (T only): the minimum effect is met, Holm p < 0.05, and the sign is as predicted.
+  - "adds information, opposite to prediction" (A_T) or "associated, opposite to prediction" (B_T): the
+    minimum effect and Holm p < 0.05 are met with the opposite sign. **The registered direction is
+    refuted.** This is not a null.
+  - "adds information beyond peak (coefficient ±)" or "associated beyond peak (±)": M, two-sided.
+  - "no added information beyond peak" or "no association beyond peak": null.
+  - "not interpretable (fewer than 200 features in a class)": the Family A stop rule.
+- **Interpretation limit:** this is one model, and its roughly 5,700 features are not independent. With
+  n = 5,688, any effect that clears the minimum will sit at the p floor. The minimum effect sizes carry the
+  decision, and the p-values are weaker evidence than the toy-model instance-level tests.
+
+### Registered secondary S1: beyond frequency (no Holm)
+
+The same four tests are run with controls log peak AND rarity:
+- the dAUC base is the additive spline in both controls;
+- the partial Spearman uses fixed effects for the 5 x 5 quantile cells plus within-cell slopes on both ranks;
+- permutation is within the same cells.
+
+Interpretation rule for T, applied only where the primary T test is "supported":
+- The support is attributed to **threshold geometry** only if S1 meets the same minimum effect, with
+  unadjusted p < 0.05 and the same sign.
+- Otherwise it is reported as **"beyond peak, not beyond frequency"**.
+
+This applies the Phase 4–5 lesson (frequency and geometry confounded) before the data, not after.
+
+### Secondary (no Holm; labelled secondary in every report; `descriptive()`)
+
+- Baselines:
+  - peak's univariate AUC, in-sample and as a linear CV AUC;
+  - the spline-base CV AUC;
+  - Duan's four-predictor linear CV AUC (his 0.924).
+- dAUC (spline base) and cell-consistent partial Spearman with dfalse for margin_beta, bias_only,
+  bias_only_beta, interf_sum, rarity, log_mean and log_conc. Plain Spearman of each predictor with c_j.
+- The same on:
+  - the active-stratum Pearson;
+  - the two token halves (blocks [0, 196) and [196, 390)), each with its own dfalse;
+  - positions < 128 (the SAE's training context);
+  - INT8, INT7, INT5 and INT4 (R2);
+  - the stated arm (R3);
+  - the matched-noise control at INT6 (R4).
+- Duan's Table 1 aggregates per bit width (survived %, perplexity change) next to ours.
+
+### Runs (each under 10 min, ETA printed)
+
+- R1: code arm, INT6 (gate G2).
+- R2: code arm, INT8/7/5/4.
+- R3: stated arm, INT8 to INT4.
+- R4: code arm, INT6, matched noise, seed 0.
+
+The registered analysis is
+`.venv-bridge\Scripts\python -m tmsq.experiments.bridge analyze --config configs/bridge.yaml --primary <R1> --extra <R2> <R3> <R4>`.
+Its numbers are reported as they come out, nulls included.
+
+### Stop rules
+
+- G2 fails.
+- Fewer than 200 survived or fewer than 200 non-survived features in the primary cell. Family A is then
+  reported as not interpretable.
+- An FP sanity check fails: R1's FP perplexity must equal the FP stage's to 1e-3 (`fp_sanity` in R1's
+  summary).
+
+---

@@ -301,3 +301,29 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - The plan (decisions D1–D7) is in `notes/LOG.md`. CLAUDE.md's statement about Duan's quantization grid was
   corrected: the effective grid is the same symmetric 2^b-1 levels as ours.
 - Nothing has been installed or downloaded. Waiting for the owner's reply.
+
+## 2026-10-24 22:00–22:55: bridge approved, built, reviewed, pre-registered
+
+- 21:58 The owner approved D1–D7 ("同意 D1–D7").
+- 22:00 `.venv-bridge` was created with `--system-site-packages`, so the system torch 2.13 is reused and no
+  second torch was downloaded. A dry run listed every new package, and two unfamiliar dependencies were
+  traced: cwevals comes from wandb, py2store from babe. sae-lens 6.54.12 is installed; the main venv is
+  unchanged.
+- 22:03 Downloads: 309 MB, only the approved files. The manifest, with revisions and SHA-256, is in
+  `results/bridge/20261024-220300-fetch`.
+- 22:08 FP-only stage:
+  - The code arm reproduces Duan exactly: 5,688 active features and FP perplexity 67.839.
+  - G1 picks the raw residual (FVU 0.193 vs 0.232 centered).
+  - near_thr turns out to be a frequency proxy (Spearman -0.93 with rarity). Registered secondary S1 was
+    added to control for that.
+- 22:10–22:45 Independent review (`bridge-prereg-review`, 18 agents): 9 findings confirmed, 6 refuted. All 9
+  were fixed:
+  - the cell-consistent Family B statistic;
+  - the spline base for Family A;
+  - exact c_j = 0 for killed features, with fp64 sums;
+  - interf_sum back to D3;
+  - per-half dfalse;
+  - the verdict strings listed in full.
+- 22:50 **Owner decision**, via a question: the primary margin uses b_enc, and beta is secondary.
+- 22:55 The pre-registration was written into `notes/LOG.md` and the code frozen in the same commit. 277 tests
+  pass. Next: R1, the INT6 replication gate.
