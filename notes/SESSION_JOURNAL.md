@@ -359,3 +359,21 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   只多 0.001–0.002。
 - **顺带发现**：Duan 公开的代码和论文描述的做法不同（Q/K/V 的 scale 跨 head 共享，量化的是处理过的权重）。
   按论文说的逐通道做法，损伤小得多（INT6：85% vs 62% 存活）。这是描述性结果，三个差异混在一起，没有分开。
+
+## 2026-10-25 (owner present): second review of the bridge, ablation, draft v4
+
+- The owner pasted a review covering five points:
+  - replication as its own first section;
+  - scope "does not transfer" to the proxies and the pipeline;
+  - margin: registered result first, post hoc right after, and admit the baseline choice;
+  - 85 vs 62: ablate, re-run the tests on the described method, and email Duan;
+  - check B_M's frequency control.
+- Ablation (exploratory, 12 variants at INT6): the shared Q/K/V scales drive the gap (62.4% → 94.3%).
+  LayerNorm folding explains the rest with per-channel scales (85.3% → 94.6%). Other factors ≤ 0.5 points.
+- Re-run of the tests on the described method: the same verdicts. Beyond Duan's four statistics, nothing adds
+  more than 0.004 AUC on either pipeline.
+- The email to Duan was drafted. **At the owner's request it was put in their Gmail drafts, not sent.** The
+  owner then pointed out that the sentence about the 85.3% group did not attribute the 9 points. The draft was
+  updated with the one-factor comparisons (S → S-F: fold_ln only; S → S-I: SAE input only).
+- Post v4 and README updated. Still the owner's: sending the email and filling in the date, the remaining
+  review points, and publishing.

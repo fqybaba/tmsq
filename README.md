@@ -7,7 +7,7 @@ and can superposition geometry predict this in advance?
 Status (2026-10-24):
 - Phases 0–5 are complete, and so is the pre-registered bridge to a real model (Pythia-70M with a pretrained
   SAE).
-- The write-up exists as draft v3 in `writeup/post.md`, awaiting the owner's review before publishing.
+- The write-up exists as draft v4 in `writeup/post.md`, awaiting the owner's review before publishing.
 `notes/LOG.md` is the lab notebook, with every result, pre-registration and deviation. `CLAUDE.md` and
 `notes/DESIGN_NOTES.md` hold the canonical definitions.
 
@@ -37,20 +37,22 @@ Status (2026-10-24):
     geometry cannot be separated.
   - The weak-superposition regime was stopped by a sanity rule: heavy weight decay makes 2-bit RTN *improve*
     the model.
-- **Bridge to a real model: Duan's results replicate exactly, but the toy mechanism does not transfer.**
-  Setup: Pythia-70M, the layer-4 residual SAE `pythia-70m-deduped-res-sm`, and per-channel RTN, as in Duan
-  (2026).
-  - Survival and perplexity reproduce Duan's Table 1 to within 0.02 at INT8–INT4. Peak activation alone
-    predicts survival with AUC 0.879.
-  - Threshold density adds nothing to peak activation for survival (dAUC +0.008, registered minimum 0.02).
-    Its strong link to new false activations is entirely feature frequency: partial ρ 0.79 → −0.01 with
-    rarity controlled.
-  - A margin analog clears its registered bar beyond peak (dAUC +0.024, larger margin = lower survival).
-    Post hoc, that information is Duan's own activation statistics: it adds 0.001–0.002 beyond his four
-    predictors.
-  - Duan's released code quantizes TransformerLens-processed weights with Q/K/V scales shared across heads.
-    The paper's stated per-channel method damages far less (INT6: 85% vs 62% survive). This is descriptive,
-    with three confounded differences.
+- **Real model: Duan (2026) replicates exactly; the toy predictors add nothing beyond his statistics.**
+  Setup: Pythia-70M, the layer-4 residual SAE `pythia-70m-deduped-res-sm`, and RTN, as in Duan.
+  - With his released code (mirror `sae-feature-survival-quantization-0141`, 2026-06-08), survival and
+    perplexity reproduce his Table 1 to within 0.02 at INT8–INT4. Peak activation alone predicts survival with
+    AUC 0.879.
+  - Implementation note:
+    - The code shares Q/K/V quantization scales across heads. With per-channel scales, 94.3% of features
+      survive INT6 instead of 62.4%.
+    - Folding the LayerNorm gains before per-channel quantization accounts for the remaining gap to the
+      described method (85.3% → 94.6%).
+    - The ablation is exploratory.
+  - Threshold density and a margin analog add at most 0.004 AUC beyond Duan's four statistics, on both his
+    pipeline and the described method.
+    - The margin passed its pre-registered test against peak activation alone (+0.024). Post hoc, Duan's
+      statistics explain it; the registered baseline should have been his full model.
+    - Threshold density's link to new false activations is feature frequency.
 - **Geometry-aware bit allocation does not beat uniform 4-bit RTN** at an equal budget.
   - Mixing 3- and 5-bit columns costs about 2× the loss increase (1.9× measured, 2.1× predicted), and no
     geometric ranking recovers that.
@@ -110,6 +112,7 @@ their figures to `figures/`. Times are for a desktop CPU.
 | 6b FP | `.venv-bridge\Scripts\python -m tmsq.experiments.bridge fp --config configs/bridge.yaml` | — | 3 min |
 | 6b runs | `... bridge quant --config configs/bridge.yaml --arm code --bits 6` (R1); `--bits 8 7 5 4` (R2); `--arm stated --bits 8 7 6 5 4` (R3); `--bits 6 --noise-seed 0` (R4) | — | 2–6 min each |
 | 6b tests | `... bridge analyze --config configs/bridge.yaml --primary <R1> --extra <R2> <R3> <R4>` | — | 18 min |
+| 6b ablation | `... bridge_ablation --config configs/bridge.yaml --group r1` (also `c1`, `c2`, `r2`) | — | 5 min each |
 
 Configs that consume earlier runs (`quant_sweep*.yaml`, `phase4.yaml`, `phase5.yaml`) name the exact result
 directories used in the LOG. On a fresh checkout, point them at your own runs. Post-hoc analyses are scripts in

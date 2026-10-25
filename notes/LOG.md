@@ -2416,3 +2416,45 @@ arXiv 2606.03002, titled "Perplexity Can Miss SAE Feature Damage Under Quantizat
 4 June 2026. The script is `scripts/02_pythia_phase2b_streaming_final.py`.
 
 ---
+
+## 2026-10-25 — Phase 6b: POST-HOC re-run of the registered tests on the described method, and Duan-4 baselines
+
+Script `notes/posthoc/bridge_stated_arm_tests.py`, output `results/bridge_posthoc/stated_arm_tests_20261025.{txt,json}`.
+The first background run exited with code 4 after finishing the code arm and printed no traceback; the cause is
+unknown. A rerun with faulthandler completed normally (exit 0).
+
+Registered procedure, frozen `registered()`, on the stated arm R3 (INT6, 5,717 features, 85.3% survived):
+- A_T: dAUC +0.000 -> no added information beyond peak.
+- A_M: dAUC +0.035 -> adds information beyond peak (coefficient -).
+- B_T: rho +0.744 -> "supported", but beyond peak, not beyond frequency (S1 rho -0.027).
+- B_M: rho +0.151 -> associated beyond peak (+). S1, given peak + rarity: +0.302.
+
+These are the same four verdicts as on the code arm.
+
+Beyond Duan's four statistics (dAUC with a spline / linear base; partial rho with dfalse given all four):
+
+| | code arm | stated arm |
+|---|---|---|
+| Duan-4 AUC | 0.934 / 0.924 | 0.902 / 0.891 |
+| near_thr | +0.0002 / +0.0018; rho +0.11 | +0.0006 / +0.0004; rho +0.11 |
+| margin | +0.0021 / +0.0014; rho +0.03 | +0.0037 / +0.0041; rho +0.07 |
+| bias_only | +0.0036 / +0.0032; rho +0.01 | +0.0028 / +0.0027; rho +0.07 |
+
+Reading:
+- No proxy adds more than 0.004 AUC beyond Duan's statistics on either pipeline.
+- near_thr keeps a small leakage association, rho ≈ 0.11. It depends on the specification: it is about 0 given
+  peak + rarity.
+- The owner's review asked whether test 4 (B_M) was frequency-controlled. It was, in S1: 0.174 given
+  peak + rarity. Given Duan-4 it falls to 0.03 (0.07 on the stated arm).
+- Design lesson, owned: the registered baseline for "beyond Duan" should have been his four-statistic model,
+  not peak alone.
+
+Post draft v4:
+- Section 8, replication with the implementation note and ablation table.
+- Section 9, the transfer tests with both pipelines, the margin paragraph and the scope limit.
+- TL;DR net result marked post hoc.
+
+The email to Duan is in the owner's Gmail drafts (unsent, no recipient). It now gives the one-factor
+attribution of the gap between 85.3% and about 94% to LayerNorm folding, at the owner's request.
+
+---

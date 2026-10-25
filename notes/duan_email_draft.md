@@ -1,5 +1,8 @@
 # Draft email to Evan Duan (for Shen to review and send; not sent)
 
+Status: placed in Shen's Gmail drafts on 2026-10-25 (no recipient filled in) and updated the same day with the
+one-factor attribution of the 85.3% vs 94% gap. The Gmail draft is the current text; the copy below may lag it.
+
 Purpose: before the write-up says anything public about the difference between the released code and the
 paper's description, ask the author. Neutral tone. Shen sends it from their own address and records the date
 in the post's implementation note ("we contacted the author on <date>").
@@ -31,12 +34,21 @@ differ in a way that matters, and I would like to check my reading with you befo
 3. The SAE then receives the mean-centered residual stream. On positions < 128 that SAE reconstructs the
    centered residual somewhat worse than the raw one (FVU 0.232 vs 0.193).
 
-I ran a one-factor-at-a-time ablation at INT6. Point 1 explains most of the difference:
-- With per-output-channel Q/K/V scales and everything else as in your code, survival is 94.3% instead of
-  62.4%, and the perplexity change is +2.2% instead of +14.7%.
-- Points 2 and 3 matter much less, except that folding the LayerNorm gains before per-channel quantization
-  adds a few points.
-- Following the method as described (per-channel scales on the raw HuggingFace weights) gives 85.3%.
+I ran an ablation at INT6 that changes one factor at a time, starting from either your code or the method as
+described. The method as described here means per-channel scales on the raw HuggingFace weights, with the raw
+residual fed to the SAE; it gives 85.3% survival. The results:
+
+- Point 1 explains most of the difference.
+  - With per-output-channel Q/K/V scales and everything else as in your code, survival is 94.3% instead of
+    62.4%, and the perplexity change is +2.2% instead of +14.7%.
+  - Conversely, switching only the Q/K/V scales to the shared scheme lowers the described method's 85.3% to
+    59.6%.
+- The remaining gap between 85.3% and about 94% comes from LayerNorm folding (part of point 2). Starting from
+  the described method, folding the LayerNorm gains into the weights before quantization is the only change,
+  and it raises survival to 94.6%.
+- Point 3 matters little. Feeding the SAE the centered rather than the raw residual changes survival only from
+  85.3% to 85.6%.
+- Weight centering and value-bias folding each move survival by less than 0.5 points.
 
 Could you tell me:
 - whether the mirrored code is the version behind Tables 1 and 2 (the exact match suggests so), and

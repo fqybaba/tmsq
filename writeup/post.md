@@ -1,8 +1,9 @@
 # Which features does quantization break first? In a toy model of superposition, it is the antipodal pairs, not the crowded ones
 
-> **DRAFT v3, not published.** v2 (2026-10-24) followed Shen's review of v1: the head-vs-tail part became a
+> **DRAFT v4, not published.** v2 (2026-10-24) followed Shen's review of v1: the head-vs-tail part became a
 > short side section, the voice became first person, and the citations were checked against primary sources.
-> v3 adds the real-model bridge (Section 8).
+> v3 adds the real-model bridge. v4 splits it into a replication section (8) and a transfer section (9),
+> following Shen's second review.
 > Claude Code prepared it from `notes/LOG.md`. Every number comes from a `results/` directory listed in the
 > provenance table at the end. The open review points are collected in the last section.
 
@@ -17,7 +18,7 @@
 - I approved the Phase 3 pre-registration before any test ran. After that I was away, and under my standing
   instruction Claude Code ran the Phase 3 tests, wrote the pre-registrations for Phases 3b–5, and did the
   post-hoc analyses. These are marked where they appear.
-- For the real-model bridge (Section 8), I approved Claude Code's plan and chose one of its definitions (the
+- For the real-model bridge (Sections 8–9), I approved Claude Code's plan and chose one of its definitions (the
   encoder bias in the margin analog). Claude Code then wrote the pre-registration, had it reviewed
   independently, and froze it before any quantized run.
 
@@ -45,13 +46,13 @@
     geometry-based ranking recovers that.
   - A generic loss-aware rounding removes about half of the quantization loss in one setting, but it does not
     rescue the fragile features.
-- **A real-model check replicates Duan exactly, but the mechanism does not transfer.**
-  - In Pythia-70M with a pretrained SAE, Duan's survival and perplexity numbers reproduce to within 0.02
+- **Real model: Duan replicates exactly; the toy predictors add nothing beyond his statistics.**
+  - On Pythia-70M with a pretrained SAE, Duan's survival and perplexity numbers reproduce to within 0.02
     points.
-  - Threshold density adds nothing to peak activation for predicting which SAE features survive. Its strong
-    link to new false activations is entirely feature frequency.
-  - A margin analog clears its pre-registered bar. Post hoc, though, its information turns out to be Duan's
-    own activation statistics in another form.
+  - His released code shares Q/K/V quantization scales across heads. With per-channel scales, 94% of features
+    survive INT6 instead of 62%.
+  - None of the toy-model predictors adds information beyond Duan's four statistics, on either pipeline. One
+    passed its pre-registered test against peak activation alone; post hoc, Duan's statistics explain it.
 - **Head vs tail is a weak side result.** Under a power-law frequency, the pre-registered test leans toward
   "the tail loses a larger relative fraction". The effect is weak and not robust, it comes from the
   normalization, and frequency is nearly collinear with geometry in those models.
@@ -68,7 +69,7 @@ with per-output-channel RTN and tracked sparse-autoencoder (SAE) features.
   0.92–0.97, and peak activation is the strongest single predictor.
 - The paper offers a heuristic ("quantization perturbations compete with each feature's activation signal")
   but measures no geometry.
-- Its released code differs from the method the paper describes, in ways that matter (Section 8).
+- Its released code differs from the method the paper describes, in a way that matters (Section 8).
 
 In a real model the true features are unknown, so the question of *why* a given feature breaks cannot be
 asked directly.
@@ -128,7 +129,7 @@ its norm is > 0.5 and its FP R² is ≥ 0.5.
   seed 1).
 - A finding discovered post hoc on K was then confirmed on a third fresh set (K2, seed 7).
 - Post-hoc analyses are labelled as post hoc throughout.
-- Mistakes are reported where they happened (Sections 6 and 9).
+- Mistakes are reported where they happened (Sections 6, 9 and 10).
 
 ## 3. Replication sanity checks
 
@@ -332,11 +333,14 @@ confirmation.
 - Per-feature bit allocation has no direct counterpart in real models, where features are not axis-aligned.
   This section is a mechanism demonstration, not a method.
 
-## 8. Bridge to a real model: Pythia-70M with a pretrained SAE
+## 8. Replicating Duan (2026) on Pythia-70M
 
-**Question.** Does anything learned in the toy model help predict which SAE features break in a real model?
+**Versions.**
+- Paper: arXiv 2606.03002 v2 (4 June 2026).
+- Code: the anonymous mirror `sae-feature-survival-quantization-0141`, source commit dated 2026-06-08. Its
+  README links to the v2 title. The Pythia script is `scripts/02_pythia_phase2b_streaming_final.py`.
 
-**Setup: Duan's setting.**
+**Setup.** Duan's setting:
 - Model: Pythia-70M-deduped.
 - SAE: the SAELens SAE `pythia-70m-deduped-res-sm` on the layer-4 residual stream, 32,768 features, from
   Marks et al. (2024).
@@ -344,10 +348,8 @@ confirmation.
 - Quantization: RTN on the transformer-block linear weights.
 - Survival: the Pearson correlation of each feature's activations before and after quantization, over all
   tokens, must exceed 0.9.
-- I approved the plan. The pre-registration was frozen before any quantized run, after an independent review
-  that found and fixed 9 problems, including two in the statistics.
 
-**Replication first.**
+**Results**, following the released code:
 
 | Bits | Survived (mine / Duan) | Perplexity (mine / Duan) |
 |---|---|---|
@@ -357,47 +359,102 @@ confirmation.
 | INT5 | 38.0% / 38.0% | 116.15 / 116.15 |
 | INT4 | 14.5% / 14.5% | 319.59 / 319.60 |
 
-- Duan's four-statistic predictor gives AUC 0.924 here, as in the paper.
-- Peak activation alone gives AUC 0.879. Duan does not report this number.
+- Every survival rate is within 0.02 percentage points of Duan's.
+- Duan's four-statistic predictor gives AUC 0.924 here, as in his Table 2.
+- Peak activation alone gives AUC 0.879. Duan does not report this number. It means the other three
+  statistics add about 0.045.
 
-**Two things about Duan's pipeline, from reading the released code.**
-- It quantizes TransformerLens-processed weights, with Q/K/V scales shared across attention heads.
-- It feeds the SAE a mean-centered residual, which the SAE reconstructs worse than the raw residual (fraction
-  of variance unexplained 0.232 vs 0.193).
-- Following the paper's stated per-output-channel method on raw weights damages much less: at INT6, 85% of
-  features survive instead of 62%, and perplexity rises 4.8% instead of 14.7%.
-- Three things differ between the two pipelines, and this run does not separate them. My registered tests use
-  Duan's code, so they can be compared with his paper.
+**Implementation note.** Duan's released code differs from the method described in the paper (§3.2,
+Appendix L) in three ways:
+1. W_Q/W_K/W_V share one scale per d_head index across all 8 heads, instead of one scale per output channel.
+2. The weights are quantized after TransformerLens's default processing (LayerNorm folding, weight centering,
+   value-bias folding).
+3. The SAE receives the mean-centered residual. It reconstructs that worse than the raw residual: fraction of
+   variance unexplained 0.232 vs 0.193.
 
-**Registered tests** (INT6, 5,688 active features):
+The exact match above shows that the released code produced the paper's numbers. An exploratory ablation at
+INT6 changes one factor at a time, starting from either end. The described method gives 85.3% survival.
 
-| Test | Result | Verdict (pre-registered rule) |
-|---|---|---|
-| Threshold density → survival, beyond peak | dAUC +0.008 | no added information (minimum is 0.02) |
-| Margin analog → survival, beyond peak | dAUC +0.024, larger margin = *lower* survival | adds information |
-| Threshold density → new false activations, beyond peak | partial ρ +0.79 | supported, but frequency (see below) |
-| Margin analog → new false activations, beyond peak | partial ρ +0.26 | associated |
+| Change | Survived at INT6 |
+|---|---|
+| Duan's code as released | 62.4% |
+| … with per-channel Q/K/V scales | 94.3% |
+| Described method (per-channel scales, raw weights, raw residual) | 85.3% |
+| … with shared Q/K/V scales | 59.6% |
+| … with LayerNorm gains folded in before quantizing | 94.6% |
+| … with the centered residual fed to the SAE | 85.6% |
 
-**What it means.**
-- **The toy-model mechanism does not transfer.** Threshold density does not help predict survival.
-  - Its strong link to new false activations disappears once feature frequency is controlled for (ρ = 0.79
-    becomes −0.01). That control was registered in advance, because frequency and geometry were confounded in
-    Phase 4–5.
-  - In this model, frequent features leak more (partial ρ of rarity with new false activations: −0.82). That
-    is the same direction as Duan's "non-survival rises with firing rate" and as the head's raw leakage in
-    Section 6, though the metrics differ.
-- **The margin analog's added information is Duan's own statistics** (post hoc).
-  - The analog divides by the feature's mean activation when active, which is mean / firing rate, built from
-    two of Duan's statistics.
-  - Beyond peak and that one quantity, the margin adds 0.003. Beyond Duan's four statistics it adds
-    0.001–0.002.
-  - The encoder bias alone adds 0.003 beyond peak.
-- So **no geometric quantity I tested improves on activation statistics in this model.**
-  - One possible reason, not tested: in the toy model the fragile geometry is the model's own weights and
-    biases. An SAE's encoder bias and decoder overlaps belong to a dictionary fitted on top of the model.
+- The shared Q/K/V scales explain most of the gap.
+- LayerNorm folding explains the rest: about 9 points with per-channel scales (about 2.5 with shared ones).
+- The SAE input convention, weight centering and value-bias folding each move survival by less than 0.5
+  points.
+- So Duan's headline INT6 survival depends mainly on one implementation detail. [We contacted the author on
+  <date> / summary of the author's reply.]
+- The registered tests below use the released code, so they are comparable with the paper. They were also
+  re-run on the described method.
+
+## 9. Does the toy-model mechanism transfer?
+
+**Question.** Do the toy-model predictors tell us anything about which SAE features break, beyond what Duan's
+activation statistics already tell us?
+
+**The two predictors.**
+- *Threshold density*: how much of a feature's pre-activation sits just below its firing threshold.
+- *Margin analog*: built from the SAE's encoder bias and decoder overlaps.
+
+**How the tests were fixed in advance.**
+- I approved the plan and chose the margin's bias term.
+- The pre-registration was frozen before any quantized run. Before that, an independent review fixed 9
+  problems, two of them in the statistics.
+- Each test compares a predictor with **peak activation alone**, and needs at least +0.02 AUC (survival) or a
+  partial correlation of at least 0.10 (new false activations) to count.
+
+**Registered tests** (INT6). Duan's pipeline has 5,688 active features; the described method, re-run post hoc,
+has 5,717.
+
+| Test | Duan's pipeline | Described method (post hoc) | Verdict on both |
+|---|---|---|---|
+| Threshold density → survival | dAUC +0.008 | +0.000 | no added information |
+| Margin → survival | dAUC +0.024, larger margin = *lower* survival | +0.035, same sign | adds information beyond peak |
+| Threshold density → new false activations | partial ρ +0.79 | +0.74 | "supported", but frequency (below) |
+| Margin → new false activations | partial ρ +0.26 | +0.15 | associated |
+
+**Threshold density.**
+- It adds nothing to peak activation for predicting survival.
+- Its strong link to new false activations is feature frequency. With rarity also controlled, as registered in
+  advance, ρ = 0.79 falls to −0.01 (−0.03 on the described method). That control was registered because
+  frequency and geometry were confounded in Phase 4–5.
+- In this model, frequent features leak more (partial ρ of rarity with new false activations: −0.82). That is
+  the same direction as Duan's "non-survival rises with firing rate" and as the head's raw leakage in
+  Section 6, though the metrics differ.
+
+**Margin.**
+- The margin passed its pre-registered criterion: ΔAUC = 0.024 over peak activation alone, with a threshold of
+  0.02. Larger margins predicted more damage.
+- A post-hoc check shows that this information is already contained in Duan's statistics.
+  - The margin's denominator μ⁺ equals mean activation divided by firing rate.
+  - Adding the margin to all four of Duan's predictors improves AUC by only 0.001–0.002 (0.004 on the
+    described method).
+- Its association with new false activations also shrinks once Duan's statistics are controlled for. It is
+  0.17 given peak and rarity, and 0.03 given all four statistics (0.30 and 0.07 on the described method).
+- **In hindsight, the registered baseline should have been Duan's full model, not peak activation alone.**
+  That choice is why the margin "passed" before it was explained away.
+- The sign matches the toy model's H1 result: there, too, larger margins went with more damage. That is a
+  match in direction only, not supporting evidence.
+
+**Net result (the comparison with Duan's four statistics is post hoc).**
+- On Pythia-70M, none of the SAE-level proxies of the toy-model mechanism adds predictive information beyond
+  Duan's four statistics, on either pipeline.
+  - Against those statistics the survival gains are at most 0.004 AUC.
+  - Threshold density keeps a small residual association with new false activations (ρ ≈ 0.11 on both
+    pipelines). That number depends on which controls are used: it is about 0 when only peak and rarity are
+    controlled.
+- This does not rule out the mechanism in real models. These proxies may not capture it: in the toy model, the
+  fragile geometry is the model's own weights and biases, whereas an SAE's encoder bias and decoder overlaps
+  belong to a dictionary fitted on top of the model.
 - As in the toy model, matched Gaussian noise does about the same damage as rounding: 63.8% survive vs 62.4%.
 
-## 9. Limitations
+## 10. Limitations
 
 - **Scope.** One toy architecture, a tied ReLU autoencoder. The main finding rests on one (n, m, S) cell:
   n = 100, m = 20, S ≈ 0.75, where antipodal pairs and denser polytopes coexist.
@@ -414,9 +471,11 @@ confirmation.
 - **The real-model bridge is one model, one SAE, one layer.**
   - Its roughly 5,700 features are not independent, so permutation p-values sit at their floor, and the
     pre-registered minimum effect sizes carry the decisions.
-  - The margin result was reinterpreted post hoc (Section 8).
+  - The margin result was explained away post hoc, because the registered baseline was peak activation
+    alone rather than Duan's full model (Section 9).
+  - All registered tests ran on Duan's released pipeline. The described method was re-run only post hoc.
 
-## 10. Related work
+## 11. Related work
 
 - **The toy model.** Elhage et al. (2022) introduced it, its polytope geometry, and the role of negative
   biases in filtering positive interference.
@@ -443,15 +502,13 @@ confirmation.
 - **Novelty.** To my knowledge, nobody has reported the specific result that zero-bias antipodal features are
   the most fragile under post-training weight quantization, so that more crowded features are damaged *less*.
 
-## 11. Next steps
+## 12. Next steps
 
-1. **Separate the three differences between Duan's code and his stated method**: shared Q/K/V scales,
-   processed weights, and the residual convention. One of them roughly halves the damage at INT6.
-2. **Test the geometry where it lives.** A margin defined on the model's own neurons or attention, rather than
+1. **Test the geometry where it lives.** A margin defined on the model's own neurons or attention, rather than
    on an SAE dictionary, in a second model or layer.
-3. **Map the result across (n, m, S)**, to see whether antipodal fragility holds wherever antipodal pairs
+2. **Map the result across (n, m, S)**, to see whether antipodal fragility holds wherever antipodal pairs
    coexist with denser structures, including setting B.
-4. **Re-test the setting-D mechanism with the right outcome** (new false activations), pre-registered, on
+3. **Re-test the setting-D mechanism with the right outcome** (new false activations), pre-registered, on
    fresh models.
 
 ## References
@@ -493,20 +550,19 @@ confirmation.
 | 6 | Duan's frequency statements | arXiv:2606.03002v2, Sections 4.4 and 5.4 |
 | 7 | Phase 5 families and secondaries | `results/phase5/20261024-160152-analysis` |
 | 7 | setting-D frequency confound (post hoc) | `results/phase5_posthoc/d_frequency_confound_20261024.txt` (script `notes/posthoc/phase5_d_frequency_confound.py`) |
-| 8 | replication, registered tests, secondaries | `results/bridge/20261024-224808-fp` (FP stage), R1–R4 `results/bridge/20261024-230636-code-b6`, `-230918-code-b8-7-5-4`, `-231452-stated-b8-7-6-5-4`, `-232022-code-b6-noise0`; analysis `results/bridge/20261024-232316-analysis` |
-| 8 | margin decomposition; B_M check (post hoc) | `results/bridge_posthoc/margin_decomposition_20261024.txt` (script `notes/posthoc/bridge_margin_decomposition.py`) |
-| 10 | literature check | `notes/litcheck_2026-10-24.md`; citations re-checked against arXiv, ICML and LessWrong pages on 2026-10-24 (`notes/LOG.md`) |
+| 8–9 | replication, registered tests, secondaries | `results/bridge/20261024-224808-fp` (FP stage), R1–R4 `results/bridge/20261024-230636-code-b6`, `-230918-code-b8-7-5-4`, `-231452-stated-b8-7-6-5-4`, `-232022-code-b6-noise0`; analysis `results/bridge/20261024-232316-analysis` |
+| 8 | ablation of code vs described method (exploratory) | `results/bridge_ablation/20261025-024313-r1-int6`, `-024807-c1-int6`, `-025332-c2-int6`, `-025755-r2-int6` (module `src/tmsq/experiments/bridge_ablation.py`) |
+| 9 | described-method registered tests; Duan-4 baselines (post hoc) | `results/bridge_posthoc/stated_arm_tests_20261025.{txt,json}` (script `notes/posthoc/bridge_stated_arm_tests.py`) |
+| 9 | margin decomposition; B_M check (post hoc) | `results/bridge_posthoc/margin_decomposition_20261024.txt` (script `notes/posthoc/bridge_margin_decomposition.py`) |
+| 11 | literature check | `notes/litcheck_2026-10-24.md`; citations re-checked against arXiv, ICML and LessWrong pages on 2026-10-24 (`notes/LOG.md`) |
 
 ## Review points still open (delete before publishing)
 
-1. **How to present the margin result** (Section 8). The registered verdict is "adds information beyond
-   peak". Post hoc, that information is Duan's own statistics. This draft states both, in that order. Keep
-   it this way, or lead with "adds nothing beyond Duan's statistics"?
-2. **The code-vs-stated pipeline comparison** (Section 8): 85% vs 62% survival at INT6. It is descriptive and
-   has three confounded causes. Keep it as a caveat about Duan's released code, or drop it?
-3. **"How this was made."** If Shen has read the Phase 3b–5 pre-registrations, add "and I reviewed them
+1. **The email to Duan.** A draft is in Shen's Gmail drafts, with no recipient filled in. Once it is sent,
+   replace "[We contacted the author on <date> / summary of the author's reply]" in Section 8.
+2. **"How this was made."** If Shen has read the Phase 3b–5 pre-registrations, add "and I reviewed them
    afterwards"; otherwise leave the sentence as it is.
-4. **Stevinson et al.** The PMLR volume and pages are not out yet. Add them when the proceedings appear; do not
+3. **Stevinson et al.** The PMLR volume and pages are not out yet. Add them when the proceedings appear; do not
    guess them.
-5. **Duan's title.** Version 1 (2 June 2026) was titled "How Quantization Changes Interpretable Features: A
+4. **Duan's title.** Version 1 (2 June 2026) was titled "How Quantization Changes Interpretable Features: A
    Sparse Autoencoder Analysis of Language Models". The current version, v2 (4 June 2026), is cited.
