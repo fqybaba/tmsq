@@ -397,3 +397,13 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   - the attribution wording now says AI review, not independent review, and names the decisions Claude Code
     made while the owner was away.
 - All fixes are applied in the post and README; the LOG received an append-only corrections entry.
+- Recheck workflow `post-audit-recheck` (37 agents) on the c122281 diff found 29 confirmed regressions or
+  imprecisions from the first round. All are fixed in a5b40db:
+  - scope of the reliability claim;
+  - overlap bounds restricted to D ≥ 0.48;
+  - p-value floor restricted to the decision tests;
+  - Section 7 totals;
+  - attribution of the post-hoc checks;
+  - Markdown layout.
+- The first recheck launch was stopped and relaunched because it pointed at an empty working-tree diff after
+  the commit.
