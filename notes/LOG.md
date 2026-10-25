@@ -2219,3 +2219,98 @@ Its numbers are reported as they come out, nulls included.
   summary).
 
 ---
+
+## 2026-10-24 — Phase 6b (bridge): RESULTS
+
+Pre-registration and frozen code: commit `6f3836c` (above). Runs, all with `fp_sanity` passing (each run's FP
+perplexity equals the FP stage's):
+- R1 `results/bridge/20261024-230636-code-b6`
+- R2 `results/bridge/20261024-230918-code-b8-7-5-4`
+- R3 `results/bridge/20261024-231452-stated-b8-7-6-5-4`
+- R4 `results/bridge/20261024-232022-code-b6-noise0`
+- Analysis `results/bridge/20261024-232316-analysis` (1,067 s)
+
+### Gate G2: passed. The code arm reproduces Duan's Table 1 at every bit width
+
+| bits | survived (ours / Duan) | perplexity (ours / Duan) |
+|---|---|---|
+| INT8 | 98.3 / 98.312 | 68.53 / 68.532 |
+| INT7 | 86.3 / 86.322 | 69.37 / 69.372 |
+| INT6 | 62.41 / 62.395 | 77.83 / 77.828 |
+| INT5 | 38.0 / 37.957 | 116.15 / 116.148 |
+| INT4 | 14.5 / 14.504 | 319.59 / 319.602 |
+
+- At INT6 the damaged fraction is 1.00% vs 1.020%, and the mean correlation 0.888 vs 0.888.
+- Duan's four-predictor linear CV AUC: 0.924 (his 0.924 ± 0.007).
+- **Peak activation's univariate AUC, not reported by Duan: 0.879.**
+
+### Registered tests (primary cell: code arm, INT6, 5,688 active features, 62.4% survived)
+
+| Test | Statistic | Holm p | Verdict |
+|---|---|---|---|
+| A_T near_thr → survival | dAUC +0.008 (0.879 → 0.887), coefficient − | 0.002 | **no added information beyond peak** (below the 0.02 minimum) |
+| A_M margin → survival | dAUC **+0.024** (0.879 → 0.903), coefficient **−** | 0.002 | **adds information beyond peak (coefficient −)** |
+| B_T near_thr → dfalse | partial rho **+0.79** | 4e-4 | **supported**; S1 interpretation: **"beyond peak, not beyond frequency"** |
+| B_M margin → dfalse | partial rho +0.26 | 4e-4 | **associated beyond peak (+)** |
+
+S1, beyond log peak AND rarity (registered secondary, no Holm):
+- A_T: dAUC -0.0001, p 0.77.
+- A_M: dAUC +0.017, p 0.001.
+- B_T: rho -0.009, p 0.52.
+- B_M: rho +0.17, p 1e-4.
+
+Reading, stated plainly:
+- **The toy-model mechanism (threshold density) does not add to peak activation for survival.**
+- Its very strong association with new false activations is **entirely frequency**: rho drops from 0.79 to
+  -0.01 once rarity is controlled for. The frequent features leak more (partial rho(rarity, dfalse) = -0.82).
+  This is the same direction as Duan's "non-survival rises with firing rate" and as the head's larger raw
+  leakage in Phase 4 (post hoc there).
+- **The margin analog adds a modest amount beyond peak** (+0.024, just over the registered 0.02), and less
+  beyond peak and rarity (+0.017).
+- Its direction is the **opposite of the protective reading**: a larger margin, meaning a more negative
+  encoder bias relative to the feature's typical activation, goes with LOWER survival and MORE leakage. This
+  parallels the toy model's H1 result, where margin also came out with the opposite sign. The mechanism is not
+  established here.
+
+### Secondary (descriptive, no Holm)
+
+- **Robustness of A_M** (dAUC of margin):
+  - token halves: 0.026 / 0.024;
+  - positions < 128: 0.031;
+  - active-stratum Pearson: 0.016;
+  - code arm by bit width: INT8 0.022, INT7 0.029, INT5 0.014, INT4 0.018;
+  - stated arm: INT6 0.035, INT5 0.026, INT4 0.033;
+  - matched noise at INT6: 0.024.
+
+  The sign is the same everywhere it is estimable. Stated INT8 and INT7 have 0 and about 11 non-survivors, so
+  their AUCs are not interpretable.
+- **What carries M.** bias_only = -b_enc/mu+ alone gives dAUC 0.027. The beta versions (the originally
+  approved D3 formula) give 0.006–0.007, and margin_beta's partial rho with dfalse is 0.46. Under the b_enc
+  definition the information sits in the encoder bias relative to activation size. The b_enc choice was made
+  before the data.
+- **interf_sum:** dAUC 0.014. **rarity alone:** dAUC 0.012.
+- **Stated arm** (true per-output-channel scales on raw weights, raw residual) is much less damaged than the
+  code arm:
+
+  | bits | survived (stated / code) | perplexity change (stated / code) |
+  |---|---|---|
+  | INT6 | 85.3% / 62.4% | +4.8% / +14.7% |
+  | INT5 | 59.2% / 38.0% | +27% / +71% |
+  | INT4 | 22.6% / 14.5% | +117% / +371% |
+
+  The arms differ in three ways: shared Q/K/V scales, LN-folded and centered weights, and the residual
+  convention. This run cannot say which one drives the difference. Descriptive only.
+- **Matched noise at INT6:** survived 63.8% vs RTN 62.4%, and perplexity +13.5% vs +14.7%. Generic perturbation
+  of the same size does about the same damage, as in the toy model.
+
+### Surprises and caveats
+
+- The replication is essentially exact (survival to about 0.02 points, perplexity to 0.01), which validates
+  the pipeline. Duan's released pipeline feeds the SAE the residual convention it fits worse (G1), and
+  quantizes with Q/K/V scales shared across heads. Our numbers inherit both, by design.
+- Single model and dependent features. Every registered p sits at the permutation floor, so the minimum effect
+  sizes carry the decisions. A_M clears its minimum by 0.004.
+
+Next: write-up (post Section "Bridge"), then the owner's review before publishing.
+
+---
