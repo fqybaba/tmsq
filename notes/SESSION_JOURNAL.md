@@ -327,3 +327,35 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - 22:50 **Owner decision**, via a question: the primary margin uses b_enc, and beta is secondary.
 - 22:55 The pre-registration was written into `notes/LOG.md` and the code frozen in the same commit. 277 tests
   pass. Next: R1, the INT6 replication gate.
+
+## 2026-10-24 23:05–23:50: bridge runs, analysis, write-up v3
+
+- 23:06 R1 (code arm, INT6): the replication gate G2 passed. Survived 62.41% vs Duan's 62.395%, perplexity
+  77.828 vs 77.828.
+- 23:09–23:22 R2–R4. The code arm reproduces Duan's Table 1 at every bit width (survival within 0.02 points,
+  perplexity within 0.02). The stated arm (true per-channel RTN on raw weights) damages far less.
+- 23:23–23:41 Registered analysis:
+  - A_T null.
+  - A_M "adds information beyond peak (coefficient -)".
+  - B_T "supported", but "beyond peak, not beyond frequency" by the pre-registered S1 rule.
+  - B_M "associated beyond peak (+)".
+- Advisor review of the interpretation: mu+ = mean / rate is built from Duan's statistics. Post-hoc check
+  (`notes/posthoc/bridge_margin_decomposition.py`): the margin adds 0.001–0.002 beyond Duan's four statistics.
+  The registered verdict stands; the post-hoc reading is labelled.
+- Post draft v3: new Section 8 (bridge); TL;DR, Limitations, Next steps, provenance and review points updated.
+  README updated.
+- Still the owner's: two framing decisions (how to present the margin result; whether to keep the
+  code-vs-stated comparison), the remaining review points, and publishing. Nothing has been pushed.
+
+### 阶段小结（中文，给 owner）：Phase 6b（真实模型桥接）
+
+- **复现几乎完全一致**：INT8–INT4 的存活率和困惑度跟 Duan 的 Table 1 相差都在 0.02 以内；他的四预测量
+  AUC 复现为 0.924。另外补了一个他没报告的数：peak 单独的 AUC 是 0.879。
+- **toy model 的机制迁移不过来**：
+  - 阈值密度对存活没有超出 peak 的预测力（dAUC 0.008，没过 0.02 的门槛）。
+  - 它和漏激活的强相关（0.79）一旦控制频率就变成 −0.01，完全是频率效应。这个检验是预先登记的。
+- **margin 类比**：按预注册规则“超出 peak 有额外信息”（dAUC +0.024），方向是 margin 越大越容易坏。
+  事后检查发现，这部分信息来自分母 μ⁺，而 μ⁺ 由 Duan 自己的两个统计量构成；在他的四个统计量之上，margin
+  只多 0.001–0.002。
+- **顺带发现**：Duan 公开的代码和论文描述的做法不同（Q/K/V 的 scale 跨 head 共享，量化的是处理过的权重）。
+  按论文说的逐通道做法，损伤小得多（INT6：85% vs 62% 存活）。这是描述性结果，三个差异混在一起，没有分开。

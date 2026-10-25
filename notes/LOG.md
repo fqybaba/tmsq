@@ -2305,12 +2305,59 @@ Reading, stated plainly:
 
 ### Surprises and caveats
 
-- The replication is essentially exact (survival to about 0.02 points, perplexity to 0.01), which validates
+- The replication is essentially exact (survival to within 0.02 points, perplexity to within 0.02), which validates
   the pipeline. Duan's released pipeline feeds the SAE the residual convention it fits worse (G1), and
   quantizes with Q/K/V scales shared across heads. Our numbers inherit both, by design.
 - Single model and dependent features. Every registered p sits at the permutation floor, so the minimum effect
   sizes carry the decisions. A_M clears its minimum by 0.004.
 
 Next: write-up (post Section "Bridge"), then the owner's review before publishing.
+
+---
+
+## 2026-10-24 — Phase 6b: POST-HOC check of the margin result (not registered)
+
+Script `notes/posthoc/bridge_margin_decomposition.py`, output
+`results/bridge_posthoc/margin_decomposition_20261024.txt`. Primary cell only; dAUC uses the registered CV
+design, with no permutations. The advisor's review prompted it: mu+ = mean / rate, so log mu+ =
+log_mean + rarity (checked to 1e-15). The margin's denominator is therefore built from two of Duan's own
+statistics.
+
+**(1) What carries the margin's +0.024 beyond peak: the mu+ normalization, not the encoder geometry.**
+
+- Beyond peak (spline base, AUC 0.879): log mu+ alone gives **+0.044**; margin +0.024; bias_only +0.027;
+  interf +0.021; **-b_enc alone +0.003**.
+- Beyond peak + log mu+ (AUC 0.924): margin **+0.003**; bias_only +0.002; -b_enc +0.001; near_thr +0.006.
+- Beyond Duan's four statistics:
+  - spline base, AUC 0.934: margin **+0.002**, bias_only +0.004, -b_enc +0.000, near_thr +0.000;
+  - linear base, Duan's model, AUC 0.924: margin +0.001, bias_only +0.003.
+- **Reading:** the registered verdict "adds information beyond peak" stands as registered. Post hoc, that
+  information is Duan's own activation statistics entering through mu+.
+  - Neither the encoder bias nor the decoder-overlap interference adds to Duan's four statistics. In this
+    model, no geometric quantity tested (margin, bias, interference, threshold density) improves on activation
+    statistics for predicting survival.
+
+**(2) B_M's positive sign is partly the shared mu+ normalization.**
+
+The leak threshold is 0.05 mu+, and margin is proportional to 1/mu+. Cell-consistent partial Spearman with
+dfalse:
+
+| Predictor | given peak | given peak + log mu+ | given peak + rarity |
+|---|---|---|---|
+| margin | +0.256 | +0.156 | +0.174 |
+| -b_enc | -0.246 | -0.151 | -0.130 |
+| near_thr | +0.787 | +0.812 | -0.009 |
+
+- The raw encoder bias has the protective sign: a deeper threshold means fewer new false activations.
+- The margin's positive sign comes from the normalization and the interference term. The mechanism is not
+  established.
+- near_thr's leakage link survives mu+ but not rarity. near_thr's band (0.05 mu+) and the leak threshold move
+  in opposite directions with mu+, so mu+ is not the confound for T. Frequency is.
+
+Bridge conclusion for the write-up:
+- Duan's results replicate exactly. Peak alone has AUC 0.879.
+- The toy-model mechanism does not transfer as a survival predictor.
+- Leakage in the real model is a frequency effect.
+- The registered "margin adds beyond peak" is, post hoc, Duan's statistics in another form.
 
 ---

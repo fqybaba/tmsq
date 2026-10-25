@@ -4,9 +4,10 @@ A replication of key results from *Toy Models of Superposition* (Elhage et al., 
 extension: which features stored in superposition does post-training weight quantization (RTN) break first,
 and can superposition geometry predict this in advance?
 
-Status (2026-10-24): Phases 0–5 are complete. Phase 6 (write-up) exists as draft v2 in `writeup/post.md`,
-revised after the owner's review. The bridge to a real model (Pythia-70M + SAE) is planned before
-publication, and its plan is awaiting the owner's approval.
+Status (2026-10-24):
+- Phases 0–5 are complete, and so is the pre-registered bridge to a real model (Pythia-70M with a pretrained
+  SAE).
+- The write-up exists as draft v3 in `writeup/post.md`, awaiting the owner's review before publishing.
 `notes/LOG.md` is the lab notebook, with every result, pre-registration and deviation. `CLAUDE.md` and
 `notes/DESIGN_NOTES.md` hold the canonical definitions.
 
@@ -36,6 +37,20 @@ publication, and its plan is awaiting the owner's approval.
     geometry cannot be separated.
   - The weak-superposition regime was stopped by a sanity rule: heavy weight decay makes 2-bit RTN *improve*
     the model.
+- **Bridge to a real model: Duan's results replicate exactly, but the toy mechanism does not transfer.**
+  Setup: Pythia-70M, the layer-4 residual SAE `pythia-70m-deduped-res-sm`, and per-channel RTN, as in Duan
+  (2026).
+  - Survival and perplexity reproduce Duan's Table 1 to within 0.02 at INT8–INT4. Peak activation alone
+    predicts survival with AUC 0.879.
+  - Threshold density adds nothing to peak activation for survival (dAUC +0.008, registered minimum 0.02).
+    Its strong link to new false activations is entirely feature frequency: partial ρ 0.79 → −0.01 with
+    rarity controlled.
+  - A margin analog clears its registered bar beyond peak (dAUC +0.024, larger margin = lower survival).
+    Post hoc, that information is Duan's own activation statistics: it adds 0.001–0.002 beyond his four
+    predictors.
+  - Duan's released code quantizes TransformerLens-processed weights with Q/K/V scales shared across heads.
+    The paper's stated per-channel method damages far less (INT6: 85% vs 62% survive). This is descriptive,
+    with three confounded differences.
 - **Geometry-aware bit allocation does not beat uniform 4-bit RTN** at an equal budget.
   - Mixing 3- and 5-bit columns costs about 2× the loss increase (1.9× measured, 2.1× predicted), and no
     geometric ranking recovers that.
@@ -64,7 +79,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 pip install -e .
-pytest            # 261 tests, ~25 s
+pytest            # 277 tests, ~45 s
 ```
 
 ## Reproducing everything
@@ -91,6 +106,10 @@ their figures to `figures/`. Times are for a desktop CPU.
 | 5 models | `python -m tmsq.experiments.rep_dims --config configs/rep_dims_p5.yaml` | `rep_dims_p5_*` | 5 min |
 | 5 arms | `python -m tmsq.experiments.phase5 --config configs/phase5.yaml --setting C_P5` (and `D_strong`) | — | 5 min each |
 | 5 tests | `python -m tmsq.experiments.phase5_analysis --config configs/phase5.yaml` | `phase5_arms_vs_u4` | 1 min |
+| 6b setup | separate venv: `python -m venv --system-site-packages .venv-bridge`, then install `requirements-bridge.txt` (sae-lens 6.54.12); `.venv-bridge\Scripts\python -m tmsq.experiments.bridge_fetch` (309 MB, manifest) | — | 2 min |
+| 6b FP | `.venv-bridge\Scripts\python -m tmsq.experiments.bridge fp --config configs/bridge.yaml` | — | 3 min |
+| 6b runs | `... bridge quant --config configs/bridge.yaml --arm code --bits 6` (R1); `--bits 8 7 5 4` (R2); `--arm stated --bits 8 7 6 5 4` (R3); `--bits 6 --noise-seed 0` (R4) | — | 2–6 min each |
+| 6b tests | `... bridge analyze --config configs/bridge.yaml --primary <R1> --extra <R2> <R3> <R4>` | — | 18 min |
 
 Configs that consume earlier runs (`quant_sweep*.yaml`, `phase4.yaml`, `phase5.yaml`) name the exact result
 directories used in the LOG. On a fresh checkout, point them at your own runs. Post-hoc analyses are scripts in
@@ -109,7 +128,7 @@ give losses equal to about 8 decimals, but weights that are not bit-identical.
 
 ```
 src/tmsq/{data,model,train,quantize,metrics,analysis,plots,plots_quant}.py   core library
-src/tmsq/{phase3,phase4,phase5}.py                                            frozen analysis / method code
+src/tmsq/{phase3,phase4,phase5,bridge}.py                                     frozen analysis / method code
 src/tmsq/experiments/                                                         entry points
 configs/   tests/   results/ (gitignored)   figures/   writeup/   notes/{LOG,DESIGN_NOTES,SESSION_JOURNAL}.md
 ```
