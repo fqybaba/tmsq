@@ -388,8 +388,8 @@ INT6 changes one factor at a time, starting from either end. The described metho
 - LayerNorm folding explains the rest: about 9 points with per-channel scales (about 2.5 with shared ones).
 - The SAE input convention, weight centering and value-bias folding each move survival by less than 0.5
   points.
-- So Duan's headline INT6 survival depends mainly on one implementation detail. [We contacted the author on
-  <date> / summary of the author's reply.]
+- So Duan's headline INT6 survival depends mainly on one implementation detail. We contacted the author on
+  25 October 2026 and will update this note with his reply.
 - The registered tests below use the released code, so they are comparable with the paper. They were also
   re-run on the described method.
 
@@ -558,8 +558,8 @@ has 5,717.
 
 ## Review points still open (delete before publishing)
 
-1. **The email to Duan.** A draft is in Shen's Gmail drafts, with no recipient filled in. Once it is sent,
-   replace "[We contacted the author on <date> / summary of the author's reply]" in Section 8.
+1. **Duan's reply.** Shen emailed him on 2026-10-25. When he replies, summarize the answer in Section 8's
+   implementation note.
 2. **"How this was made."** If Shen has read the Phase 3b–5 pre-registrations, add "and I reviewed them
    afterwards"; otherwise leave the sentence as it is.
 3. **Stevinson et al.** The PMLR volume and pages are not out yet. Add them when the proceedings appear; do not

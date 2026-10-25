@@ -1,4 +1,4 @@
-# Draft email to Evan Duan (for Shen to review and send; not sent)
+# Email to Evan Duan (sent by Shen on 2026-10-25 from Gmail; the Gmail version is the sent text)
 
 Status: placed in Shen's Gmail drafts on 2026-10-25 (no recipient filled in) and updated the same day with the
 one-factor attribution of the 85.3% vs 94% gap. The Gmail draft is the current text; the copy below may lag it.
