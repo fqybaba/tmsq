@@ -2725,3 +2725,56 @@ Decision pending with the owner: rewrite in their own words (Chinese first, then
 and implementation difference once he replies.
 
 ---
+
+## 2026-10-26 — Rewrite kit for the owner's own LessWrong post; LOG errata found while checking it
+
+The owner will write the LessWrong post themselves (third review, previous entry) and asked for a Chinese
+outline with the data tables and figures, plus the English and Chinese versions of Claude Code's post, with
+guidance while they write. Kit: `writeup/rewrite_kit/` (copy with HTML renderings and the referenced figures
+on the owner's Desktop, `TMS-Q重写资料包`).
+
+- `00_README.md`: how to use the kit, the LessWrong policy points, the suggested process (write in Chinese,
+  Claude Code checks facts and scope only and does not rewrite sentences, then a word-for-word translation).
+- `01_outline_zh.md`: 9 sections (TL;DR; setup; replication; main result; Duan replication with a separate
+  "second post" block; what did not work; limits and next steps; authorship and AI-use facts with the policy;
+  appendix of all 55 figures and all references). Facts, tables with sources, status labels, scope limits and
+  open questions for the owner; no ready-made prose.
+- `02_post_en.md`: copy of `writeup/post.md` (image paths adjusted). `03_post_zh.md`: Chinese translation.
+  `04_glossary.md`: term mapping.
+- Process: workflow `rewrite-kit` (11 translation agents, each followed by a checker; 9 outline agents, each
+  followed by a verifier). The run was interrupted when the previous session ended after 33 of 40 agents; the
+  six missing outline verifications (sections 3, 4, 5, 6, 8, 9) were run as three background agents. Every
+  translated section and every outline section has been checked against the sources (outline: about 900
+  numbers checked; translation: every number, symbol, qualifier and path compared with the English).
+- Fixes made to the post while checking (also in the translation): the TL;DR novelty bullet no longer says the
+  no-bias premise "is known from Elhage et al. (2022)" (it follows from their account; Chen, Lau et al. show it
+  directly for the 4-gon); "at most 0.004 AUC" → "about 0.004 at most" in the TL;DR, Sections 9 and 11 and the
+  README (largest raw value +0.0041, `results/bridge_posthoc/stated_arm_tests_20261025.txt`); at S = 0.60
+  "every represented feature" is antipodal → "almost every" (190 of 191 over the five models; one has
+  D = 0.67).
+
+**Errata to earlier LOG entries** (found by the outline verifiers; the data are unchanged, the LOG text was
+imprecise; the outline uses the corrected values):
+
+1. Phase 1 B acceptance: negative mean bias at S ≥ 0.957 holds in 35/35 instances (7 sparsities × 5 seeds,
+   `acceptance.json`), not "30/30".
+2. Phase 1 A: the plateau ratio range is 0.996–1.027 (S = 0.8, seed 0 gives 0.996), not 0.997–1.027.
+3. Phase 1 C, S = 0.602: "every represented D_i = 0.500, 40 features" → 38–39 represented features per seed;
+   190 of the 191 have D ≈ 0.50, one has D = 0.67.
+4. Phase 2 sanity: the 8-bit median and maximum loss increases (3e-4 / 9e-5 / 4e-4; 0.26% / 0.08%) pool the three
+   granularities, although the entry says "per-column RTN unless stated". Per-column alone: A 2.6e-4,
+   B 7.2e-5, C 3.4e-4.
+5. Phase 2 observation 1: Pearson survival "1.00 even at 2 bits" in A holds per-column only (per-row 0.98,
+   per-tensor 0.975); the 0.92–1.00 ranges pool sparsities within a (setting, granularity).
+6. Phase 3 secondary: "|ρ| ≤ 0.17" holds per-row (0.169) and per-column (0.157); per-tensor 3 bits at
+   S = 0.8415 gives norm–dcond_mse +0.23.
+7. Audit correction 5 (2026-10-25): the S = 0.60 bias "+0.044" is the median (and the instance mean of four of
+   the five instances); the pooled mean is +0.039.
+8. Phase 2 float32 bug: the description says 2 rows of 680,400 changed; the rerun note says the composite label
+   changed in 1 row per setting. A parquet comparison finds 1 differing non-noise row per setting.
+9. The Duan e-mail: the 2026-10-25 LOG entry says the draft was not sent; the owner sent it later that day (post
+   Section 8, SESSION_JOURNAL).
+10. Literature check (Phase 3b) and `notes/litcheck_2026-10-24.md`: Gorton & Lewis's dip is "unexpected", not
+    "unexplained" (superseded by the previous entry).
+
+---

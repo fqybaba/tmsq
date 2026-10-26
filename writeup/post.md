@@ -69,15 +69,16 @@ The full `results/` tree (weights, per-feature tables) is in that repository's R
   - His released code shares Q/K/V quantization scales across heads. In an exploratory ablation, per-channel
     scales keep 94% of features at INT6 instead of 62%.
   - Three of the four pre-registered tests cleared their minimum effect against peak activation alone.
-    Post hoc, against all four of Duan's statistics, no toy-model predictor adds more than 0.004 AUC for
-    survival on either pipeline. Threshold density keeps a small association with new false activations
+    Post hoc, against all four of Duan's statistics, no toy-model predictor adds more than about 0.004 AUC
+    for survival on either pipeline. Threshold density keeps a small association with new false activations
     (ρ ≈ 0.11 given all four statistics; about 0 given only peak and rarity).
 - **Head vs tail is a weak side result.** Under a power-law frequency, the pre-registered test leans toward
   "the tail loses a larger relative fraction". The effect is weak and not robust, it comes from the
   normalization, and frequency is nearly collinear with geometry in those models.
 - To my knowledge, the antipodal-fragility result has not been reported before. Its premise, that
-  antipodal pairs need no negative bias, is known from Elhage et al. (2022). For two hidden dimensions in the
-  high-sparsity limit, Chen, Lau et al. (2023) also show it.
+  antipodal pairs need no negative bias, follows from Elhage et al.'s (2022) account of negative biases as
+  filters for positive interference. For two hidden dimensions in the high-sparsity limit, Chen, Lau et al.
+  (2023) show it directly (b* = 0 for the 4-gon).
 
 ## 1. Motivation
 
@@ -190,8 +191,9 @@ feature is *eligible* if its norm is > 0.5 and its FP R² is ≥ 0.5.
 ## 4. The quantization sweep
 
 - **8 bits is lossless in loss and R²**: the median |dR2| is ≤ 4e-4 in settings A–C. It is not always
-  damage-free under the composite label. In C at S = 0.60, where every represented feature (about 38 of 100;
-  the rest are dead) is in an antipodal pair with a small positive bias (≈ +0.04), 7–23% of eligible features
+  damage-free under the composite label. In C at S = 0.60, where almost every represented feature (about 38 of 100
+  per model, the rest dead; 190 of 191 over the five models) is in an antipodal pair with a small positive
+  bias (≈ +0.04), 7–23% of eligible features
   already count as damaged at 8 bits. The trigger is a rise in false activations past the 0.05 cutoff, while
   the median dR2 stays between 5e-5 and 3e-4 (see Section 5's limits).
 - **Mean damage rises monotonically as bits fall** (eligible-feature dR2 pooled over S, and the total loss
@@ -273,8 +275,8 @@ b or W.
   S ≥ 0.84, per-feature damage in setting C is dominated by the random draw of the perturbation and is not
   reliably predictable.
 - The binary label depends on the 0.05 detection cutoff. Post hoc, a plausible reading is that features whose
-  inactive output sits just below it are flagged by small perturbations: at S = 0.60, where every represented
-  feature is antipodal with bias ≈ +0.04, 7–23% of eligible features are flagged even at 8 bits (Section 4).
+  inactive output sits just below it are flagged by small perturbations: at S = 0.60, where almost every
+  represented feature is antipodal with bias ≈ +0.04, 7–23% of eligible features are flagged even at 8 bits (Section 4).
   The threshold-free differences point the same way but are smaller.
 
 ## 6. Side result: head vs tail is weak, and frequency is tangled with geometry
@@ -513,8 +515,8 @@ registered secondary run) has 5,717; applying the registered verdict rules to it
   match in direction only, not supporting evidence.
 
 **Net result (the comparison with Duan's four statistics is post hoc).**
-- On Pythia-70M, none of the SAE-level proxies of the toy-model mechanism adds more than 0.004 AUC for
-  survival beyond Duan's four statistics, on either pipeline.
+- On Pythia-70M, none of the SAE-level proxies of the toy-model mechanism adds more than about 0.004 AUC
+  (largest raw value +0.0041) for survival beyond Duan's four statistics, on either pipeline.
 - For new false activations, threshold density keeps a residual partial correlation of ρ ≈ 0.11 given all
   four statistics, on both pipelines. That just clears the 0.10 minimum of the registered tests, but it is post
   hoc, has no permutation p-value, and is about 0 when only peak and rarity are controlled.
@@ -579,7 +581,7 @@ registered secondary run) has 5,717; applying the registered verdict rules to it
   - Duan (2026) studies per-feature quantization damage in real models without geometry. In a toy model where
     the features are known, this project proposes a geometric mechanism and, in an exploratory secondary
     analysis, agrees with Duan's peak-activation predictor. On Pythia-70M, post hoc, the SAE-level proxies of
-    that mechanism add at most 0.004 AUC for survival beyond Duan's statistics (Section 9), so the mechanism
+    that mechanism add at most about 0.004 AUC for survival beyond Duan's statistics (Section 9), so the mechanism
     is not shown to transfer.
   - Borobia et al. (2026) do the same kind of SAE analysis for pruning.
 - **Why PTQ works at all.** Chen, Beyer et al. (2026) explain it at the level of hidden states (errors

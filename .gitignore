@@ -18,3 +18,6 @@ results/**/*.png
 results/**/*.pdf
 results/**/*.log
 results/_logs/
+
+# rewrite kit: per-section drafts (assembled into writeup/rewrite_kit/*.md)
+writeup/rewrite_kit/parts/

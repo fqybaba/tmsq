@@ -71,7 +71,7 @@ break.*
     - The described method gives 85.3%. Folding the LayerNorm gains in before per-channel quantization
       raises that to 94.6%.
     - The ablation is exploratory.
-  - Post hoc, threshold density and a margin analog add at most 0.004 AUC for survival beyond Duan's four
+  - Post hoc, threshold density and a margin analog add at most about 0.004 AUC for survival beyond Duan's four
     statistics, on both his pipeline and the described method. A small residual association of threshold
     density with new false activations remains (ρ ≈ 0.11), depending on the controls.
     - The margin passed its pre-registered test against peak activation alone (+0.024). Post hoc, Duan's

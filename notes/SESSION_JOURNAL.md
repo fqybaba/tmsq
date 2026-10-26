@@ -460,3 +460,12 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   Lewis dip now cited to Sec. 3.2 / Fig. 2B with the paper's own words; Duan v2 date confirmed.
 - 中文摘要：LessWrong 2026 年 3 月的政策核实属实（首帖接近零 LLM 文本；可中文写、LLM 逐字直译）。六处引文按原文
   改好并提交；post 留在仓库里当底稿，发布版需要你自己写。待你决定一篇还是两篇。
+
+## 2026-10-26: rewrite kit for the owner
+
+- Owner asked for a Chinese outline with tables and figures plus the English and Chinese post, to write their
+  own LessWrong post with Claude Code's guidance. Built in `writeup/rewrite_kit/` and copied to the Desktop
+  with HTML versions. All parts verified against sources; the interrupted workflow's missing checks were
+  finished by three background agents. Small post fixes and ten LOG errata recorded in the LOG.
+- 中文摘要：重写资料包做好了：中文提纲（9 节，含数据表、图、措辞边界、你来决定的问题）、英文 post、中文翻译、术语表。
+  每部分都核对过数字。桌面上有一份，带 html 版本可以直接用浏览器看。核对中顺带发现并改正了 post 的三处措辞和 LOG 的十处小错。
