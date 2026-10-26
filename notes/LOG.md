@@ -2655,3 +2655,13 @@ About/Website field once the post is published or Duan replies.
    the post's Section 8 implementation note, and fill the About/Website field with the post's URL.
 
 ---
+
+## 2026-10-26 — Repository public
+
+The owner switched `github.com/fqybaba/tmsq` to public on 2026-10-26. Verified without credentials: the
+repository page, the Release `v0.1.0` page, the Release API record and the raw `README.md` on `main` all return
+HTTP 200; the four Release assets are listed with the sizes recorded above. The link in `writeup/post.md` now
+resolves for everyone. Still pending: Duan's reply; the owner's review of the post; the Status/Website update
+of the previous entry.
+
+---

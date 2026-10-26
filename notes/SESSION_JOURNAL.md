@@ -445,3 +445,8 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - 中文摘要：README 顶部加了三句 TL;DR 和 Phase 3b 的图，Status 挪到结果之后；TL;DR 和图注先让 8 个 agent 对照
   post、LOG、作图脚本和结果逐句核对，按核对意见收紧了范围措辞后才提交；仓库加了 6 个 topics；第三条（定稿后更新
   Status 和 Website）记在 LOG 里待办。
+
+## 2026-10-26: repository public
+
+- Owner flipped the repository to public; anonymous checks of the repo page, Release page, API and raw README
+  all succeed. 中文：仓库已公开，匿名访问仓库页、Release 页、API 和 raw README 都正常。
