@@ -2602,4 +2602,23 @@ unrelated). Local branch renamed `master` → `main` before the first push. Crea
 it to public after reading the report. Release `v0.1.0` (tag `v0.1.0`) carries `tmsq-results-v0.1.0.zip`,
 `SHA256SUMS.txt`, `MANIFEST.txt` and `tmsq-results-v0.1.0.zip.sha256` from `dist/`.
 
+Done (2026-10-26, verified through the GitHub API after the upload):
+
+- Commit 9dfed11 (this entry, the README licence map, the quantizer note and the post's repository link) is
+  the 46th commit, same author and committer identity as the other 45. `gitleaks git` over all 46 commits: no
+  leaks. A `gitleaks dir` run over the working directory reported 117 `generic-api-key` findings, all in
+  `.venv-bridge/Lib/site-packages/` (library docstrings and test strings; gitignored, never committed); every
+  tracked top-level path scanned separately: no leaks.
+- Pushed to `origin/main` = 9dfed11; repository visibility PRIVATE; default branch `main`.
+- Tag `v0.1.0` → 9dfed11, pushed. Release `v0.1.0` (not draft, not pre-release), four assets, all `uploaded`,
+  sizes equal to the local files: `tmsq-results-v0.1.0.zip` 301,326,261 bytes, GitHub digest
+  sha256:0ce2856dab57a91c6398c34e7d54ffebe2bb6e807a85bfb732897d81122487f5 (equal to the README value);
+  `SHA256SUMS.txt` 82,812 bytes; `MANIFEST.txt` 49,323 bytes; `tmsq-results-v0.1.0.zip.sha256` 91 bytes.
+- Correction to check 2 above: the rephrasing removes the literal `C:\Users` from HEAD only. The version of
+  this LOG committed in 234edf6 still contains the placeholder `C:\Users\<user>\...` (no real user name) and
+  stays in the history; removing it would need a history rewrite, which is not planned.
+- The one step left is the owner's: switch the repository to public
+  (`gh repo edit fqybaba/tmsq --visibility public --accept-visibility-change-consequences`). Until then the link
+  in the post resolves only for the owner.
+
 ---

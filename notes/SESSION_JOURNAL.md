@@ -431,3 +431,6 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - 中文摘要：按你的决定，量化器代码不改，README 复现部分注明它复现了 Duan 的 scale 计算；许可证文件已在仓库，README
   写明各目录的许可证；全历史逐 blob 扫描没有用户名、邮箱、token；提交记录作者和提交者都是 Shen Yuting 加你的 GitHub
   邮箱；新建独立仓库 fqybaba/tmsq（先设私有，等你切公开），Release v0.1.0 附结果包和校验文件。
+- Done: `origin/main` = 9dfed11 (46 commits, gitleaks clean); tag and Release `v0.1.0` with the four files, zip
+  digest verified through the API; repository still private. Pending: the owner switches it to public.
+  中文：仓库已推送（私有），Release v0.1.0 四个文件上传完成、SHA-256 核对一致；剩下一步是你把仓库切成公开。
