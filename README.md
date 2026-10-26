@@ -4,12 +4,26 @@ A replication of key results from *Toy Models of Superposition* (Elhage et al., 
 extension: which features stored in superposition does post-training weight quantization (RTN) break first,
 and can superposition geometry predict this in advance?
 
-Status (2026-10-25):
-- Phases 0–5 are complete, and so is the pre-registered bridge to a real model (Pythia-70M with a pretrained
-  SAE).
-- The write-up exists as a draft in `writeup/post.md`. Every number was audited against its source on
-  2026-10-25; it awaits the owner's review before publishing.
-- Duan was emailed on 2026-10-25 about the implementation note (shared Q/K/V scales); his reply is pending.
+**TL;DR.** In the toy model, the features that RTN quantization breaks first are the zero-bias antipodal
+pairs, not the crowded ones (setting C at S = 0.75, the only one of the four sparsities checked where
+per-feature damage is reliable enough to test; found post hoc, then confirmed in a pre-registered test on 20
+fresh models; to our knowledge new). On Pythia-70M, Duan (2026) replicates almost exactly with his released
+code; three of four pre-registered tests passed against peak activation alone, but, post hoc, the toy-model
+predictors add almost nothing to predicting survival beyond his four statistics (a small leakage association
+remains). In setting C (S = 0.75–0.96), geometry-aware bit allocation does not beat uniform 4-bit per-column
+RTN at an equal budget.
+
+![Setting C: the zero-bias antipodal-pair features break first](figures/phase3b_antipodal.png)
+
+*Left: the eligible features of the 20 fresh models of the pre-registered Phase 3b confirmation (setting C,
+n = 100, m = 20, S = 0.7488, written 0.75 below), full-precision bias against feature dimensionality, colored
+by the registered composite damaged label at 3-bit per-row RTN (damaged = Pearson correlation below 0.9, or
+an R² drop above 0.1, or more than 5 points of new false activations). The antipodal pairs (D_i ≥ 0.48, the
+dashed line; in practice D_i ≈ 0.5) are the cluster with a bias of about +0.01, and every one of them is
+damaged. Right: the damaged fraction per model, for the 18 of 20 models that have antipodal features (lines
+join the same model). At 3 bits every antipodal feature is damaged, against 46% of the other features (pooled
+over models); the registered per-model difference is +0.53 [+0.48, +0.58]. At 4 bits essentially only they
+break.*
 
 `notes/LOG.md` is the lab notebook, with every result, pre-registration and deviation. `CLAUDE.md` and
 `notes/DESIGN_NOTES.md` hold the canonical definitions.
@@ -23,14 +37,16 @@ Status (2026-10-25):
   - Three pre-registered criteria failed as written: B's bias criterion, and C's plateaus at 1 and at 1/2 on
     the coarse grid. The 1/2 plateau passed on the registered fine-grid follow-up.
 - **The fragile features are the zero-bias antipodal pairs, not the crowded ones** (setting C, S = 0.75).
+  - Of the four setting-C sparsities checked before the tests (S = 0.75–0.96), S = 0.75 is the only one where
+    per-feature damage is reliable enough to test; at S ≥ 0.84 it is dominated by the perturbation draw.
   - Two of the three pre-registered predictors (smaller margin, smaller D) point the *opposite* way:
     ρ = +0.49 and +0.40 on 10 fresh models. Feature norm predicts nothing.
-  - Post hoc, and then confirmed on 20 further fresh models: antipodal-pair features (D ≈ 0.5) learn a bias of
-    about +0.01, so their output on inputs where they should be off sits just below the 0.05 cutoff for false
-    activations.
+  - Post hoc, and then confirmed on 20 further fresh models (pre-registered): antipodal-pair features
+    (D ≈ 0.5) learn a bias of about +0.01, so their output on inputs where they should be off sits just below
+    the 0.05 cutoff for false activations.
   - At 3-bit per-row RTN, all of them are damaged, against 46% of the other features. The per-model
-    difference is +0.53 [+0.48, +0.58]. At 4 bits, essentially only they break. Matched Gaussian noise gives
-    the same pattern.
+    difference is +0.53 [+0.48, +0.58] (18 of the 20 models have antipodal features). At 4 bits, essentially
+    only they break. Matched Gaussian noise gives the same pattern.
   - The binary label depends on that cutoff; the threshold-free outcomes agree in sign with smaller gaps.
   - To our knowledge, this result has not been reported before.
 - **Head vs tail is a weak side result** (setting D, strong superposition).
@@ -70,6 +86,14 @@ Status (2026-10-25):
     allocation in disguise.
   - Generic loss-aware rounding halves the loss increase at the primary cell of setting C (and lowers it by
     7–31% at higher sparsities), but does not rescue the fragile features.
+
+## Status (2026-10-25)
+
+- Phases 0–5 are complete, and so is the pre-registered bridge to a real model (Pythia-70M with a pretrained
+  SAE).
+- The write-up exists as a draft in `writeup/post.md`. Every number was audited against its source on
+  2026-10-25; it awaits the owner's review before publishing.
+- Duan was emailed on 2026-10-25 about the implementation note (shared Q/K/V scales); his reply is pending.
 
 ## How this project was made
 

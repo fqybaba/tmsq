@@ -2622,3 +2622,36 @@ Done (2026-10-26, verified through the GitHub API after the upload):
   in the post resolves only for the owner.
 
 ---
+
+## 2026-10-26 — README front page (owner's suggestions) and GitHub topics
+
+The owner suggested three improvements after seeing the repository: (1) a three-sentence TL;DR and the key
+figure at the top of the README, with Status moved down; (2) GitHub topics; (3) updating Status and the
+About/Website field once the post is published or Duan replies.
+
+1. README now opens with a TL;DR (antipodal result; Duan replication and the post-hoc null for survival; bit
+   allocation in setting C) and `figures/phase3b_antipodal.png` with a caption; the Status block moved after
+   "Results in brief". The owner's draft TL;DR was adopted with the audit's scope qualifiers restored. An
+   8-agent adversarial workflow (`verify-readme-tldr`, two lenses per claim: overclaim against post and LOG;
+   consistency against the README body, the figure script and the Phase 3b results) checked the three
+   sentences and the caption. The bit-allocation sentence passed as written (two optional nits adopted:
+   per-column scales, S = 0.75–0.96). Fixes applied from the other findings:
+   - "the one sparsity where per-feature damage is reliable" → "the only one of the four sparsities checked
+     (S = 0.75–0.96)"; the same statement added to the Results-in-brief bullet so the body backs the TL;DR.
+   - "not the most crowded ones" → "not the crowded ones" (the registered contrast is two-class).
+   - "confirmed on 20 fresh models" → "confirmed in a pre-registered test on 20 fresh models".
+   - Duan sentence: "replicates almost exactly" now says "with his released code"; the null is scoped to
+     survival, with the residual leakage association named, and the registered three-of-four result stated
+     before the post-hoc null (the audit's 2026-10-25 scoping, which the first draft had dropped).
+   - Caption: "colored by survival" → "colored by the registered composite damaged label" with its definition
+     (Pearson < 0.9, or dR2 > 0.1, or > 5 points of new false activations; under Pearson alone every feature
+     survives at 3 bits); S = 0.7488 as in the figure; the registered cut D_i ≥ 0.48 named; right panel
+     shows the 18 of 20 models with antipodal features; "46% ... on average" → "46% of the other features
+     (pooled over models)" because the per-model mean is 47%; the registered per-model difference added.
+   - Status header date restored to 2026-10-25 (its bullets were unchanged).
+2. Topics set on `github.com/fqybaba/tmsq`: mechanistic-interpretability, superposition, quantization,
+   sparse-autoencoders, pytorch, post-training-quantization.
+3. Pending (owner's item 3): when the post is published or Duan replies, update the README Status bullets and
+   the post's Section 8 implementation note, and fill the About/Website field with the post's URL.
+
+---

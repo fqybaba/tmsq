@@ -434,3 +434,14 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - Done: `origin/main` = 9dfed11 (46 commits, gitleaks clean); tag and Release `v0.1.0` with the four files, zip
   digest verified through the API; repository still private. Pending: the owner switches it to public.
   中文：仓库已推送（私有），Release v0.1.0 四个文件上传完成、SHA-256 核对一致；剩下一步是你把仓库切成公开。
+
+## 2026-10-26: README front page and topics (owner's three suggestions)
+
+- Owner suggested a TL;DR plus the key figure at the top of the README, GitHub topics, and a Status update
+  once the post is out. Items 1 and 2 done; item 3 recorded as pending in the LOG.
+- The TL;DR and caption went through an 8-agent adversarial check before committing; the fixes (scope of the
+  "reliable sparsity" claim, "released code", survival-only scope of the Duan null, composite label instead of
+  "survival" in the caption, 18 of 20 models in the right panel, pooled vs per-model 46%) are in the LOG.
+- 中文摘要：README 顶部加了三句 TL;DR 和 Phase 3b 的图，Status 挪到结果之后；TL;DR 和图注先让 8 个 agent 对照
+  post、LOG、作图脚本和结果逐句核对，按核对意见收紧了范围措辞后才提交；仓库加了 6 个 topics；第三条（定稿后更新
+  Status 和 Website）记在 LOG 里待办。
