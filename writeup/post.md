@@ -10,6 +10,9 @@
 
 *Shen Yuting. Implemented and analysed with Claude Code.*
 
+Code, configs, logs and the small result files: [github.com/fqybaba/tmsq](https://github.com/fqybaba/tmsq).
+The full `results/` tree (weights, per-feature tables) is in that repository's Release `v0.1.0`.
+
 **How this was made.**
 - I designed the research question, the overall architecture and the phase plan, and I made the scope and
   approval decisions, except the ones Claude Code made under my standing instruction while I was away (next

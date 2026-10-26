@@ -416,3 +416,18 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   the post), and that the commit e-mail is their GitHub address (history left unchanged).
 - Everything is prepared locally (see the LOG entry). The one edit to result files, path redaction, is backed
   up outside the repository. Nothing pushed.
+
+## 2026-10-26: owner's go-ahead, final checks, repository created
+
+- Owner decisions: keep `rtn_lastdim` unchanged and say in the README that it reproduces Duan's scale
+  computation (option a); MIT + CC BY 4.0 confirmed, README lists which licence covers which path; push and
+  Release upload delegated to Claude Code via `gh`.
+- Checks: licence files tracked; whole-history blob scan (490 blobs, binary included) finds the user name
+  nowhere, no e-mail address in any file, no tokens; the one literal `C:\Users` was the LOG's description of
+  the redaction pattern and is rephrased; `OneDrive` appears only in "the HF cache stays outside OneDrive".
+  All 45 commits are authored and committed as Shen Yuting with the owner's GitHub e-mail.
+- Repository: new independent `github.com/fqybaba/tmsq` (private until the owner flips it), branch `main`,
+  Release `v0.1.0` with the results archive and its checksums. Details in the LOG.
+- 中文摘要：按你的决定，量化器代码不改，README 复现部分注明它复现了 Duan 的 scale 计算；许可证文件已在仓库，README
+  写明各目录的许可证；全历史逐 blob 扫描没有用户名、邮箱、token；提交记录作者和提交者都是 Shen Yuting 加你的 GitHub
+  邮箱；新建独立仓库 fqybaba/tmsq（先设私有，等你切公开），Release v0.1.0 附结果包和校验文件。

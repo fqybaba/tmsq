@@ -143,6 +143,13 @@ directions and calibration sets is tested in `tests/test_seed_independence.py`.
 **Bit-exact reruns** need the same `threads` value as the run's `meta.json` records. Different thread counts
 give losses equal to about 8 decimals, but weights that are not bit-identical.
 
+**Bridge quantizer.** The code arm of Phase 6b exists to reproduce Duan's released pipeline, so the scale
+computation in `tmsq.bridge.rtn_lastdim` is the one his script uses: one scale per index of the last weight
+dimension, `max|W| / qmax` taken over all leading dimensions, with `qmax = 2^(b-1) - 1`. The one-line torch
+expression that computes it is the same as in his quantizer. That is the only shared code; no file from his
+repository is included, and a line-level comparison of his script with `src/`, `tests/` and `notes/posthoc/`
+found no other identical line (LOG, 2026-10-26).
+
 ## Results and data
 
 Every number in `writeup/post.md` points to a directory under `results/`. The small text outputs of every run
@@ -173,9 +180,11 @@ by `<repo>`, `<HF_HOME>` and `<home>`. No numeric result was changed.
 
 ## License
 
-- Code (`src/`, `tests/`, `configs/`, `notes/posthoc/`): MIT License, see `LICENSE`.
-- Write-up, figures and notes (`writeup/`, `figures/`, `notes/*.md`, `README.md`, `CLAUDE.md`, `PROMPTS.md`):
-  CC BY 4.0, see `LICENSE-CC-BY-4.0.txt`.
+- Code (`src/`, `tests/`, `configs/`, `notes/posthoc/`, `pyproject.toml`, `requirements*.txt`): MIT License,
+  see `LICENSE`.
+- Write-up, figures, notes and result data (`writeup/`, `figures/`, `notes/*.md`, `README.md`, `CLAUDE.md`,
+  `PROMPTS.md`, `results/`, and the Release archive `tmsq-results-v0.1.0.zip`): CC BY 4.0, see
+  `LICENSE-CC-BY-4.0.txt`. Attribution: Shen Yuting, TMS-Q (2026), with a link to this repository.
 - The model, SAE and dataset that the bridge downloads (Pythia-70M-deduped, `pythia-70m-deduped-res-sm`,
   WikiText-2) are not included and carry their own licenses.
 

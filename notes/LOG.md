@@ -2547,8 +2547,8 @@ repository. Report before anything is made public. Done:
    349.8 MB uncompressed, 301.3 MB zipped; `SHA256SUMS.txt` (per file) and `MANIFEST.txt` (path, size) inside
    the archive and beside it; archive SHA-256 0ce2856dab57a91c6398c34e7d54ffebe2bb6e807a85bfb732897d81122487f5 (also in README).
 4. **Redaction of machine-specific paths** (the only edit ever made to result files; no number changed):
-   `C:\Users\<user>\OneDrive\Desktop\model test` → `<repo>`, the Hugging Face cache → `<HF_HOME>`, the home
-   directory → `<home>`. 46 files, 81 replacements: the `sweep`/`primary`/`extra` fields of 24 `meta.json`,
+   the repository's absolute path (under the user's home directory) → `<repo>`, the Hugging Face cache →
+   `<HF_HOME>`, the home directory → `<home>`. 46 files, 81 replacements: the `sweep`/`primary`/`extra` fields of 24 `meta.json`,
    the `local` field of the bridge fetch manifest, 22 console logs, and `phase4_posthoc/diagnostics_20261024.txt`
    (a traceback). Originals backed up outside the repository (session scratchpad `results_backup/`). The logs are
    GBK-encoded; the replacement was byte-level.
@@ -2569,5 +2569,37 @@ repository. Report before anything is made public. Done:
    scratchpad, outside the repository.
 
 Nothing has been pushed or published.
+
+---
+
+## 2026-10-26 — Publication: owner decisions, final checks, repository
+
+Owner decisions (2026-10-26, after reading the report on items 1–7 above):
+
+- Item 7, option (a): `rtn_lastdim` stays as it is. README's "Reproducing everything" section now states that the
+  bridge quantizer reproduces the scale computation of Duan's released script and that this is the only shared
+  code.
+- MIT (code) + CC BY 4.0 (write-up, figures, notes, result data) confirmed. README's License section now names
+  every top-level path, including `results/` and the Release archive (CC BY 4.0).
+- The owner delegates the push and the Release upload to Claude Code (`gh`, logged in as the owner).
+
+Checks the owner asked for:
+
+1. **Licence files.** `LICENSE` and `LICENSE-CC-BY-4.0.txt` are tracked (since 234edf6).
+2. **Whole-history scan.** `scan_history.py` (session scratchpad) reads every blob reachable from any ref
+   through `git cat-file --batch` (490 blobs, 15.1 MB, binary files included) and searches for the user name,
+   `C:\Users`, `C:/Users`, `OneDrive`, `AppData`, `scratchpad`, the owner's e-mail address, `HF_TOKEN`,
+   `ghp_`/`gho_` and `proxy`. User name: 0 hits in any version of any file. E-mail address: 0. Tokens: 0.
+   `AppData`: 0. `C:\Users`: 1, in this LOG's own description of the redaction pattern (item 4 above), now
+   rephrased. `OneDrive`: only two sentences saying that the Hugging Face cache stays outside OneDrive (plan
+   D7; `bridge_fetch.py` docstring), no path. `scratchpad`: two mentions without a path. `proxy`: the
+   statistical sense only. Commit messages: 0 hits.
+3. **Commit identity.** Author and committer of all 45 commits: Shen Yuting, with the owner's GitHub e-mail
+   address (the address is in the git metadata only; no tracked file contains it).
+
+Repository: a new, independent repository `github.com/fqybaba/tmsq` (the owner's two existing repositories are
+unrelated). Local branch renamed `master` → `main` before the first push. Created private; the owner switches
+it to public after reading the report. Release `v0.1.0` (tag `v0.1.0`) carries `tmsq-results-v0.1.0.zip`,
+`SHA256SUMS.txt`, `MANIFEST.txt` and `tmsq-results-v0.1.0.zip.sha256` from `dist/`.
 
 ---
