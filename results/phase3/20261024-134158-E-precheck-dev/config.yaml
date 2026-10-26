@@ -1,0 +1,11 @@
+experiment: phase3
+sets:
+  E:
+    sweep: results/quant_sweep/20261024-093058-C
+    min_valid: 4
+  K:
+    sweep_glob: results/quant_sweep/*-C_confirm
+    min_valid: 8
+descriptive:
+  A: results/quant_sweep/20261024-092937-A
+  B: results/quant_sweep/20261024-092954-B

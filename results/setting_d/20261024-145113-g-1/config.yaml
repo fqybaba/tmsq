@@ -1,0 +1,27 @@
+experiment: setting_d
+n_features: 200
+n_hidden: 20
+importance_r: 1.0
+alphas:
+- 1.0
+- 1.5
+ks:
+- 2
+- 5
+gammas:
+- 7.0
+- -1.0
+n_seeds: 5
+seed: 111
+init_std: null
+train:
+  steps: 20000
+  batch: 1024
+  lr: 0.01
+  lr_schedule: warmup_cosine
+  warmup_steps: 2000
+  min_lr_frac: 0.05
+  decay_mode: liu
+  snapshot_half: true
+gamma_run:
+- -1.0

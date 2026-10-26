@@ -143,11 +143,47 @@ directions and calibration sets is tested in `tests/test_seed_independence.py`.
 **Bit-exact reruns** need the same `threads` value as the run's `meta.json` records. Different thread counts
 give losses equal to about 8 decimals, but weights that are not bit-identical.
 
+## Results and data
+
+Every number in `writeup/post.md` points to a directory under `results/`. The small text outputs of every run
+(`config.yaml`, `meta.json`, `summary.json`, `results.json`, the `*.csv` tables and the post-hoc `*.txt`
+outputs: 246 files, 2.7 MB) are tracked in this repository at their original paths, so the provenance table
+resolves on GitHub. The large and binary artifacts are not tracked (see `.gitignore`):
+
+| Files | Size | Contents |
+|---|---|---|
+| `*.parquet` (93) | 292 MB | per-feature and per-model tables. Sweeps: one row per (instance, feature, method, granularity, bits, ablation) with the geometry, damage and survival columns. Bridge: per-feature FP statistics, predictors and quantized outcomes. |
+| `final.pt`, `snapshot_*.pt` (40) | 13 MB | trained toy-model weights `W [K, m, n]` and `b [K, n]`, with numpy metadata (density, seeds, importance) |
+| `loss_history.npy` (23) | 28 MB | per-step, per-instance training losses |
+| per-run `figures/*.png`, `*.pdf` (218) | 15 MB | copies of the run figures |
+| `_logs/*.log` (22) | 0.3 MB | console logs of the runs (GBK-encoded) |
+
+The complete `results/` tree (all of the above: 645 files, 350 MB uncompressed, 301 MB zipped) is published as `tmsq-results-v0.1.0.zip`
+in the GitHub Release `v0.1.0`, together with `SHA256SUMS.txt` (one line per file inside the archive) and
+`MANIFEST.txt` (path and size of every file). The archive's own SHA-256 is `0ce2856dab57a91c6398c34e7d54ffebe2bb6e807a85bfb732897d81122487f5`. Unpack it over
+the repository root; the files land at the paths the provenance table uses.
+
+**Loading the weights.** `tmsq.experiments.common.load_weights(path)` calls `torch.load(..., weights_only=True)`
+with the numpy array types allow-listed, so no arbitrary code runs on load. If you call `torch.load` yourself,
+keep `weights_only=True` (the default since PyTorch 2.6) and allow-list the numpy types the same way
+(`numpy_safe_globals()` in the same module). Do not pass `weights_only=False` to files you did not produce.
+
+Before publication, machine-specific absolute paths in `meta.json`, `manifest.json` and the logs were replaced
+by `<repo>`, `<HF_HOME>` and `<home>`. No numeric result was changed.
+
+## License
+
+- Code (`src/`, `tests/`, `configs/`, `notes/posthoc/`): MIT License, see `LICENSE`.
+- Write-up, figures and notes (`writeup/`, `figures/`, `notes/*.md`, `README.md`, `CLAUDE.md`, `PROMPTS.md`):
+  CC BY 4.0, see `LICENSE-CC-BY-4.0.txt`.
+- The model, SAE and dataset that the bridge downloads (Pythia-70M-deduped, `pythia-70m-deduped-res-sm`,
+  WikiText-2) are not included and carry their own licenses.
+
 ## Layout
 
 ```
 src/tmsq/{data,model,train,quantize,metrics,analysis,plots,plots_quant}.py   core library
 src/tmsq/{phase3,phase4,phase5,bridge}.py                                     frozen analysis / method code
 src/tmsq/experiments/                                                         entry points
-configs/   tests/   results/ (gitignored)   figures/   writeup/   notes/{LOG,DESIGN_NOTES,SESSION_JOURNAL}.md
+configs/   tests/   results/ (text outputs tracked; large files in the Release)   figures/   writeup/   notes/
 ```

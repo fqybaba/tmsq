@@ -1,0 +1,37 @@
+experiment: quant_sweep
+settings:
+  D_weak:
+    run: results/setting_d/20261024-144457-g+7
+    S_values: null
+  D_strong:
+    run: results/setting_d/20261024-145113-g-1
+    S_values: null
+bits:
+- 8
+- 6
+- 5
+- 4
+- 3
+- 2
+granularities:
+- tensor
+- column
+- row
+noise_seeds: 5
+ablations: []
+ablation_granularities: []
+eval:
+  n_active: 2000
+  n_inactive: 20000
+  n_nat_min: 40000
+  n_nat_max: 120000
+  tau: 0.05
+  near_eps: 0.05
+  seed_base: 10000
+  survival_threshold: 0.9
+  composite_dr2: 0.1
+  composite_dfalse: 0.05
+  eligible_r2: 0.5
+sanity:
+  bits8_median_abs_dR2_max: 0.01
+  bits8_loss_increase_rel_max: 0.01

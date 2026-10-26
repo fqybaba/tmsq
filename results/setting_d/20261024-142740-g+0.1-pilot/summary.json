@@ -1,0 +1,41 @@
+{
+  "train_seconds": 18.587736700021196,
+  "by_alpha_k": [
+    {
+      "alpha": 1.0,
+      "k": 2.0,
+      "phi_half": 0.645,
+      "phi_sd": NaN,
+      "n_rep": 129.0,
+      "plateau": 0.989,
+      "dstar": 0.1095
+    },
+    {
+      "alpha": 1.0,
+      "k": 5.0,
+      "phi_half": 0.43,
+      "phi_sd": NaN,
+      "n_rep": 86.0,
+      "plateau": 0.9995,
+      "dstar": 0.18
+    },
+    {
+      "alpha": 1.5,
+      "k": 2.0,
+      "phi_half": 0.535,
+      "phi_sd": NaN,
+      "n_rep": 107.0,
+      "plateau": 0.9938,
+      "dstar": 0.1367
+    },
+    {
+      "alpha": 1.5,
+      "k": 5.0,
+      "phi_half": 0.395,
+      "phi_sd": NaN,
+      "n_rep": 79.0,
+      "plateau": 0.9955,
+      "dstar": 0.1935
+    }
+  ]
+}

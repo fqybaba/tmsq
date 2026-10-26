@@ -1,0 +1,21 @@
+{
+  "git": {
+    "commit": "002c4bab60a51a202e3c9fa3b5617c69df526eb6",
+    "dirty_files": 3
+  },
+  "torch": "2.13.0+cpu",
+  "numpy": "2.5.1",
+  "threads": 24,
+  "started": "2026-10-24T13:07:27",
+  "loss_normalization": "per instance: mean over batch of sum_i I_i (x_i - x_hat_i)^2 (paper's sum over features)",
+  "loss_history_layout": "loss_history.npy: float32 [steps, K], one per-instance loss per step",
+  "weights_layout": "final.pt / snapshot_*.pt: dict with W [K, m, n], b [K, n] and numpy metadata; load with tmsq.experiments.common.load_weights (torch.load needs weights_only=False)",
+  "steps_effective": 20,
+  "K": 40,
+  "density_grid": [
+    0.25118864315095796,
+    0.15848931924611134,
+    0.1,
+    0.03981071705534971
+  ]
+}

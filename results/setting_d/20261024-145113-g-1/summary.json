@@ -1,0 +1,45 @@
+{
+  "train_seconds": 367.5959539000178,
+  "by_alpha_k": [
+    {
+      "gamma": -1.0,
+      "alpha": 1.0,
+      "k": 2.0,
+      "phi_half": 1.0,
+      "phi_sd": 0.0,
+      "n_rep": 200.0,
+      "plateau": 0.9974,
+      "dstar": 0.0717
+    },
+    {
+      "gamma": -1.0,
+      "alpha": 1.0,
+      "k": 5.0,
+      "phi_half": 0.623,
+      "phi_sd": 0.0236,
+      "n_rep": 124.6,
+      "plateau": 0.9999,
+      "dstar": 0.1187
+    },
+    {
+      "gamma": -1.0,
+      "alpha": 1.5,
+      "k": 2.0,
+      "phi_half": 1.0,
+      "phi_sd": 0.0,
+      "n_rep": 200.0,
+      "plateau": 0.99,
+      "dstar": 0.0725
+    },
+    {
+      "gamma": -1.0,
+      "alpha": 1.5,
+      "k": 5.0,
+      "phi_half": 0.986,
+      "phi_sd": 0.0129,
+      "n_rep": 197.2,
+      "plateau": 0.9963,
+      "dstar": 0.094
+    }
+  ]
+}

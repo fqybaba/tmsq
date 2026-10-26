@@ -2528,3 +2528,46 @@ items, all regressions or imprecisions introduced by the first round; all are fi
   are represented there.
 - The p-value floor statement is restricted to the four registered decision tests. The S1 secondaries are
   not at the floor.
+
+## 2026-10-26 — Publication preparation (owner's decisions: MIT + CC BY 4.0; results A + B)
+
+Owner's instructions (2026-10-26): licences MIT (code) + CC BY 4.0 (text, figures); results published both in
+the repository (small text files, original paths, via .gitignore allow rules) and as a Release archive with
+SHA-256 sums and a file manifest; README to remind readers of `weights_only=True`; gitleaks over the whole
+history; check for local paths, proxy settings and notification tokens; confirm that no file comes from Duan's
+repository. Report before anything is made public. Done:
+
+1. **Licences.** `LICENSE` (MIT, copyright 2026 Shen Yuting) and `LICENSE-CC-BY-4.0.txt` (the official
+   legal code, fetched from creativecommons.org/licenses/by/4.0/legalcode.txt, SHA-256
+   9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411). README "License" section.
+2. **results/ in the repository.** `.gitignore` now excludes only `results/**/*.{parquet,pt,npy,png,pdf,log}`
+   and `results/_logs/`; 246 text files (136 json, 65 yaml, 39 csv, 5 txt, 1 py; 2.7 MB) are tracked at their
+   original paths.
+3. **Release archive.** `dist/tmsq-results-v0.1.0.zip` (gitignored): the whole `results/` tree, 645 files,
+   349.8 MB uncompressed, 301.3 MB zipped; `SHA256SUMS.txt` (per file) and `MANIFEST.txt` (path, size) inside
+   the archive and beside it; archive SHA-256 0ce2856dab57a91c6398c34e7d54ffebe2bb6e807a85bfb732897d81122487f5 (also in README).
+4. **Redaction of machine-specific paths** (the only edit ever made to result files; no number changed):
+   `C:\Users\<user>\OneDrive\Desktop\model test` → `<repo>`, the Hugging Face cache → `<HF_HOME>`, the home
+   directory → `<home>`. 46 files, 81 replacements: the `sweep`/`primary`/`extra` fields of 24 `meta.json`,
+   the `local` field of the bridge fetch manifest, 22 console logs, and `phase4_posthoc/diagnostics_20261024.txt`
+   (a traceback). Originals backed up outside the repository (session scratchpad `results_backup/`). The logs are
+   GBK-encoded; the replacement was byte-level.
+5. **Weight files.** `load_weights` now calls `torch.load(weights_only=True)` with the numpy array types
+   allow-listed (`numpy_safe_globals`); all 40 `.pt` files load; 277 tests pass. README says so.
+6. **gitleaks 8.30.1** (installed via winget): git history, 44 commits, no leaks; working tree (`results`,
+   `src`, `notes`, `configs`, `tests`, `writeup`), no leaks. Manual greps of the history and tree for
+   local paths, proxy settings, notification tokens, API keys and private keys: none (the only "proxy" hits are
+   the statistical sense). PNG/PDF figures contain no path strings. The owner's e-mail appears only as the git
+   author identity, which the owner confirmed is their GitHub address.
+7. **Independence from Duan's repository.** No file in the repository or its history comes from the mirror
+   `sae-feature-survival-quantization-0141`; the only mentions are the mirror's name and the script path in
+   the notes, README and post. A line-level comparison of his Pythia script against `src/`, `tests/` and
+   `notes/posthoc/` finds 0 identical lines (of 324 non-trivial lines). One torch expression in
+   `src/tmsq/bridge.py::rtn_lastdim`, `w.abs().amax(dim=tuple(range(w.ndim - 1)), keepdim=True) / qmax`, is
+   the same as in his quantizer: the research workflow had quoted that line, and the code arm reproduces that
+   behaviour on purpose. A copy of his script that the research agents fetched lives only in the session
+   scratchpad, outside the repository.
+
+Nothing has been pushed or published.
+
+---

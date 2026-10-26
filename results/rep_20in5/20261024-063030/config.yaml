@@ -1,0 +1,21 @@
+experiment: rep_20in5
+n_features: 20
+n_hidden: 5
+importance_r: 0.7
+density_grid:
+  start: 1.0
+  stop: 0.001
+  num: 12
+n_seeds: 5
+seed: 0
+init_std: null
+train:
+  steps: 20000
+  batch: 1024
+  lr: 0.001
+  weight_decay: 0.01
+  decay_bias: true
+  lr_schedule: constant
+acceptance:
+  spearman_min: 0.9
+  superposition_d_max: 0.9

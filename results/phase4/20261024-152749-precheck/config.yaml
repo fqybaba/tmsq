@@ -1,0 +1,5 @@
+experiment: phase4
+sweeps:
+  weak: results/quant_sweep/20261024-151741-D_weak
+  strong: results/quant_sweep/20261024-152211-D_strong
+instances_per_regime: 20

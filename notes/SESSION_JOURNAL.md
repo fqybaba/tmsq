@@ -407,3 +407,12 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   - Markdown layout.
 - The first recheck launch was stopped and relaunched because it pointed at an empty working-tree diff after
   the commit.
+
+## 2026-10-26: publication preparation (steps ①–⑤), waiting for the owner's go-ahead
+
+- Owner decided: MIT + CC BY 4.0; results A + B; original paths kept via .gitignore rules; Release with SHA-256
+  and manifest; weights_only reminder; gitleaks; check for paths/proxies/tokens; confirm independence from
+  Duan's repository. The owner also confirmed they had reviewed the Phase 3b–5 pre-registrations (recorded in
+  the post), and that the commit e-mail is their GitHub address (history left unchanged).
+- Everything is prepared locally (see the LOG entry). The one edit to result files, path redaction, is backed
+  up outside the repository. Nothing pushed.

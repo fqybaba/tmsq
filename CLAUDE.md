@@ -290,7 +290,7 @@ instances (>= 1,000 resamples) as secondary. Never bootstrap individual features
   ```
   src/tmsq/{data,model,train,quantize,metrics,analysis,plots}.py
   src/tmsq/experiments/
-  configs/   tests/   results/ (gitignored)   figures/   notes/LOG.md
+  configs/   tests/   results/ (small text outputs tracked; large/binary files gitignored, shipped in the Release)   figures/   notes/LOG.md
   ```
 - Reproducibility: seed everything; save `config.yaml`, git commit hash, and metrics (parquet or CSV) in
   `results/<exp>/<timestamp>/`. Never overwrite previous results.

@@ -94,7 +94,7 @@ def save_provenance(run_dir: Path, config: dict[str, Any], extra: dict[str, Any]
         "loss_normalization": LOSS_NORMALIZATION,
         "loss_history_layout": "loss_history.npy: float32 [steps, K], one per-instance loss per step",
         "weights_layout": "final.pt / snapshot_*.pt: dict with W [K, m, n], b [K, n] and numpy metadata; "
-        "load with tmsq.experiments.common.load_weights (torch.load needs weights_only=False)",
+        "load with tmsq.experiments.common.load_weights (weights_only=True with numpy types allow-listed)",
     }
     if extra:
         meta.update(extra)
@@ -185,13 +185,31 @@ def save_weights(run_dir: Path, name: str, W: torch.Tensor, b: torch.Tensor, **m
     torch.save({"W": W.detach().cpu(), "b": b.detach().cpu(), **meta}, run_dir / f"{name}.pt")
 
 
+def numpy_safe_globals() -> list[Any]:
+    """The numpy types that ``torch.load(weights_only=True)`` must allow to unpickle the metadata arrays."""
+    try:
+        from numpy._core.multiarray import _reconstruct
+    except ImportError:  # numpy < 2
+        from numpy.core.multiarray import _reconstruct
+    globs: list[Any] = [np.ndarray, np.dtype, _reconstruct]
+    try:
+        import numpy.dtypes as nd
+
+        globs += [getattr(nd, n) for n in dir(nd) if n.endswith("DType")]
+    except ImportError:
+        pass
+    return globs
+
+
 def load_weights(path: Path) -> dict[str, Any]:
     """Load a ``final.pt`` / ``snapshot_*.pt`` file written by :func:`save_weights`.
 
-    The files hold numpy metadata next to the tensors, so ``torch.load`` needs ``weights_only=False``;
-    this is the one place that passes it.
+    The files hold ``W`` and ``b`` tensors plus numpy metadata arrays (density, seed_idx, importance, ...).
+    They are loaded with ``weights_only=True``; the numpy array types are allow-listed explicitly, so no
+    arbitrary code can run during unpickling.
     """
-    return torch.load(Path(path), weights_only=False, map_location="cpu")
+    with torch.serialization.safe_globals(numpy_safe_globals()):
+        return torch.load(Path(path), weights_only=True, map_location="cpu")
 
 
 def run_figure_dir(run_dir: Path) -> Path:

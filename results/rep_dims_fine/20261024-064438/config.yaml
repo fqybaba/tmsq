@@ -1,0 +1,23 @@
+experiment: rep_dims_fine
+figure_prefix: rep_dims_fine
+n_features: 100
+n_hidden: 20
+importance_r: 1.0
+density_grid:
+  start: 0.556
+  stop: 0.143
+  num: 10
+n_seeds: 5
+seed: 0
+init_std: null
+train:
+  steps: 15000
+  batch: 1024
+  lr: 0.001
+  weight_decay: 0.01
+  decay_bias: true
+  lr_schedule: constant
+  snapshot_half: true
+acceptance:
+  sticky_tol: 0.05
+  sticky_min_seeds: 3

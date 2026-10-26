@@ -1,0 +1,35 @@
+{
+  "C_P5": {
+    "stop": false,
+    "sanity": {
+      "u4_reproduces_phase2_column_rtn": true,
+      "greedy_objective_never_increased": true,
+      "greedy_max_abs_tracking_error": 4.880067017154488e-09,
+      "n_instances": 40,
+      "seconds": 282.6067142999964,
+      "stop": false
+    },
+    "completeness_problems": [],
+    "greedy_mean_flips": {
+      "leak_round": 608.275,
+      "loss_round": 371.575
+    }
+  },
+  "D_strong": {
+    "stop": false,
+    "sanity": {
+      "u4_reproduces_phase2_column_rtn": true,
+      "greedy_objective_never_increased": true,
+      "greedy_max_abs_tracking_error": 7.086265185751728e-10,
+      "n_instances": 20,
+      "seconds": 276.19779380000546,
+      "u4_vs_sweep_max_rel_diff": 0.0,
+      "stop": false
+    },
+    "completeness_problems": [],
+    "greedy_mean_flips": {
+      "leak_round": 1464.25,
+      "loss_round": 1216.1
+    }
+  }
+}

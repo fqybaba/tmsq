@@ -1,0 +1,9 @@
+{
+  "u4_reproduces_phase2_column_rtn": true,
+  "greedy_objective_never_increased": true,
+  "greedy_max_abs_tracking_error": 3.800526993807951e-11,
+  "n_instances": 1,
+  "seconds": 36.63575340001262,
+  "u4_vs_sweep_max_rel_diff": 0.0,
+  "stop": false
+}

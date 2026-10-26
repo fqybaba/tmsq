@@ -1,0 +1,55 @@
+{
+  "exploratory": true,
+  "bits": 6,
+  "input": "c",
+  "ppl_fp": 67.83919364649286,
+  "fp_sanity": {
+    "ppl_fp_stage": 67.83919364649286,
+    "pass": true
+  },
+  "n_active": 5688,
+  "variants": {
+    "A0-C": {
+      "flags": {
+        "fold_ln": 1,
+        "center_writing": 0,
+        "fold_value_biases": 1,
+        "qkv_scales": "s",
+        "sae_input": "c"
+      },
+      "survived_pct": 62.482419127988756,
+      "damaged_pct": 0.9845288326300985,
+      "mean_corr": 0.8877261980566842,
+      "ppl": 77.93023451330697,
+      "dppl_pct": 14.874942233833277
+    },
+    "S-I": {
+      "flags": {
+        "fold_ln": 0,
+        "center_writing": 0,
+        "fold_value_biases": 0,
+        "qkv_scales": "p",
+        "sae_input": "c"
+      },
+      "survived_pct": 85.56610407876231,
+      "damaged_pct": 0.017580872011251757,
+      "mean_corr": 0.9549370914031463,
+      "ppl": 71.06587308243819,
+      "dppl_pct": 4.756364665475554
+    },
+    "S-CI": {
+      "flags": {
+        "fold_ln": 0,
+        "center_writing": 1,
+        "fold_value_biases": 0,
+        "qkv_scales": "p",
+        "sae_input": "c"
+      },
+      "survived_pct": 85.68917018284107,
+      "damaged_pct": 0.017580872011251757,
+      "mean_corr": 0.9545148003644192,
+      "ppl": 71.26290538387991,
+      "dppl_pct": 5.046804882775979
+    }
+  }
+}

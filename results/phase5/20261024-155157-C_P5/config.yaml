@@ -1,0 +1,25 @@
+experiment: phase5
+settings:
+  C_P5:
+    run_glob: results/rep_dims_p5/*
+    S_values:
+    - 0.7488
+    - 0.8415
+    - 0.9
+    - 0.9602
+  D_strong:
+    run: results/setting_d/20261024-145113-g-1
+    sweep: results/quant_sweep/20261024-152211-D_strong
+eval:
+  n_active: 2000
+  n_inactive: 20000
+  n_nat_min: 40000
+  n_nat_max: 120000
+  tau: 0.05
+  near_eps: 0.05
+  seed_base: 10000
+  survival_threshold: 0.9
+  composite_dr2: 0.1
+  composite_dfalse: 0.05
+  eligible_r2: 0.5
+runs: {}

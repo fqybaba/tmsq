@@ -1,0 +1,457 @@
+{
+  "merged_H2_H3": false,
+  "rho_norm_D_primary": 0.4224466012943521,
+  "holm_family": [
+    "H1",
+    "H2",
+    "H3"
+  ],
+  "D_vs_Dplus_note": null,
+  "leak_free_sensitivity": {
+    "H1": {
+      "n_valid": 10,
+      "summarised": true,
+      "mean": 0.2967937891985209,
+      "std": 0.14613256900933339,
+      "ci_lo": 0.1922568467704595,
+      "ci_hi": 0.4013307316265823,
+      "p": 0.00012199953614694688,
+      "p_signflip": 0.001953125,
+      "boot_lo": 0.21019604467464473,
+      "boot_hi": 0.3784918774852577,
+      "sqrt_icc_noise": 0.8059261307315662,
+      "n_invalid": 0
+    },
+    "H2": {
+      "n_valid": 10,
+      "summarised": true,
+      "mean": 0.3027808123169962,
+      "std": 0.15800245139790314,
+      "ci_lo": 0.1897526675492119,
+      "ci_hi": 0.4158089570847805,
+      "p": 0.00018820401766505687,
+      "p_signflip": 0.001953125,
+      "boot_lo": 0.21395106884251358,
+      "boot_hi": 0.3965984033290023,
+      "sqrt_icc_noise": 0.4266301808792913,
+      "n_invalid": 0
+    },
+    "H3": {
+      "n_valid": 10,
+      "summarised": true,
+      "mean": 0.08797831928995373,
+      "std": 0.17694588692229132,
+      "ci_lo": -0.0386011429030117,
+      "ci_hi": 0.21455778148291915,
+      "p": 0.1503309806309932,
+      "p_signflip": 0.1640625,
+      "boot_lo": -0.009980351165584133,
+      "boot_hi": 0.1871835798376388,
+      "sqrt_icc_noise": 0.4266301808792913,
+      "n_invalid": 0
+    }
+  },
+  "primary_cell_label_status": {
+    "label_valid": true,
+    "passes_cell_rule": true,
+    "note": null
+  },
+  "results": {
+    "H1": {
+      "hypothesis": "H1",
+      "summary": {
+        "n_valid": 10,
+        "summarised": true,
+        "mean": 0.4909768083983973,
+        "std": 0.209497926276618,
+        "ci_lo": 0.34111102004988547,
+        "ci_hi": 0.6408425967469091,
+        "p": 4.055552367963021e-05,
+        "p_signflip": 0.001953125,
+        "boot_lo": 0.35344489912519556,
+        "boot_hi": 0.6005467642673818
+      },
+      "rhos": {
+        "0": 0.024853530681467773,
+        "1": 0.7159971811134601,
+        "2": 0.5234519104084321,
+        "3": 0.44461147086031455,
+        "4": 0.5261451726568005,
+        "5": 0.6242629866030288,
+        "6": 0.6503293807641634,
+        "7": 0.37628458498023715,
+        "8": 0.3309898242368177,
+        "9": 0.692842041679251
+      },
+      "invalid": {},
+      "dropped": 0,
+      "p_holm": 8.111104735926042e-05,
+      "icc": 0.6495169281959534,
+      "sqrt_icc": 0.8059261307315662,
+      "p_holm_signflip": 0.005859375,
+      "holm_decision_disagrees": false,
+      "label": "H1 margin_tau vs dfalse_act",
+      "verdict": "Not supported (opposite sign); consistent with the registered threshold-density reading",
+      "reasons": [],
+      "downgrade": [
+        {
+          "cell": "S=0.7488 column 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.4935005839811133,
+            "std": 0.18404399117979806,
+            "ci_lo": 0.36184344388824063,
+            "ci_hi": 0.625157724073986,
+            "p": 1.386333699082861e-05,
+            "p_signflip": 0.001953125,
+            "boot_lo": 0.37784806817211086,
+            "boot_hi": 0.599031362931377
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.8117858315616935,
+          "status": "summarised"
+        },
+        {
+          "cell": "S=0.7488 tensor 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.5364907435491292,
+            "std": 0.1679853391879306,
+            "ci_lo": 0.4163212710592185,
+            "ci_hi": 0.6566602160390399,
+            "p": 3.2955475093234115e-06,
+            "p_signflip": 0.001953125,
+            "boot_lo": 0.4298326736922172,
+            "boot_hi": 0.6266350352468687
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.7731989039760395,
+          "status": "summarised"
+        }
+      ]
+    },
+    "H2": {
+      "hypothesis": "H2",
+      "summary": {
+        "n_valid": 10,
+        "summarised": true,
+        "mean": 0.3993522644735453,
+        "std": 0.14903444644220815,
+        "ci_lo": 0.2927394439835966,
+        "ci_hi": 0.5059650849634941,
+        "p": 1.394010584784386e-05,
+        "p_signflip": 0.001953125,
+        "boot_lo": 0.32058750364840355,
+        "boot_hi": 0.48801870533848746
+      },
+      "rhos": {
+        "0": 0.18347209374036386,
+        "1": 0.3386892177589852,
+        "2": 0.37325428194993415,
+        "3": 0.46773820536540245,
+        "4": 0.7054263565891472,
+        "5": 0.5441370223978919,
+        "6": 0.3741765480895915,
+        "7": 0.2633728590250329,
+        "8": 0.3047178538390379,
+        "9": 0.4385382059800665
+      },
+      "invalid": {},
+      "dropped": 0,
+      "p_holm": 4.182031754353158e-05,
+      "icc": 0.1820133112370968,
+      "sqrt_icc": 0.4266301808792913,
+      "p_holm_signflip": 0.005859375,
+      "holm_decision_disagrees": false,
+      "label": "H2 D vs dR2",
+      "verdict": "Not supported (opposite sign)",
+      "reasons": [],
+      "downgrade": [
+        {
+          "cell": "S=0.8415 row 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.08144765968146776,
+            "std": 0.06641740278531931,
+            "ci_lo": 0.03393551192235433,
+            "ci_hi": 0.1289598074405812,
+            "p": 0.003743367510618284,
+            "p_signflip": 0.005859375,
+            "boot_lo": 0.04087777530155046,
+            "boot_hi": 0.1167275056916012
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.0,
+          "status": "summarised"
+        },
+        {
+          "cell": "S=0.9 row 3b",
+          "summary": {
+            "n_valid": 7,
+            "summarised": false,
+            "mean": 0.11659712867203952,
+            "std": 0.19764683249296627,
+            "ci_lo": null,
+            "ci_hi": null,
+            "p": null,
+            "p_signflip": null,
+            "boot_lo": null,
+            "boot_hi": null
+          },
+          "invalid": {
+            "21": "n=18 < 20",
+            "25": "n=13 < 20",
+            "29": "n=15 < 20"
+          },
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.13212914498555,
+          "status": "not testable (too few valid instances)"
+        },
+        {
+          "cell": "S=0.7488 column 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.3586559527930567,
+            "std": 0.10990648344826191,
+            "ci_lo": 0.280033590847392,
+            "ci_hi": 0.43727831473872136,
+            "p": 2.7526461240165884e-06,
+            "p_signflip": 0.001953125,
+            "boot_lo": 0.29077753535412515,
+            "boot_hi": 0.41924023360539664
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.44576481719002164,
+          "status": "summarised"
+        },
+        {
+          "cell": "S=0.7488 tensor 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.4103435806676239,
+            "std": 0.18980414797933431,
+            "ci_lo": 0.2745658726287291,
+            "ci_hi": 0.5461212887065187,
+            "p": 7.586312502843668e-05,
+            "p_signflip": 0.001953125,
+            "boot_lo": 0.28812624865274483,
+            "boot_hi": 0.519184005920146
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.35532134977146396,
+          "status": "summarised"
+        }
+      ]
+    },
+    "H3": {
+      "hypothesis": "H3",
+      "summary": {
+        "n_valid": 10,
+        "summarised": true,
+        "mean": 0.0018124163160520511,
+        "std": 0.23917327501884753,
+        "ci_lo": -0.16928183769230154,
+        "ci_hi": 0.17290667032440565,
+        "p": 0.9814048397107115,
+        "p_signflip": 0.9921875,
+        "boot_lo": -0.12939287574575747,
+        "boot_hi": 0.130976799342831
+      },
+      "rhos": {
+        "0": -0.0010484119642306506,
+        "1": 0.21000704721634955,
+        "2": 0.04216073781291173,
+        "3": 0.39650786308973174,
+        "4": -0.3285412262156448,
+        "5": 0.029907773386034252,
+        "6": 0.25296442687747034,
+        "7": -0.21805006587615283,
+        "8": -0.07221708294788776,
+        "9": -0.29356689821806103
+      },
+      "invalid": {},
+      "dropped": 0,
+      "p_holm": 0.9814048397107115,
+      "icc": 0.1820133112370968,
+      "sqrt_icc": 0.4266301808792913,
+      "p_holm_signflip": 0.9921875,
+      "holm_decision_disagrees": false,
+      "label": "H3 norm vs dR2",
+      "verdict": "Not supported",
+      "reasons": [],
+      "downgrade": [
+        {
+          "cell": "S=0.8415 row 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.07536388067068153,
+            "std": 0.055812820469221966,
+            "ci_lo": 0.03543779410632272,
+            "ci_hi": 0.11528996723504034,
+            "p": 0.0020802699430908967,
+            "p_signflip": 0.005859375,
+            "boot_lo": 0.04361421307839027,
+            "boot_hi": 0.10733861434748124
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.0,
+          "status": "summarised"
+        },
+        {
+          "cell": "S=0.9 row 3b",
+          "summary": {
+            "n_valid": 7,
+            "summarised": false,
+            "mean": 0.09399979118829054,
+            "std": 0.17594230104653008,
+            "ci_lo": null,
+            "ci_hi": null,
+            "p": null,
+            "p_signflip": null,
+            "boot_lo": null,
+            "boot_hi": null
+          },
+          "invalid": {
+            "21": "n=18 < 20",
+            "25": "n=13 < 20",
+            "29": "n=15 < 20"
+          },
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.13212914498555,
+          "status": "not testable (too few valid instances)"
+        }
+      ]
+    },
+    "H2_Dplus": {
+      "hypothesis": "H2_Dplus",
+      "summary": {
+        "n_valid": 10,
+        "summarised": true,
+        "mean": 0.3973164007825605,
+        "std": 0.15407482879731388,
+        "ci_lo": 0.28709790796615414,
+        "ci_hi": 0.5075348935989668,
+        "p": 1.8989160284140233e-05,
+        "p_signflip": 0.001953125,
+        "boot_lo": 0.3180570283433696,
+        "boot_hi": 0.4900989085126592
+      },
+      "rhos": {
+        "0": 0.21862473018809747,
+        "1": 0.30725863284002813,
+        "2": 0.37430830039525687,
+        "3": 0.4226410730804811,
+        "4": 0.737984496124031,
+        "5": 0.5500658761528326,
+        "6": 0.3251646903820817,
+        "7": 0.27602108036890644,
+        "8": 0.3012642614862781,
+        "9": 0.459830866807611
+      },
+      "invalid": {},
+      "dropped": 0,
+      "p_holm": 1.8989160284140233e-05,
+      "icc": 0.1820133112370968,
+      "sqrt_icc": 0.4266301808792913,
+      "p_holm_signflip": 0.001953125,
+      "holm_decision_disagrees": false,
+      "label": "H2 companion (secondary, no Holm): D_plus vs dR2",
+      "verdict": "Not supported (opposite sign)",
+      "reasons": [],
+      "downgrade": [
+        {
+          "cell": "S=0.8415 row 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.05294731044365886,
+            "std": 0.0764140470457776,
+            "ci_lo": -0.001716005823705416,
+            "ci_hi": 0.10761062671102313,
+            "p": 0.05614555045430367,
+            "p_signflip": 0.056640625,
+            "boot_lo": 0.005933697544753089,
+            "boot_hi": 0.09660490169518486
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.0,
+          "status": "summarised"
+        },
+        {
+          "cell": "S=0.9 row 3b",
+          "summary": {
+            "n_valid": 7,
+            "summarised": false,
+            "mean": 0.13009270829497116,
+            "std": 0.12470138126008076,
+            "ci_lo": null,
+            "ci_hi": null,
+            "p": null,
+            "p_signflip": null,
+            "boot_lo": null,
+            "boot_hi": null
+          },
+          "invalid": {
+            "21": "n=18 < 20",
+            "25": "n=13 < 20",
+            "29": "n=15 < 20"
+          },
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.13212914498555,
+          "status": "not testable (too few valid instances)"
+        },
+        {
+          "cell": "S=0.7488 column 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.3542433220244463,
+            "std": 0.10165041417849364,
+            "ci_lo": 0.2815269962470825,
+            "ci_hi": 0.4269596478018101,
+            "p": 1.5851190672588678e-06,
+            "p_signflip": 0.001953125,
+            "boot_lo": 0.2958189380412128,
+            "boot_hi": 0.4140754794635622
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.44576481719002164,
+          "status": "summarised"
+        },
+        {
+          "cell": "S=0.7488 tensor 3b",
+          "summary": {
+            "n_valid": 10,
+            "summarised": true,
+            "mean": 0.42551169477497375,
+            "std": 0.18165439866544325,
+            "ci_lo": 0.2955639661897006,
+            "ci_hi": 0.5554594233602469,
+            "p": 4.071382818126354e-05,
+            "p_signflip": 0.001953125,
+            "boot_lo": 0.30641595171227237,
+            "boot_hi": 0.5262404520323168
+          },
+          "invalid": {},
+          "dropped_rows": 0,
+          "sqrt_icc_noise": 0.35532134977146396,
+          "status": "summarised"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,44 @@
+POST HOC (not registered). Primary cell: code arm, INT6, n = 5688, survived 0.624.
+log mu+ vs log_mean + rarity: max |diff| = 1.33e-15
+
+(1) base peak (spline): CV AUC 0.8791
+      + margin       dAUC +0.0238
+      + bias_only    dAUC +0.0267
+      + neg_b_enc    dAUC +0.0034
+      + log_mu_plus  dAUC +0.0440
+      + interf       dAUC +0.0214
+      + near_thr     dAUC +0.0076
+(1) base peak + log mu+ (spline): CV AUC 0.9241
+      + margin       dAUC +0.0030
+      + bias_only    dAUC +0.0019
+      + neg_b_enc    dAUC +0.0012
+      + interf       dAUC +0.0019
+      + near_thr     dAUC +0.0061
+(1) base Duan-4 (spline): CV AUC 0.9342
+      + margin       dAUC +0.0021
+      + bias_only    dAUC +0.0036
+      + neg_b_enc    dAUC +0.0004
+      + log_mu_plus  dAUC +0.0046
+      + interf       dAUC -0.0003
+      + near_thr     dAUC +0.0002
+(1') base Duan-4 (linear, Duan's model): CV AUC 0.9240
+      + margin       dAUC +0.0014
+      + bias_only    dAUC +0.0032
+      + neg_b_enc    dAUC +0.0024
+      + log_mu_plus  dAUC +0.0001
+      + interf       dAUC -0.0001
+      + near_thr     dAUC +0.0018
+
+(2) cell-consistent partial Spearman with dfalse (cells: 10 deciles for 1 control, 5x5 for 2)
+      given log_peak                 margin     rho +0.256
+      given log_peak                 bias_only  rho +0.076
+      given log_peak                 neg_b_enc  rho -0.246
+      given log_peak                 near_thr   rho +0.787
+      given log_peak + log_mu_plus   margin     rho +0.156
+      given log_peak + log_mu_plus   bias_only  rho -0.114
+      given log_peak + log_mu_plus   neg_b_enc  rho -0.151
+      given log_peak + log_mu_plus   near_thr   rho +0.812
+      given log_peak + rarity        margin     rho +0.174
+      given log_peak + rarity        bias_only  rho +0.227
+      given log_peak + rarity        neg_b_enc  rho -0.130
+      given log_peak + rarity        near_thr   rho -0.009

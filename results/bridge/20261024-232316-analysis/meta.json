@@ -1,0 +1,33 @@
+{
+  "git": {
+    "commit": "6f3836cd5253f10218133247872013578aff1a34",
+    "dirty_files": 0
+  },
+  "torch": "2.13.0+cpu",
+  "numpy": "2.5.1",
+  "threads": 24,
+  "started": "2026-10-24T23:23:16",
+  "loss_normalization": "per instance: mean over batch of sum_i I_i (x_i - x_hat_i)^2 (paper's sum over features)",
+  "loss_history_layout": "loss_history.npy: float32 [steps, K], one per-instance loss per step",
+  "weights_layout": "final.pt / snapshot_*.pt: dict with W [K, m, n], b [K, n] and numpy metadata; load with tmsq.experiments.common.load_weights (torch.load needs weights_only=False)",
+  "stage": "analyze",
+  "primary": "results\\bridge\\20261024-230636-code-b6",
+  "extra": [
+    "results\\bridge\\20261024-230918-code-b8-7-5-4",
+    "results\\bridge\\20261024-231452-stated-b8-7-6-5-4",
+    "results\\bridge\\20261024-232022-code-b6-noise0"
+  ],
+  "registered": {
+    "bits": 6,
+    "dauc_min": 0.02,
+    "rho_min": 0.1,
+    "cv_folds": 5,
+    "cv_repeats": 20,
+    "perm_repeats": 5,
+    "n_perm_a": 1000,
+    "n_perm_b": 10000,
+    "n_strata": 10,
+    "alpha": 0.05,
+    "seed": 6060
+  }
+}

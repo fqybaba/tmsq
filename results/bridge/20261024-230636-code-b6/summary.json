@@ -1,0 +1,28 @@
+{
+  "fp_run": "results\\bridge\\20261024-224808-fp",
+  "arm": "code",
+  "noise_seed": null,
+  "ppl_fp": 67.83919364649286,
+  "fp_sanity": {
+    "ppl_fp_stage": 67.83919364649286,
+    "pass": true
+  },
+  "n_active": 5688,
+  "variants": {
+    "6": {
+      "survived_pct": 62.41209563994374,
+      "degraded_pct": 36.58579465541491,
+      "damaged_pct": 1.0021097046413503,
+      "mean_corr": 0.8879896423988267,
+      "median_corr": 0.9395616783545879,
+      "ppl": 77.82798681031795,
+      "dppl_pct": 14.72422154053934
+    }
+  },
+  "g2_int6": {
+    "value": 62.41209563994374,
+    "target": 62.395,
+    "tol": 3.0,
+    "pass": true
+  }
+}

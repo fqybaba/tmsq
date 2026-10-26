@@ -1,5 +1,5 @@
 .venv/
-results/
+.venv-bridge/
 __pycache__/
 *.pyc
 *.egg-info/
@@ -7,4 +7,14 @@ build/
 dist/
 .pytest_cache/
 .ruff_cache/
-.venv-bridge/
+
+# results/: small text outputs (json, yaml, csv, txt) stay in the repo at their original paths, so the
+# provenance table in writeup/post.md resolves on GitHub. Large or binary artifacts are excluded here and
+# shipped in the GitHub Release archive instead (see README, "Results").
+results/**/*.parquet
+results/**/*.pt
+results/**/*.npy
+results/**/*.png
+results/**/*.pdf
+results/**/*.log
+results/_logs/

@@ -1,0 +1,12 @@
+{
+  "git": {
+    "commit": "no commit",
+    "dirty_files": 11
+  },
+  "torch": "2.13.0+cpu",
+  "numpy": "2.5.1",
+  "threads": 24,
+  "started": "2026-10-24T06:29:22",
+  "steps_effective": 20000,
+  "K": 30
+}

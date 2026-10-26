@@ -1,0 +1,12 @@
+{
+  "note": "Re-evaluated after the 2026-10-24 code review: the original acceptance.json used the gate 'has_adjacent_pair(one) or (0 in one)'; the pre-registered LOG text requires an adjacent pair at the dense end.",
+  "sticky_one_sweep_idx": [
+    0
+  ],
+  "sticky_one_pass_per_LOG": false,
+  "sticky_one_pass_as_originally_coded": true,
+  "sticky_half_sweep_idx": [
+    2
+  ],
+  "sticky_half_pass": false
+}

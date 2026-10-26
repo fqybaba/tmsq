@@ -1,0 +1,113 @@
+{
+  "code": {
+    "beyond_duan4": {
+      "auc_duan4_spline": 0.9341855926427262,
+      "auc_duan4_linear": 0.9239780145558504,
+      "dauc_near_thr_spline": 0.00021844195246556453,
+      "dauc_near_thr_linear": 0.0018267835140151067,
+      "pspearman_near_thr_dfalse_given_duan4": 0.1102820621423132,
+      "dauc_margin_spline": 0.002091127506574697,
+      "dauc_margin_linear": 0.001356939861938744,
+      "pspearman_margin_dfalse_given_duan4": 0.031133596666752403,
+      "dauc_bias_only_spline": 0.0035639920417250837,
+      "dauc_bias_only_linear": 0.003228637028236392,
+      "pspearman_bias_only_dfalse_given_duan4": 0.008424867823450184
+    }
+  },
+  "stated": {
+    "beyond_duan4": {
+      "auc_duan4_spline": 0.9016493801070724,
+      "auc_duan4_linear": 0.8911161800723931,
+      "dauc_near_thr_spline": 0.000561404079155392,
+      "dauc_near_thr_linear": 0.00042340059677326014,
+      "pspearman_near_thr_dfalse_given_duan4": 0.114196965075472,
+      "dauc_margin_spline": 0.0036925901843061215,
+      "dauc_margin_linear": 0.004068318630744416,
+      "pspearman_margin_dfalse_given_duan4": 0.0747950241083737,
+      "dauc_bias_only_spline": 0.0027978032815311193,
+      "dauc_bias_only_linear": 0.0026517000093920773,
+      "pspearman_bias_only_dfalse_given_duan4": 0.0716758795256417
+    },
+    "registered_procedure": {
+      "A_T": {
+        "auc_base": 0.8198037930511302,
+        "auc_full": 0.8198072017397462,
+        "dauc": 3.4086886160356045e-06,
+        "dauc_perm_stat": 9.250565345231276e-05,
+        "p": 0.09290709290709291,
+        "null_mean": -0.00020264622031494216,
+        "null_sd": 0.0002395821080930706,
+        "coef_pred": 0.12776159617313496,
+        "p_holm": 0.09290709290709291,
+        "verdict": "no added information beyond peak"
+      },
+      "A_M": {
+        "auc_base": 0.8198037930511302,
+        "auc_full": 0.8546741003243962,
+        "dauc": 0.03487030727326601,
+        "dauc_perm_stat": 0.03481500025286988,
+        "p": 0.000999000999000999,
+        "null_mean": -0.0002887129303307654,
+        "null_sd": 0.0002313947592451456,
+        "coef_pred": -0.8244023097429771,
+        "p_holm": 0.001998001998001998,
+        "verdict": "adds information beyond peak (coefficient -)"
+      },
+      "B_T": {
+        "rho": 0.7439764460607294,
+        "p": 9.999000099990002e-05,
+        "null_mean": 0.00011261228373505125,
+        "null_sd": 0.013442236845951198,
+        "p_holm": 0.00039996000399960006,
+        "verdict": "supported",
+        "interpretation": "beyond peak, not beyond frequency"
+      },
+      "B_M": {
+        "rho": 0.1510009481381559,
+        "p": 9.999000099990002e-05,
+        "null_mean": -2.795770850517576e-05,
+        "null_sd": 0.013227085765249303,
+        "p_holm": 0.00039996000399960006,
+        "verdict": "associated beyond peak (+)"
+      },
+      "n_features": 5717,
+      "n_dropped": 0,
+      "survived_frac": 0.8527199580199405,
+      "family_a_interpretable": true,
+      "S1_beyond_peak_and_rarity": {
+        "A_T": {
+          "auc_base": 0.8300246779518968,
+          "auc_full": 0.8297670510291811,
+          "dauc": -0.00025762692271569243,
+          "dauc_perm_stat": -0.000163575149373818,
+          "p": 0.5174825174825175,
+          "null_mean": -2.454825122173987e-06,
+          "null_sd": 0.0005073848270284404,
+          "coef_pred": 0.08159824814009059
+        },
+        "A_M": {
+          "auc_base": 0.8300246779518968,
+          "auc_full": 0.866182299817211,
+          "dauc": 0.03615762186531413,
+          "dauc_perm_stat": 0.03605455780248701,
+          "p": 0.000999000999000999,
+          "null_mean": 1.3559312483384378e-06,
+          "null_sd": 0.0004015274573300685,
+          "coef_pred": -0.8554852174645724
+        },
+        "B_T": {
+          "rho": -0.02665852781339206,
+          "p": 0.05069493050694931,
+          "null_mean": 0.00016039596518114133,
+          "null_sd": 0.013548950844587586
+        },
+        "B_M": {
+          "rho": 0.30173176703270665,
+          "p": 9.999000099990002e-05,
+          "null_mean": -7.685815385927339e-05,
+          "null_sd": 0.013409137574122206
+        }
+      }
+    }
+  }
+}

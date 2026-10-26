@@ -1,0 +1,517 @@
+{
+  "stop": false,
+  "stop_reasons": [],
+  "bits8_pass": true,
+  "monotone": {
+    "column": true,
+    "row": true,
+    "tensor": true
+  },
+  "eligible_per_instance_row3": {
+    "S=0.7488": {
+      "15": 47,
+      "16": 45,
+      "17": 47,
+      "18": 44,
+      "19": 45
+    },
+    "S=0.8415": {
+      "20": 62,
+      "21": 51,
+      "22": 58,
+      "23": 66,
+      "24": 50
+    },
+    "S=0.9": {
+      "25": 35,
+      "26": 42,
+      "27": 37,
+      "28": 32,
+      "29": 15
+    },
+    "S=0.9602": {
+      "35": 100,
+      "36": 100,
+      "37": 100,
+      "38": 100,
+      "39": 100
+    }
+  },
+  "label_validity": [
+    {
+      "S": 0.7488,
+      "granularity": "tensor",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "column",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "row",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.8415,
+      "granularity": "tensor",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.8415,
+      "granularity": "column",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.8415,
+      "granularity": "row",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.9,
+      "granularity": "tensor",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.9,
+      "granularity": "column",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.9,
+      "granularity": "row",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.9602,
+      "granularity": "tensor",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.9602,
+      "granularity": "column",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    },
+    {
+      "S": 0.9602,
+      "granularity": "row",
+      "damaged_frac_8bit": 0.0,
+      "valid": true
+    }
+  ],
+  "cells": [
+    {
+      "S": 0.7488,
+      "granularity": "tensor",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 179,
+      "n_undamaged": 49,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "tensor",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 47,
+      "n_undamaged": 181,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "tensor",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 22,
+      "n_undamaged": 206,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.7488,
+      "granularity": "column",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 126,
+      "n_undamaged": 102,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "column",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 37,
+      "n_undamaged": 191,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "column",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 8,
+      "n_undamaged": 220,
+      "inst_damaged": 3,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.7488,
+      "granularity": "row",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 138,
+      "n_undamaged": 90,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "row",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 34,
+      "n_undamaged": 194,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.7488,
+      "granularity": "row",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 14,
+      "n_undamaged": 214,
+      "inst_damaged": 4,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.8415,
+      "granularity": "tensor",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 176,
+      "n_undamaged": 111,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.8415,
+      "granularity": "tensor",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 3,
+      "n_undamaged": 284,
+      "inst_damaged": 1,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.8415,
+      "granularity": "tensor",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 287,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.8415,
+      "granularity": "column",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 52,
+      "n_undamaged": 235,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.8415,
+      "granularity": "column",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 287,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.8415,
+      "granularity": "column",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 287,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.8415,
+      "granularity": "row",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 106,
+      "n_undamaged": 181,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.8415,
+      "granularity": "row",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 287,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.8415,
+      "granularity": "row",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 287,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9,
+      "granularity": "tensor",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 117,
+      "n_undamaged": 44,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.9,
+      "granularity": "tensor",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 161,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9,
+      "granularity": "tensor",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 161,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9,
+      "granularity": "column",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 16,
+      "n_undamaged": 145,
+      "inst_damaged": 4,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9,
+      "granularity": "column",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 161,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9,
+      "granularity": "column",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 161,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9,
+      "granularity": "row",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 34,
+      "n_undamaged": 127,
+      "inst_damaged": 4,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.9,
+      "granularity": "row",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 161,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9,
+      "granularity": "row",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 161,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9602,
+      "granularity": "tensor",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 374,
+      "n_undamaged": 126,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.9602,
+      "granularity": "tensor",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 500,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9602,
+      "granularity": "tensor",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 500,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9602,
+      "granularity": "column",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 64,
+      "n_undamaged": 436,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.9602,
+      "granularity": "column",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 500,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9602,
+      "granularity": "column",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 500,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9602,
+      "granularity": "row",
+      "bits": 3,
+      "label_valid": true,
+      "n_damaged": 210,
+      "n_undamaged": 290,
+      "inst_damaged": 5,
+      "inst_undamaged": 5,
+      "passes": true
+    },
+    {
+      "S": 0.9602,
+      "granularity": "row",
+      "bits": 4,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 500,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    },
+    {
+      "S": 0.9602,
+      "granularity": "row",
+      "bits": 5,
+      "label_valid": true,
+      "n_damaged": 0,
+      "n_undamaged": 500,
+      "inst_damaged": 0,
+      "inst_undamaged": 5,
+      "passes": false
+    }
+  ],
+  "icc_primary": {
+    "dfalse_act": 0.5507634043693542,
+    "dR2": 0.120794827491045
+  },
+  "rho_norm_D_primary": 0.556709605140752
+}

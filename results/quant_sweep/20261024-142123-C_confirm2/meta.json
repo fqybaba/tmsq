@@ -1,0 +1,58 @@
+{
+  "git": {
+    "commit": "65215a532266ece117253e89391c90a7c3211f74",
+    "dirty_files": 6
+  },
+  "torch": "2.13.0+cpu",
+  "numpy": "2.5.1",
+  "threads": 24,
+  "started": "2026-10-24T14:21:23",
+  "loss_normalization": "per instance: mean over batch of sum_i I_i (x_i - x_hat_i)^2 (paper's sum over features)",
+  "loss_history_layout": "loss_history.npy: float32 [steps, K], one per-instance loss per step",
+  "weights_layout": "final.pt / snapshot_*.pt: dict with W [K, m, n], b [K, n] and numpy metadata; load with tmsq.experiments.common.load_weights (torch.load needs weights_only=False)",
+  "setting": "C_confirm2",
+  "source_run": "<repo>\\results\\rep_dims_confirm2\\20261024-141902",
+  "source_meta": {
+    "git": {
+      "commit": "f45a85612eef5fdc9beeb9df2c8823c4c66ab109",
+      "dirty_files": 0
+    },
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.1",
+    "threads": 24,
+    "started": "2026-10-24T14:19:02",
+    "loss_normalization": "per instance: mean over batch of sum_i I_i (x_i - x_hat_i)^2 (paper's sum over features)",
+    "loss_history_layout": "loss_history.npy: float32 [steps, K], one per-instance loss per step",
+    "weights_layout": "final.pt / snapshot_*.pt: dict with W [K, m, n], b [K, n] and numpy metadata; load with tmsq.experiments.common.load_weights (torch.load needs weights_only=False)",
+    "steps_effective": 15000,
+    "K": 20,
+    "density_grid": [
+      0.25118864315095796
+    ]
+  },
+  "n_instances": 20,
+  "n_configs": 144,
+  "bits": [
+    8,
+    6,
+    5,
+    4,
+    3,
+    2
+  ],
+  "noise_seeds": 5,
+  "eval_params": {
+    "n_active": 2000,
+    "n_inactive": 20000,
+    "n_nat_min": 40000,
+    "n_nat_max": 120000,
+    "tau": 0.05,
+    "near_eps": 0.05,
+    "seed_base": 10000,
+    "survival_threshold": 0.9,
+    "composite_dr2": 0.1,
+    "composite_dfalse": 0.05,
+    "eligible_r2": 0.5,
+    "forward_chunk": 65536
+  }
+}

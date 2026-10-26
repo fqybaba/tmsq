@@ -1,0 +1,46 @@
+{
+  "g1": {
+    "raw": {
+      "fvu": 0.19299179394608204,
+      "l0": 73.85288461538461,
+      "tokens": 49920
+    },
+    "centered": {
+      "fvu": 0.23211936130758562,
+      "l0": 69.02602163461539,
+      "tokens": 49920
+    },
+    "choice": "raw",
+    "rule": "lower FVU wins; within 0.01 FVU use raw (Marks et al.: 88% VE, L0 61 on Pile)"
+  },
+  "code": {
+    "arm": "code",
+    "centered": true,
+    "n_active": 5688,
+    "tokens": 199680,
+    "ppl_fp": 67.83919364649286,
+    "l0_mean": 71.8335687099359
+  },
+  "stated": {
+    "arm": "stated",
+    "centered": false,
+    "n_active": 5717,
+    "tokens": 199680,
+    "ppl_fp": 67.83914627943156,
+    "l0_mean": 76.14483673878206
+  },
+  "g2_fp": {
+    "active": {
+      "value": 5688,
+      "target": 5688,
+      "tol": 30,
+      "pass": true
+    },
+    "ppl_fp": {
+      "value": 67.83919364649286,
+      "target": 67.84,
+      "tol": 1.0,
+      "pass": true
+    }
+  }
+}

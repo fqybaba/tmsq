@@ -1,0 +1,42 @@
+{
+  "bits8_median_abs_dR2": 0.00045886478619650006,
+  "bits8_max_loss_increase_rel": 0.0005493731990991689,
+  "bits8_pass": true,
+  "monotonicity": {
+    "column": {
+      "mean_dR2_by_bits": {
+        "8": -1e-05,
+        "6": -0.00015,
+        "5": -2e-05,
+        "4": -0.00171,
+        "3": -0.00319,
+        "2": -0.15163
+      },
+      "monotone_nondecreasing_as_bits_decrease": false
+    },
+    "row": {
+      "mean_dR2_by_bits": {
+        "8": 3e-05,
+        "6": 0.00014,
+        "5": -0.00043,
+        "4": -4e-05,
+        "3": 0.00225,
+        "2": -0.14842
+      },
+      "monotone_nondecreasing_as_bits_decrease": false
+    },
+    "tensor": {
+      "mean_dR2_by_bits": {
+        "8": -0.0,
+        "6": 0.00033,
+        "5": 0.0001,
+        "4": -0.00065,
+        "3": -0.01722,
+        "2": -0.12154
+      },
+      "monotone_nondecreasing_as_bits_decrease": false
+    }
+  },
+  "eval_seconds": 266.27306450001197,
+  "rows": 432000
+}

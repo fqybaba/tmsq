@@ -1,0 +1,4 @@
+hypothesis,n_paired,verdict_primary,sqrt_icc_noise,mean_rho_rtn,mean_rho_noise,R,delta_mean,delta_ci_lo,delta_ci_hi,delta_p,reading
+H1,10,Not supported (opposite sign); consistent with the registered threshold-density reading,0.8059261307315662,0.4909768083983973,0.4860791614196661,0.9900246877348288,0.0048976469787311,-0.038727123770165225,0.04852241772762743,0.8052281277920922,not applicable (primary verdict is neither Supported nor Mixed)
+H2,10,Not supported (opposite sign),0.4266301808792913,0.3993522644735453,0.3234769879562169,0.8100041410373554,0.07587527651732844,-0.02471065211481624,0.1764612051494731,0.1221153541196732,not applicable (primary verdict is neither Supported nor Mixed)
+H3,10,Not supported,0.4266301808792913,0.0018124163160520511,0.010204864032123468,5.63052977494294,-0.008392447716071404,-0.11755179347946439,0.10076689804732157,0.8657771520550694,not applicable (primary verdict is neither Supported nor Mixed)

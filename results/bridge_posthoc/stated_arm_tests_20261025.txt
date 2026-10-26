@@ -1,0 +1,36 @@
+POST HOC (not registered). INT6. code = Duan's released pipeline (R1); stated = paper-described (R3).
+
+[code] beyond Duan's four statistics:
+  auc_duan4_spline: +0.9342
+  auc_duan4_linear: +0.9240
+  dauc_near_thr_spline: +0.0002
+  dauc_near_thr_linear: +0.0018
+  pspearman_near_thr_dfalse_given_duan4: +0.1103
+  dauc_margin_spline: +0.0021
+  dauc_margin_linear: +0.0014
+  pspearman_margin_dfalse_given_duan4: +0.0311
+  dauc_bias_only_spline: +0.0036
+  dauc_bias_only_linear: +0.0032
+  pspearman_bias_only_dfalse_given_duan4: +0.0084
+
+[stated] beyond Duan's four statistics:
+  auc_duan4_spline: +0.9016
+  auc_duan4_linear: +0.8911
+  dauc_near_thr_spline: +0.0006
+  dauc_near_thr_linear: +0.0004
+  pspearman_near_thr_dfalse_given_duan4: +0.1142
+  dauc_margin_spline: +0.0037
+  dauc_margin_linear: +0.0041
+  pspearman_margin_dfalse_given_duan4: +0.0748
+  dauc_bias_only_spline: +0.0028
+  dauc_bias_only_linear: +0.0027
+  pspearman_bias_only_dfalse_given_duan4: +0.0717
+[stated] registered procedure (n = 5717, survived 0.853):
+  A_T: dAUC +0.0000, Holm p 0.0929 -> no added information beyond peak
+  A_M: dAUC +0.0349, Holm p 0.0020 -> adds information beyond peak (coefficient -)
+  B_T: rho +0.744, Holm p 0.0004 -> supported | beyond peak, not beyond frequency
+  B_M: rho +0.151, Holm p 0.0004 -> associated beyond peak (+)
+  S1 A_T: dAUC -0.0003, p 0.5175
+  S1 A_M: dAUC +0.0362, p 0.0010
+  S1 B_T: rho -0.027, p 0.0507
+  S1 B_M: rho +0.302, p 0.0001

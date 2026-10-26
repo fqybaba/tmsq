@@ -1,0 +1,25 @@
+experiment: rep_dims_confirm2
+figure_prefix: rep_dims_confirm2
+n_features: 100
+n_hidden: 20
+importance_r: 1.0
+density_grid:
+  start: 1.0
+  stop: 0.001
+  num: 16
+  keep:
+  - 3
+n_seeds: 20
+seed: 7
+init_std: null
+train:
+  steps: 15000
+  batch: 1024
+  lr: 0.001
+  weight_decay: 0.01
+  decay_bias: true
+  lr_schedule: constant
+  snapshot_half: true
+acceptance:
+  sticky_tol: 0.05
+  sticky_min_seeds: 3

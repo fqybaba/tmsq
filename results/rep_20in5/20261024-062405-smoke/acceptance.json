@@ -1,0 +1,384 @@
+{
+  "spearman_S_vs_n_represented": 0.07042428152039987,
+  "spearman_pass": false,
+  "n_instances_with_superposition": 60,
+  "n_with_negative_mean_bias": 50,
+  "bias_pass": false,
+  "by_S": {
+    "0": {
+      "n_represented": [
+        10,
+        12,
+        15,
+        13,
+        13
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0074,
+        0.0216,
+        0.0123,
+        0.0212,
+        0.012
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    "0.4663": {
+      "n_represented": [
+        6,
+        13,
+        13,
+        16,
+        14
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        0.0122,
+        0.0291,
+        0.0146,
+        0.0241,
+        -0.0049
+      ],
+      "bias_negative_where_superposition": [
+        false,
+        false,
+        false,
+        false,
+        true
+      ]
+    },
+    "0.7152": {
+      "n_represented": [
+        14,
+        15,
+        12,
+        16,
+        14
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0095,
+        0.0122,
+        -0.0049,
+        -0.0004,
+        0.0365
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        false,
+        true,
+        true,
+        false
+      ]
+    },
+    "0.848": {
+      "n_represented": [
+        12,
+        12,
+        10,
+        10,
+        11
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0007,
+        -0.0018,
+        -0.0101,
+        -0.0143,
+        -0.0385
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.9189": {
+      "n_represented": [
+        16,
+        15,
+        14,
+        12,
+        11
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0208,
+        -0.0256,
+        -0.0269,
+        -0.0107,
+        -0.0254
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.9567": {
+      "n_represented": [
+        14,
+        13,
+        14,
+        10,
+        12
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0343,
+        -0.027,
+        -0.0257,
+        -0.0237,
+        -0.0327
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.9769": {
+      "n_represented": [
+        13,
+        12,
+        15,
+        13,
+        14
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0276,
+        -0.0311,
+        -0.0359,
+        -0.0314,
+        -0.0319
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.9877": {
+      "n_represented": [
+        11,
+        12,
+        15,
+        12,
+        14
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0211,
+        -0.0358,
+        -0.0294,
+        -0.0291,
+        -0.0312
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.9934": {
+      "n_represented": [
+        14,
+        16,
+        14,
+        17,
+        12
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0262,
+        -0.0318,
+        -0.0318,
+        -0.0328,
+        -0.0308
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.9965": {
+      "n_represented": [
+        15,
+        12,
+        11,
+        16,
+        12
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0367,
+        -0.0299,
+        -0.0201,
+        -0.0305,
+        -0.0375
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.9981": {
+      "n_represented": [
+        9,
+        12,
+        13,
+        13,
+        13
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0218,
+        -0.0265,
+        -0.0297,
+        -0.0183,
+        -0.0264
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    "0.999": {
+      "n_represented": [
+        15,
+        10,
+        16,
+        16,
+        6
+      ],
+      "superposition_present": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "mean_bias_of_represented": [
+        -0.0283,
+        -0.0165,
+        -0.0251,
+        -0.0269,
+        -0.027
+      ],
+      "bias_negative_where_superposition": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  "train_seconds": 0.48603870000806637,
+  "plateau_ratio_median_by_S": {
+    "0.0": 0.9380000233650208,
+    "0.466330076879369": 0.9800000190734863,
+    "0.7151964131564198": 0.9789999723434448,
+    "0.8480088917047066": 0.984000027179718,
+    "0.9188869169210313": 0.9829999804496765,
+    "0.9567123871891694": 0.9729999899864197,
+    "0.9768987029991684": 1.024999976158142,
+    "0.9876715326055794": 0.9290000200271606,
+    "0.9934206677534243": 0.7929999828338623,
+    "0.9964888082657849": 0.8859999775886536,
+    "0.9981261825771396": 0.9800000190734863,
+    "0.999": 0.9330000281333923
+  }
+}

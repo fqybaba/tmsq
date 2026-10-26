@@ -1,0 +1,83 @@
+[
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 166029852,
+    "sha256": "3da388330e4549156d76b58d6d268c63cd005e9336b4f4d2d378421e7b7a33fd",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\model.safetensors"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "config.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 567,
+    "sha256": "002050231a9b1ec3ac77aa6b9b3bbdc4d923f4068a7dd33b8da72a9bd6ad9a43",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "tokenizer.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 2113710,
+    "sha256": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\tokenizer.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "tokenizer_config.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 396,
+    "sha256": "70e38394e494931c6f773ba41e19460dd4436526b852207367f04341b4066d3f",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\tokenizer_config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "special_tokens_map.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 99,
+    "sha256": "6f50ab5a5a509a1c309d6171f339b196a900dc9c99ad0408ff23bb615fdae7ad",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\special_tokens_map.json"
+  },
+  {
+    "repo": "ctigges/pythia-70m-deduped__res-sm_processed",
+    "type": "model",
+    "file": "4-res-sm/cfg.json",
+    "revision": "4de021e0701171e7a0be1fb711d278ec5c0ebd4d",
+    "bytes": 541,
+    "sha256": "a647408fc61a8e8b0ff229e75638719d4cd86a5c3ace16ed6da32a42d0a8bf3d",
+    "local": "<HF_HOME>\\hub\\models--ctigges--pythia-70m-deduped__res-sm_processed\\snapshots\\4de021e0701171e7a0be1fb711d278ec5c0ebd4d\\4-res-sm\\cfg.json"
+  },
+  {
+    "repo": "ctigges/pythia-70m-deduped__res-sm_processed",
+    "type": "model",
+    "file": "4-res-sm/sae_weights.safetensors",
+    "revision": "4de021e0701171e7a0be1fb711d278ec5c0ebd4d",
+    "bytes": 134351168,
+    "sha256": "19959fd5a65cafb8f4f080464ccbfbbaea515da059e0745b389f24e6b682ab8c",
+    "local": "<HF_HOME>\\hub\\models--ctigges--pythia-70m-deduped__res-sm_processed\\snapshots\\4de021e0701171e7a0be1fb711d278ec5c0ebd4d\\4-res-sm\\sae_weights.safetensors"
+  },
+  {
+    "repo": "ctigges/pythia-70m-deduped__res-sm_processed",
+    "type": "model",
+    "file": "4-res-sm/sparsity.safetensors",
+    "revision": "4de021e0701171e7a0be1fb711d278ec5c0ebd4d",
+    "bytes": 131152,
+    "sha256": "3de19ed9e6a674abe9afd61ef2851926212cb87105241ec32409ced3ed4676dc",
+    "local": "<HF_HOME>\\hub\\models--ctigges--pythia-70m-deduped__res-sm_processed\\snapshots\\4de021e0701171e7a0be1fb711d278ec5c0ebd4d\\4-res-sm\\sparsity.safetensors"
+  },
+  {
+    "repo": "Salesforce/wikitext",
+    "type": "dataset",
+    "file": "wikitext-2-raw-v1/train-00000-of-00001.parquet",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "bytes": 6357543,
+    "sha256": "e83889baabc497075506f91975be5fac0d45c5290b6b20582c8cd1e853d0c9f7",
+    "local": "<HF_HOME>\\hub\\datasets--Salesforce--wikitext\\snapshots\\b08601e04326c79dfdd32d625aee71d232d685c3\\wikitext-2-raw-v1\\train-00000-of-00001.parquet"
+  }
+]

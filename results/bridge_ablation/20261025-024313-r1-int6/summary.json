@@ -1,0 +1,55 @@
+{
+  "exploratory": true,
+  "bits": 6,
+  "input": "r",
+  "ppl_fp": 67.83899510115728,
+  "fp_sanity": {
+    "ppl_fp_stage": 67.83914627943156,
+    "pass": true
+  },
+  "n_active": 5717,
+  "variants": {
+    "S": {
+      "flags": {
+        "fold_ln": 0,
+        "center_writing": 0,
+        "fold_value_biases": 0,
+        "qkv_scales": "p",
+        "sae_input": "r"
+      },
+      "survived_pct": 85.30697918488718,
+      "damaged_pct": 0.01749169144656288,
+      "mean_corr": 0.9544141682018285,
+      "ppl": 71.06587308243819,
+      "dppl_pct": 4.756671257392875
+    },
+    "S-Q": {
+      "flags": {
+        "fold_ln": 0,
+        "center_writing": 0,
+        "fold_value_biases": 0,
+        "qkv_scales": "s",
+        "sae_input": "r"
+      },
+      "survived_pct": 59.559209375546615,
+      "damaged_pct": 3.9356305754766487,
+      "mean_corr": 0.8671665487426145,
+      "ppl": 82.9303417800283,
+      "dppl_pct": 22.245828754343645
+    },
+    "S-F": {
+      "flags": {
+        "fold_ln": 1,
+        "center_writing": 0,
+        "fold_value_biases": 0,
+        "qkv_scales": "p",
+        "sae_input": "r"
+      },
+      "survived_pct": 94.59506734301208,
+      "damaged_pct": 0.0,
+      "mean_corr": 0.9684735439984616,
+      "ppl": 69.19464553397866,
+      "dppl_pct": 1.9983350738022043
+    }
+  }
+}

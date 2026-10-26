@@ -1,0 +1,66 @@
+{
+  "git": {
+    "commit": "no commit",
+    "dirty_files": 11
+  },
+  "torch": "2.13.0+cpu",
+  "numpy": "2.5.1",
+  "threads": 24,
+  "started": "2026-10-24T09:29:54",
+  "loss_normalization": "per instance: mean over batch of sum_i I_i (x_i - x_hat_i)^2 (paper's sum over features)",
+  "loss_history_layout": "loss_history.npy: float32 [steps, K], one per-instance loss per step",
+  "weights_layout": "final.pt / snapshot_*.pt: dict with W [K, m, n], b [K, n] and numpy metadata; load with tmsq.experiments.common.load_weights (torch.load needs weights_only=False)",
+  "setting": "B",
+  "source_run": "<repo>\\results\\rep_20in5\\20261024-063030",
+  "source_meta": {
+    "git": {
+      "commit": "no commit",
+      "dirty_files": 11
+    },
+    "torch": "2.13.0+cpu",
+    "numpy": "2.5.1",
+    "threads": 24,
+    "started": "2026-10-24T06:30:30",
+    "steps_effective": 20000,
+    "K": 60,
+    "density_grid": [
+      1.0,
+      0.533669923120631,
+      0.2848035868435802,
+      0.1519911082952934,
+      0.08111308307896872,
+      0.04328761281083059,
+      0.023101297000831605,
+      0.012328467394420665,
+      0.006579332246575682,
+      0.0035111917342151347,
+      0.001873817422860385,
+      0.001
+    ]
+  },
+  "n_instances": 60,
+  "n_configs": 144,
+  "bits": [
+    8,
+    6,
+    5,
+    4,
+    3,
+    2
+  ],
+  "noise_seeds": 5,
+  "eval_params": {
+    "n_active": 2000,
+    "n_inactive": 20000,
+    "n_nat_min": 40000,
+    "n_nat_max": 120000,
+    "tau": 0.05,
+    "near_eps": 0.05,
+    "seed_base": 10000,
+    "survival_threshold": 0.9,
+    "composite_dr2": 0.1,
+    "composite_dfalse": 0.05,
+    "eligible_r2": 0.5,
+    "forward_chunk": 65536
+  }
+}

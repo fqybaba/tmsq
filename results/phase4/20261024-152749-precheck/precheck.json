@@ -1,0 +1,82 @@
+{
+  "weak": {
+    "stop": true,
+    "stop_reasons": [
+      "non-monotone or missing: tensor",
+      "non-monotone or missing: column",
+      "non-monotone or missing: row"
+    ],
+    "bits8_contingency": null,
+    "completeness_problems": [],
+    "eligible_per_instance": {
+      "0": 22,
+      "1": 20,
+      "2": 25,
+      "3": 22,
+      "4": 26,
+      "5": 23,
+      "6": 20,
+      "7": 24,
+      "8": 20,
+      "9": 21,
+      "10": 15,
+      "11": 17,
+      "12": 15,
+      "13": 14,
+      "14": 15,
+      "15": 20,
+      "16": 19,
+      "17": 17,
+      "18": 17,
+      "19": 20
+    },
+    "icc_primary": {
+      "rel_damage": 0.04735498761292547,
+      "dR2": 0.042657982546370474,
+      "dLoss": -0.001852357480674982
+    },
+    "sqrt_icc_primary": {
+      "rel_damage": 0.21761201164670452,
+      "dR2": 0.2065380898197,
+      "dLoss": 0.0
+    }
+  },
+  "strong": {
+    "stop": false,
+    "stop_reasons": [],
+    "bits8_contingency": null,
+    "completeness_problems": [],
+    "eligible_per_instance": {
+      "0": 198,
+      "1": 197,
+      "2": 198,
+      "3": 194,
+      "4": 197,
+      "5": 98,
+      "6": 100,
+      "7": 100,
+      "8": 97,
+      "9": 101,
+      "10": 197,
+      "11": 200,
+      "12": 198,
+      "13": 196,
+      "14": 198,
+      "15": 99,
+      "16": 106,
+      "17": 103,
+      "18": 99,
+      "19": 103
+    },
+    "icc_primary": {
+      "rel_damage": 0.30929255187511445,
+      "dR2": 0.29315314460545777,
+      "dLoss": 0.6203644394874572
+    },
+    "sqrt_icc_primary": {
+      "rel_damage": 0.5561407662409891,
+      "dR2": 0.5414361870114129,
+      "dLoss": 0.7876321727097346
+    }
+  }
+}
