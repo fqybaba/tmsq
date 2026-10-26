@@ -17,7 +17,8 @@ The full `results/` tree (weights, per-feature tables) is in that repository's R
 - I designed the research question, the overall architecture and the phase plan, and I made the scope and
   approval decisions, except the ones Claude Code made under my standing instruction while I was away (next
   bullets).
-- I used Claude (claude.ai) to write that design up as Markdown and for a few simple lookups.
+- I used Claude (claude.ai) to write that design up as Markdown, for a few simple lookups, and later to review
+  the drafts of this post and check its citations.
 - I used Claude Code (Anthropic) to check the plan against primary sources, write all of the code, run every
   experiment and analysis, and draft this post.
 - I approved the Phase 3 pre-registration before any test ran. After that I was away, and under my standing
@@ -45,7 +46,8 @@ The full `results/` tree (weights, per-feature tables) is in that repository's R
   norm) predicts nothing.
 - **The fragile features are the zero-bias antipodal pairs.**
   - Antipodal-pair features (D_i ≈ 0.5) have no positive interference to suppress and learn a bias of about
-    +0.01 (as Elhage et al. (2022) note, they have no reason to pay for a negative one). Their output on inputs
+    +0.01 (consistent with Elhage et al.'s (2022) account that a negative bias exists to filter small positive
+    interference; a feature with none has nothing for such a bias to filter). Their output on inputs
     where they should be off sits just above zero, just below the 0.05 cutoff used to count false
     activations, so a 3- or 4-bit perturbation pushes it over.
   - Crowded features learn negative biases (about −0.08). The post-hoc reading, not tested by intervention, is
@@ -87,7 +89,8 @@ features.
   0.92–0.97, and peak activation is the strongest single predictor.
 - The paper offers a heuristic ("quantization perturbations compete with each feature's activation signal")
   but measures no geometry.
-- Its released code differs from the method the paper describes, in a way that matters (Section 8).
+- Section 8 notes a difference between its released code and the method the paper describes; I have asked the
+  author about it.
 
 In a real model the true features are unknown, so the question of *why* a given feature breaks cannot be
 asked directly.
@@ -250,8 +253,12 @@ b or W.
   positive interference: their largest overlap with any other feature is at most 0.016, against at least
   0.088 for every other eligible feature. (The 93rd member of the table's class has D = 0.46 and overlap
   0.096.) When its
-  partner is active, feature i's pre-activation is negative and the ReLU removes it. So, as Elhage et al.
-  (2022) note, the model has no reason to pay for a negative bias, and it learns b_i ≈ 0 (here +0.01).
+  partner is active, feature i's pre-activation is negative and the ReLU removes it. Elhage et al. (2022,
+  "Mathematical Understanding") note that ReLU makes negative interference free and that a negative bias is
+  what converts small positive interference into negative interference; in "Perturbing a Single Feature" they
+  attribute the slight negative bias of pentagonal solutions to positive interference. By that account a
+  feature with no positive interference has no reason to pay for a negative bias (my inference, not their
+  statement), and indeed it learns b_i ≈ 0 (here +0.01).
 - Its output on the inactive stratum then sits just above zero and just below the 0.05 cutoff for false
   activations. A 3- or 4-bit perturbation, whether rounding or Gaussian, pushes a large fraction of it over.
 - Crowded features have positive interference, so they learn a negative bias to filter it. That bias is also
@@ -273,8 +280,9 @@ b or W.
 ## 6. Side result: head vs tail is weak, and frequency is tangled with geometry
 
 Real-model evidence on whether compression hurts frequent or rare knowledge more is mixed (Wu et al., 2026,
-where the large shifts come mostly from pruning and very low bit widths; Chang et al., 2025, whose "long tail"
-is not a frequency). Setting D gives each feature a frequency from a
+where the large shifts come mostly from pruning and very low bit widths; Chang et al., 2025, whose FineWeb
+"long tail" is defined by full-precision loss rather than frequency, and whose PopQA entity-popularity result,
+a frequency proxy, is non-monotone). Setting D gives each feature a frequency from a
 power law (n = 200, m = 20).
 - The degree of superposition is set with Liu, Liu & Gore's knob γ.
 - The strong regime (γ = −1) is checked with phi_half, the fraction of features with norm > 1/2. It is 1.00 /
@@ -553,13 +561,18 @@ registered secondary run) has 5,717; applying the registered verdict rules to it
   with two hidden dimensions. They show that the 4-gon critical point (two orthogonal antipodal pairs) has
   b* = 0 and ‖W_i‖ = 1 (their Table A.1). That is consistent with the near-zero biases observed here for
   antipodal pairs in setting C, which is a different regime (n = 100, m = 20, S ≈ 0.75).
-- **Quantized TMS.** Tlaie (2024) notes that biases are not negative until the antipodal structure is lost.
-  That work studies quantization-aware training of ternary TMS models, not post-training quantization.
+- **BitLinear TMS.** Tlaie (2024) trains TMS models (n = 20, m = 5) with BitLinear layers (BitNet-style
+  low-bit weights trained from scratch, i.e. quantization in the loop, not post-training quantization) next to
+  a dense reproduction, and observes on the BitLinear network that "the bias vector is not negative until
+  larger sparsities (when the antipodal structure is lost)", later than in the dense baseline. The author
+  calls it "too little work to extract strong conclusions".
 - **Superposition and robustness.** This line of work concerns *input-space* adversarial attacks at the model
   level:
   - Elhage et al. (2022).
-  - Gorton & Lewis (2025), who also observe an unexplained *dip* in vulnerability at antipodal
-    superposition.
+  - Gorton & Lewis (2025, Sec. 3.2 and Fig. 2B), who also report "one striking dip" in adversarial
+    vulnerability at antipodal superposition, call it unexpected and leave it to future work (their Sec. 5).
+    Note the direction: antipodal models are *less* vulnerable to input-space attacks there, while antipodal
+    features are the *most* fragile under weight quantization here.
   - Stevinson et al. (2026).
 - **SAEs in Pythia.** The bridge uses the residual-stream SAEs of Marks et al. (2024).
 - **Quantization damage to features in real models.**

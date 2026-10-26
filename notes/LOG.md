@@ -2665,3 +2665,63 @@ resolves for everyone. Still pending: Duan's reply; the owner's review of the po
 of the previous entry.
 
 ---
+
+## 2026-10-26 — Third external review of the post (owner via Claude chat): LessWrong policy and six citation points
+
+The owner read draft v4 and had Claude (claude.ai) review it. Its verdict: content sound (its spot checks of
+the Section 8 replication table, the ablation arithmetic and the Section 7 ratios all matched), but a post
+drafted by Claude Code cannot be a first LessWrong post under the site's LLM policy; the owner should rewrite
+it in their own words at about a third of the length, and six citation points need checking. Every factual
+point was checked against primary sources by a 6-agent workflow (`verify-review-points`, WebFetch of the
+policy pages, the four papers and the arXiv pages):
+
+1. **LessWrong policy: confirmed.** Current policy is the 14 March 2026 post "New LessWrong Editor! (Also, an
+   update to our LLM policy.)" (RobertM), superseding the 24 March 2025 policy. "LLM output" includes text
+   written by an LLM and then edited by a human; it "must go into the new LLM content blocks"; posts "will be
+   automatically rejected if they score above a certain threshold in our automated LLM content detection
+   pipeline", and the threshold is being lowered; "For first-time users, we have closer to a zero-LLM policy";
+   a new user's post that "substantially consists of content inside of LLM content blocks" is "pretty unlikely"
+   to be approved. Allowed: research, facts and arguments developed with LLM help, code, and ("What about
+   translation?") writing in one's native language followed by "a direct word-for-word translation (no
+   rewriting, embellishment, tweaks, etc)". One nuance: "let the LLM suggest edits and apply them by hand" is
+   not in the policy body; an admin comment allows structural suggestions and sparse line edits, not rewrites of
+   several sentences or new paragraphs. Consequence: `writeup/post.md` stays in the repository as the project's
+   write-up and as the source for the owner's own text; it is not to be submitted as is.
+2. **Chang et al. (2025): the reviewer is right.** Their FineWeb "long tail" is defined by full-precision loss
+   (Sec. 7.2, Fig. 4), but their PopQA buckets are entity popularity, which PopQA (Mallen et al., 2023, Sec.
+   3.2) defines by Wikipedia monthly page views as a frequency proxy, and their summary applies "long-tail" to
+   PopQA too. The blanket clause "whose 'long tail' is not a frequency" (post Section 6; this LOG, Phase 4
+   entry) was half wrong. Post corrected: FineWeb tail defined by loss; PopQA popularity result, a frequency
+   proxy, non-monotone (Mistral-12B, 3 bits).
+3. **Elhage et al. (2022): not an explicit statement.** The paper says a negative bias lets the model "discard
+   small amounts of noise", that "ReLU makes negative interference free in the 1-sparse case", that "a negative
+   bias can convert small positive interferences into essentially being negative interferences" (Mathematical
+   Understanding), and that the slight negative bias of pentagonal solutions is "driven by the amount of
+   positive interference" (Perturbing a Single Feature). It never says that antipodal pairs have no reason to
+   pay for a bias; that step is our inference. Post corrected in the TL;DR and Section 5 (marked "my
+   inference, not their statement").
+4. **Tlaie (2024): attribution sharpened.** The bias observation is on his BitLinear network (n = 20, m = 5),
+   with his dense reproduction as the comparator; the post never says "ternary" or "quantization" (the
+   BitLinear link points to the 1-bit BitNet paper, arXiv 2310.11453), so "ternary" was dropped. The author's
+   own caveat ("too little work to extract strong conclusions") is now quoted.
+5. **Gorton & Lewis (2025): reference added.** The dip is in Sec. 3.2 and Fig. 2B (arXiv 2508.17456v2, pp.
+   4–5): "one striking dip corresponding to antipodal superposition"; Sec. 5 lists it among "unexpected
+   findings [that] merit further investigation". The paper's words are "striking", "surprising", "unexpected",
+   not "unexplained"; post corrected, with the figure reference and the note that the direction is opposite to
+   ours (less vulnerable to input attacks, most fragile under weight quantization). This LOG's literature-check
+   entry and `notes/litcheck_2026-10-24.md` used "unexplained"; superseded by this entry.
+6. **Duan v2 date: confirmed.** arXiv submission history: v1 Tue, 2 Jun 2026; v2 Thu, 4 Jun 2026; v2 title
+   "Perplexity Can Miss SAE Feature Damage Under Quantization"; v1 title "How Quantization Changes Interpretable
+   Features: A Sparse Autoencoder Analysis of Language Models". No change.
+
+Also applied: the Section 1 bullet on the code/paper difference now only points to Section 8 and says the
+author has been asked; "How this was made" now says Claude (claude.ai) also reviewed the drafts and checked
+citations. Numbers the reviewer spot-checked and found correct: the Section 8 replication table against Duan's
+Table 1 and H.7; the ablation differences (+31.9, −25.7, 22.9); Section 7's 2.9×, 2.1× (4^-b) and 2.8× (qmax
+3, 7, 15).
+
+Decision pending with the owner: rewrite in their own words (Chinese first, then literal translation), target
+1,500–2,000 words, antipodal result as the main line; optionally a second short post on the Duan replication
+and implementation difference once he replies.
+
+---

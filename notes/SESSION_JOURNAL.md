@@ -450,3 +450,13 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 
 - Owner flipped the repository to public; anonymous checks of the repo page, Release page, API and raw README
   all succeed. 中文：仓库已公开，匿名访问仓库页、Release 页、API 和 raw README 都正常。
+
+## 2026-10-26: third external review (LessWrong policy, six citation points)
+
+- The owner's Claude-chat review says the post cannot go up as a first LessWrong post under the March 2026
+  LLM policy and lists six citation points. All checked against primary sources by a 6-agent workflow: the
+  policy claims hold (quoted in the LOG); Chang et al. clause was half wrong and is fixed; the Elhage
+  attribution was an inference and is now marked as such; Tlaie's "ternary" dropped, model named; Gorton &
+  Lewis dip now cited to Sec. 3.2 / Fig. 2B with the paper's own words; Duan v2 date confirmed.
+- 中文摘要：LessWrong 2026 年 3 月的政策核实属实（首帖接近零 LLM 文本；可中文写、LLM 逐字直译）。六处引文按原文
+  改好并提交；post 留在仓库里当底稿，发布版需要你自己写。待你决定一篇还是两篇。
