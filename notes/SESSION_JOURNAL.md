@@ -469,3 +469,11 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   finished by three background agents. Small post fixes and ten LOG errata recorded in the LOG.
 - 中文摘要：重写资料包做好了：中文提纲（9 节，含数据表、图、措辞边界、你来决定的问题）、英文 post、中文翻译、术语表。
   每部分都核对过数字。桌面上有一份，带 html 版本可以直接用浏览器看。核对中顺带发现并改正了 post 的三处措辞和 LOG 的十处小错。
+
+## 2026-11-07: external next-step suggestions; Duan silent
+
+- Owner pasted a suggestion (post first; extend to Pythia-160M/410M; GPTQ/AWQ on SAE features; hostile LLM
+  reviewer). Claude Code recommended posting first; owner set A and B aside. Owner checked Gmail: no reply
+  from Duan since 2026-10-25. Verified that SAELens lists no Pythia-160M/410M SAEs; outline section 7 updated.
+- 中文摘要：外部建议的两个扩展（更大模型、GPTQ/AWQ）先放一放；Duan 13 天没回信。查过 SAELens 清单，Pythia 只有 70M 的 SAE。
+  提纲第七节加了对应的事实和两个"你来决定"的问题，桌面副本已刷新。

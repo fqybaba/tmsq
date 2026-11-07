@@ -2778,3 +2778,26 @@ imprecise; the outline uses the corrected values):
     "unexplained" (superseded by the previous entry).
 
 ---
+
+## 2026-11-07 — Owner's decision on the external next-step suggestions; Duan still has not replied
+
+The owner pasted a suggestion (from another chat) with three options: finish and post the write-up (main
+line); branch A, extend the bridge to Pythia-160M / 410M; branch B, test real quantizers (GPTQ / AWQ INT4) on
+SAE features; and use a different LLM as a hostile reviewer. Claude Code's assessment (recorded here so the
+reasoning is traceable): the main line is the owner's own rewrite (LessWrong policy, previous entries); A would
+most likely repeat the post-hoc null on survival (about 0.004 AUC beyond Duan-4) at a cost of a new
+pre-registration, a model download (PROMPTS.md: ask first) and a pipeline port; B is a different research
+question, because the antipodal mechanism depends on RTN rounding and GPTQ / AWQ compensate with calibration
+data. Recommendation: post first, extensions later and only with their own pre-registration.
+
+- Owner's decision: branches A and B are set aside for now ("先把这两件事情再说").
+- Duan: the owner checked Gmail on 2026-11-07; no reply to the 2026-10-25 e-mail (13 days). No follow-up sent.
+- Fact check for branch A (verified 2026-11-07): the SAELens pretrained SAE list
+  (`sae_lens/pretrained_saes.yaml` on `main`, raw file 1,549,924 characters, searched locally) contains Pythia
+  SAEs only for `pythia-70m-deduped` (the `-res/-mlp/-att-sm` releases and the SAE Bench sweeps); no entry for
+  pythia-160m or pythia-410m. Other sources of SAEs for larger Pythia models were not checked.
+- Kit update (`writeup/rewrite_kit/01_outline_zh.md`, section 7, and the Desktop copy): the Duan row now says
+  "no reply as of 2026-11-07"; a next-step row N6 (larger Pythia model, not done, no ready-made SAE) and two
+  owner questions (whether to list N6; what to write if Duan never replies) were added.
+
+---

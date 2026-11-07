@@ -1157,7 +1157,7 @@ K2 类别均值（登记为描述性机制量）：
 
 | 事项 | 状态 | 出处 |
 |---|---|---|
-| Duan 的回信 | 2026-10-25 发出邮件；截至 LOG 2026-10-26 仍未回复 | 发信日期：post 第 8 节、`notes/SESSION_JOURNAL.md`「2026-10-25: Duan emailed…」（LOG 本身没记发信，只在 10-25 记了"草稿未发"）；未回复：LOG「Repository public」 |
+| Duan 的回信 | 2026-10-25 发出邮件；截至 2026-11-07（你查过 Gmail）仍未回复，已过 13 天 | 发信日期：post 第 8 节、`notes/SESSION_JOURNAL.md`「2026-10-25: Duan emailed…」（LOG 本身没记发信，只在 10-25 记了"草稿未发"）；未回复：LOG「Repository public」、LOG 2026-11-07 条目 |
 | Stevinson et al. (2026) 的 PMLR 卷号和页码 | ICML 2026 论文；卷号页码尚未公布，不能猜 | post「Review points still open」第 2 条；LOG「Phase 6: owner's review of draft v1…」 |
 | README 的 Status 和 About/Website | 帖子发布或 Duan 回信后更新 | LOG「README front page (owner's suggestions) and GitHub topics」第 3 条 |
 
@@ -1170,8 +1170,9 @@ K2 类别均值（登记为描述性机制量）：
 | N3 | 用正确的结果变量（新增误激活），在新模型上预注册重测设定 D 的机制 | 第 3 小节第 4 条 |
 | N4 | 干预检验：量化前把反极特征的偏置往负方向移，比较损伤 | L7 |
 | N5（可选） | 第二篇短帖：Duan 复现和实现差异，等他回信后再写 | L14；未决事项第 1 条 |
+| N6（可选，未做） | 换更大的 Pythia 模型（160M / 410M）原样重跑四个预注册检验，看"玩具模型预测量几乎不比 Duan 的统计量多提供信息"是否随规模变化。事实：SAELens 的预训练 SAE 清单（`pretrained_saes.yaml`，2026-11-07 取）里 Pythia 只有 `pythia-70m-deduped`，没有 160M / 410M 的条目；换模型要自己找或自己训 SAE，Duan 的管线也要移植，结果不一定可比 | L10；2026-11-07 外部建议，你已决定先放一放 |
 
-来源：`writeup/post.md` 第 12 节（N1–N4）；`notes/LOG.md`「Third external review of the post」末段与 `00_README.md`「第二篇」（N5）。
+来源：`writeup/post.md` 第 12 节（N1–N4）；`notes/LOG.md`「Third external review of the post」末段与 `00_README.md`「第二篇」（N5）；LOG 2026-11-07 条目（N6）。
 
 ### 6. 图（可选）
 
@@ -1205,7 +1206,8 @@ K2 类别均值（登记为描述性机制量）：
 - K2 的无阈值差（+0.039、+0.0020）放这里，还是放主结果一节？
 - 下一步保留哪几条、什么顺序？干预检验（N4）要不要排第一？
 - 要不要提第二篇短帖（N5）？
-- 如果发帖前 Duan 回信，回复写进本节，还是第五节？
+- "换更大模型"（N6）要不要写进下一步？写的话只能写成计划，并说明没有现成 SAE。
+- 如果发帖前 Duan 回信，回复写进本节，还是第五节？如果一直没回信，本节只写"截至发帖日未收到回复"。
 - 本节要不要配图，还是只回指前面的图？
 
 ## 八、写作和 AI 使用说明（事实清单）
