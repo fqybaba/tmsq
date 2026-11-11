@@ -2935,3 +2935,61 @@ top-k membership changes are a second candidate, see observation 5).
 the first step (FP only) is done; no result bears on the post.
 
 ---
+
+## 2026-11-11 — Branch A: owner's decisions for the pre-registration; FP-only predictor facts; progress saved
+
+**Owner's decisions** ("同意你的建议，先定A的预注册，B的第一步也开始"), on the three recommendations of the previous
+entry:
+
+1. Primary layer per size = proportional depth: 70m layer 4, 160m layer 9, 410m layer 19. Layer 4 of 160m and
+   410m is secondary (64% and 50% of its latents never fire on this stream).
+2. The predictor for a TopK SAE is defined relative to the per-token cut `z_(k)`; the exact definition is fixed
+   in the pre-registration (not yet written).
+3. The 70m model is re-run with the Lawson SAE, so that the three sizes use the same kind of SAE.
+
+Branch B, step 1 is approved too: an own implementation of GPTQ, checked against the reference implementation;
+no results. **Neither the pre-registration draft nor the GPTQ code exists yet.** The owner then asked to save
+the progress; this entry is that save point.
+
+**FP-only facts, computed before the pre-registration** (no quantized model exists). Script
+`notes/posthoc/scale_fp_predictor_facts.py`, output `results/bridge_scale_posthoc/fp_predictor_facts_20261111.txt`.
+Eligible latents (FP rate > 0.001) per cell: 4,402 (70m L4), 4,529 (160m L4), 4,265 (160m L9), 4,856 (410m L4),
+3,489 (410m L19). "R2 on Duan-4" = R^2 of the candidate's ranks on the ranks of rarity, log mean, log peak and
+log concentration (how much of the candidate Duan's model already contains). Ranges are over the five cells.
+
+| candidate | definition | Spearman with rarity | with log peak | R2 on Duan-4 |
+|---|---|---|---|---|
+| near_off_0.1 | P(not kept and z_j > 0.9 cut_t) | -0.24 to -0.70 | -0.28 to -0.50 | 0.45 to 0.74 |
+| rank2k | P(rank k+1..2k) | -0.30 to -0.68 | -0.30 to -0.52 | 0.47 to 0.72 |
+| near_on_0.1 / rate | P(z_j < 1.1 cut_t given firing) | -0.03 to +0.40 | -0.32 to -0.82 | 0.46 to 0.76 |
+| z_margin | (mean cut - mean z_j) / sd z_j | +0.16 to +0.74 | -0.11 to +0.43 | 0.31 to 0.57 |
+| mu+ / mean cut | mean active value over the cut | -0.43 to +0.18 | +0.63 to +0.93 | 0.81 to 0.92 |
+
+- The three band widths (0.05, 0.1, 0.25) and rank2k are one quantity: Spearman 0.94 to 1.00 between
+  near_off_0.1 and rank2k in every cell. Only one of them can be a registered predictor.
+- near_off is less of a frequency proxy than the ReLU-SAE `near_thr` of Phase 6b (Spearman with rarity -0.93
+  there; -0.24 to -0.70 here), but 45–74% of its rank variance is already in Duan's four statistics.
+- `mu+ / cut` is mostly peak activation, and `log mu+ = log mean + rarity` exactly (checked, 9e-16): the Phase 6b
+  post-hoc lesson (the margin's signal came in through mu+) applies. A predictor normalized by mu+ must not be
+  registered against a baseline that lacks Duan's four statistics.
+- `z_margin` is the candidate least contained in Duan-4 (R2 0.31 to 0.57). It is the TopK analog of "how far
+  below threshold the feature sits", with no encoder bias involved.
+- 410m layer 4 stands apart (lower R2 everywhere, log peak nearly unrelated to the near-cut quantities).
+
+**Lessons from Phase 6b that the pre-registration must carry** (from the 2026-10-24/25 entries): the baseline
+is Duan's four-statistic model, not peak alone; a frequency-controlled version of every test is registered,
+not added afterwards; minimum effect sizes carry the verdicts (permutation p sits at the floor with thousands of
+dependent features); stop rule of at least 200 features per survival class; the primary bit width cannot be
+taken from Duan here (in the 70M stated arm INT6 left 85% surviving, INT5 59%, INT4 23%), so the rule that picks
+it must use only the marginal survival fraction, never a predictor.
+
+**Next, in this order** (nothing below has started):
+
+1. Draft the branch-A pre-registration (arm, bit-width rule, eligibility, outcome, predictors T and M for TopK,
+   baseline = Duan-4, tests, minimum effects, stop rules, the scale comparison), have it reviewed by independent
+   AI reviewers before the owner sees it, then wait for the owner's approval. No quantized run before that.
+2. Branch B step 1: GPTQ in torch with a pluggable grid (H = I must reduce to RTN; fast version must equal a
+   naive column-by-column OBQ reference; numerical comparison with the authors' `gptq.py`, which is downloaded
+   to a scratch folder and not copied into the repository). No results.
+
+---

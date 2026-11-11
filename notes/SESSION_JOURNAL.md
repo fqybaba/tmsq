@@ -488,3 +488,11 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
 - 中文摘要：11-07 记的"两条分支先放"是我误读，已更正。分支 A 第一步完成：下载了 160M / 410M 和 Lawson 的 TopK SAE，
   写了加载器和 smoke，按你的要求做了两轮代码审查和优化（修掉一个加载即崩溃的 bug，统计快了约 2.5 倍），三个尺寸的全精度
   smoke 都通过。还没有做任何量化。下一步是预注册，需要你定几件事（主层、合格标准、TopK 下的预测量怎么定义）。
+
+## 2026-11-11 (later): owner's decisions for branch A; progress saved
+
+- Owner agreed with the three recommendations (proportional-depth layers primary; TopK predictor relative to the
+  cut; 70m re-run with the Lawson SAE) and approved branch B step 1. FP-only predictor facts computed and
+  logged. Owner asked to save progress: the pre-registration draft and the GPTQ code have NOT been started.
+- 中文摘要：你同意了三条建议，并批准开始分支 B 第一步。我先算了一份只用全精度数据的"候选预测量"事实表（写预注册要用），
+  然后按你的要求保存进度。预注册草稿和 GPTQ 代码都还没开始写，下次从这两件事接着做。
