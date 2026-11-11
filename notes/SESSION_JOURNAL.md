@@ -477,3 +477,14 @@ precheck 在 `7f8483f`，结果在 `3294226`，描述表在 `84f63e7`。
   from Duan since 2026-10-25. Verified that SAELens lists no Pythia-160M/410M SAEs; outline section 7 updated.
 - 中文摘要：外部建议的两个扩展（更大模型、GPTQ/AWQ）先放一放；Duan 13 天没回信。查过 SAELens 清单，Pythia 只有 70M 的 SAE。
   提纲第七节加了对应的事实和两个"你来决定"的问题，桌面副本已刷新。
+
+## 2026-11-11: branch A step 1 (FP smoke on 70M / 160M / 410M)
+
+- The 2026-11-07 record ("A and B set aside") was Claude Code's misreading; the owner wanted both branches
+  started and approved the first step of A (downloads; Lawson TopK SAEs). Loader, smoke script, tests written;
+  the owner asked for a code check and optimizations: two multi-agent AI review passes (one blocker fixed: the
+  loader rejected the real SAE file), statistics made sparse, one forward per batch for all layers. FP smoke
+  done for 70m (layer 4), 160m (4, 9), 410m (4, 19); all checks pass. No quantized run yet.
+- 中文摘要：11-07 记的"两条分支先放"是我误读，已更正。分支 A 第一步完成：下载了 160M / 410M 和 Lawson 的 TopK SAE，
+  写了加载器和 smoke，按你的要求做了两轮代码审查和优化（修掉一个加载即崩溃的 bug，统计快了约 2.5 倍），三个尺寸的全精度
+  smoke 都通过。还没有做任何量化。下一步是预注册，需要你定几件事（主层、合格标准、TopK 下的预测量怎么定义）。

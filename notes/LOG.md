@@ -2801,3 +2801,137 @@ data. Recommendation: post first, extensions later and only with their own pre-r
   owner questions (whether to list N6; what to write if Duan never replies) were added.
 
 ---
+
+## 2026-11-11 — Branch A (scale), step 1: downloads, TopK-SAE loader, FP smoke on Pythia-70M / 160M / 410M
+
+**Correction to the 2026-11-07 entry.** That entry records "branches A and B are set aside for now". Claude
+Code misread the owner ("先把这两件事情再说"). The owner then said so ("我说的是先把这两个分支做起来，我下个礼拜再开始写")
+and, after Claude Code proposed a first step for each branch, approved items 1 and 2 of branch A ("那就12吧"):
+(1) download `pythia-160m-deduped`, `pythia-410m-deduped` and the SAEs; (2) use the TopK SAEs of Lawson et al.
+The N6 row added to the rewrite kit ("you have decided to set it aside") is therefore wrong and is corrected
+below. Branch B (GPTQ / AWQ) has no approved step yet. No quantized run and no test has been made in branch A:
+this step is full precision only.
+
+**SAEs (verified against primary sources).** SAELens lists no Pythia-160M/410M SAEs (2026-11-07 entry), but the
+Hugging Face hub has `tim-lawson/sae-pythia-{70m,160m,410m}-deduped-x64-k32-layers-N` for every block of all
+three sizes (Lawson, Farnik, Houghton & Aitchison, "Residual Stream Analysis with Multi-Layer SAEs", ICLR 2025,
+arXiv 2409.04185; code `github.com/tim-lawson/mlsae`, read at commit f26303f). From the code:
+
+- `layers-N` is the HF GPTNeoX hidden state after block N (0-based; embeddings excluded; no final layer norm),
+  i.e. TransformerLens `blocks.N.hook_resid_post` (`mlsae/model/transformers/pythia.py`, `hidden_states`).
+- Forward (`mlsae/model/autoencoders/topk.py`, `utils.py`): per-token standardization over d_model (unbiased
+  std, eps 1e-5 added to the std); `z = (x_std - pre_encoder_bias) @ W_enc`, NO encoder bias; keep the k = 32
+  largest z, then ReLU; decode, add `pre_encoder_bias`, undo the standardization. Width 64 x d_model
+  (32,768 / 49,152 / 65,536). Trained on about 1e9 tokens of `monology/pile-uncopyrighted`, 2048-token contexts.
+- Consequences for the design (to be settled in the pre-registration, not here): there is no `b_enc`, so the
+  70M predictors `bias_only` and `margin` (built on `b_enc`) have no direct analog; the "threshold" of a latent
+  is the per-token cut `z_(k)`, not 0; and the SAE differs in kind from Duan's ReLU SAE (`res-sm`), so the 70M
+  model needs both SAEs for a like-for-like baseline.
+
+**Layers** (config `configs/bridge_scale.yaml`): 70m layer 4 (Duan's layer); 160m layers 4 and 9; 410m layers 4
+and 19. Layer 4 is the same index as 70m; 9 and 19 are the proportional depth, `round(5/6 * n_layers) - 1`.
+Which one is primary is a pre-registration decision.
+
+**Code** (commit of this entry): `src/tmsq/bridge_topk.py` (loader, dense forward transcribed from mlsae, a
+sparse forward, streamed FP statistics `TopKFPStats`); `src/tmsq/experiments/bridge_scale_smoke.py`;
+`bridge_fetch.py --set scale`; `tests/test_bridge_topk.py` (16 tests; whole suite 293 passed).
+
+**Downloads** (owner-approved): manifest `results/bridge/20261111-111113-fetch-scale/manifest.json`, 25 files,
+3,270.7 MB, each at the revision pinned in the config, with SHA-256. The Xet transfer backend of
+`huggingface_hub` stalled twice on this machine (a 302 MB file with no progress for 30 min); with
+`HF_HUB_DISABLE_XET=1` the same file took 53 s. The fetch script now sets that by default.
+
+**Review of the code before the runs** (owner: "检查一下代码有没有问题，有没有能优化的地方"). Two multi-agent AI
+passes, every reported problem re-derived by a second agent (Opus 5.5 reviewers and verifiers, Sonnet 5.5 for
+the mechanical lens; 10 + 6 agents). All findings held. Fixed before any 160m/410m run:
+
+1. Blocker: the loader required decoder column norms within 1e-3 of 1; the real 70m file has 24 of 32,768
+   columns outside (max deviation 2.1e-3; mlsae renormalizes before the optimizer step, so saved weights are
+   one Adam step off). The unit tests used exactly normalized fixtures. Tolerance now 1e-2, the deviation is
+   recorded (70m 2.1e-3; 160m 2.3e-4 and 1.7e-3; 410m 4.3e-4 and 1.1e-3), weights are not renormalized.
+2. The convention check (HF raw hidden state vs TransformerLens `resid_post`) had no pass rule and its
+   docstring said the top-k sets "must" match; in float32 they differ on 48 of 2,048 tokens at 70m (0 in
+   float64). Gate now: |loss difference| <= 1e-3 and max|dz| / max|z| <= 0.02, both fixed before the 160m/410m
+   runs. Claude Code first added a third rule ("every differing token is a float tie", gap <= 2 max|dz|) and
+   removed it: it holds for every token whose set differs, by the triangle inequality, so it tests nothing.
+3. Added a pairing check: the convention check cannot see an SAE paired with the wrong block. Each SAE must
+   reconstruct its own block's output with lower FVU than any other block's (one batch).
+4. Fetch: a failed download of a required file was skipped silently; now only `generation_config.json` may be
+   skipped. SAE revisions pinned in the config; the smoke checks revision and SHA-256 against the manifest.
+5. The ETA was timed on the encode only (18–40% low); it now comes from the first 6 batches of the real pass.
+6. Statistics: per-latent vectors were discarded and nothing was recorded about the distance to the cut.
+   `TopKFPStats` now writes one row per latent (see below).
+7. Speed (reviewers' measurements at the 410m shape): sparse statistics instead of a dense [T, n_latents]
+   activation tensor, 2.3–2.8x faster and about 1/4 of the peak memory; one model forward per batch feeding all
+   layers of a size, a further 1.5–1.8x, residuals bit-identical; TransformerLens built once per size.
+8. Kept set and ranks k+1..2k now come from one sorted top-2k call (two calls disagreed at exact float ties:
+   4 of 199,680 tokens). mlsae uses `topk(k, sorted=False)`; the choice differs only at exact ties of the cut.
+
+An independent recomputation (own hook, own dense float64 SAE forward, no project statistics code) reproduced
+every column of the 70m per-latent table and every summary scalar on all 199,680 tokens; the only differences
+were +-1 counts in 6 latents at those 4 tie tokens. Mutation testing: 30 of 32 mutants killed; the two
+survivors were one test gap (loader with `standardize: false`, test added) and one redundant filter.
+
+**Results (FP only).** Token stream: Duan's, 390 x 512 = 199,680 WikiText-2 tokens, identical for the three
+sizes (the tokenizers serialize identically). Runs: `results/bridge_scale/20261111-110140-smoke-70m`,
+`20261111-111133-smoke-160m`, `20261111-111519-smoke-410m` (`summary.json`; `latents_fp_L<layer>.parquet` is
+gitignored and goes into the next Release). `20261111-103713-smoke-70m` is a development run of an earlier
+version of the same code (same numbers up to the tie handling of fix 8). The runs were made with the code
+uncommitted (`meta.json`: commit 91458ae, dirty); the commit of this entry contains that code plus two
+provenance-path helpers written afterwards (`portable`, `rel_to_project`), which do not touch any computation.
+The absolute cache paths in the manifest and one `meta.json` were replaced by `<HF_HOME>` / a repo-relative path
+(same convention as 2026-10-26).
+
+| size | layer | FP ppl | FVU | FVU w/o pos. 0 | L0 | cut z_(k) mean | never fire | rate > 1e-3 | same, w/o pos. 0 | conv. max|dz|/max|z| | top-k sets differ (of 2,048) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 70m | 4 | 67.84 | 0.240 | 0.251 | 32.0 | 0.947 | 2,746 / 32,768 | 4,402 | 4,391 | 1.5e-3 | 48 |
+| 160m | 4 | 37.17 | 0.110 | 0.157 | 32.0 | 1.043 | 31,685 / 49,152 | 4,529 | 4,517 | 9.2e-5 | 1 |
+| 160m | 9 | 37.17 | 0.184 | 0.212 | 32.0 | 0.984 | 8,466 / 49,152 | 4,265 | 4,264 | 2.7e-4 | 21 |
+| 410m | 4 | 22.83 | 0.219 | 0.220 | 32.0 | 0.899 | 32,819 / 65,536 | 4,856 | 4,834 | 1.5e-6 | 0 |
+| 410m | 19 | 22.83 | 0.057 | 0.087 | 32.0 | 1.439 | 3,987 / 65,536 | 3,489 | 3,489 | 1.8e-4 | 7 |
+
+- FP perplexity is exp of the unweighted mean of the per-batch losses (the convention of the 70M bridge); the
+  token-weighted values are 67.80, 37.17, 22.85. The 70m value equals the Phase 6b FP perplexity (67.84).
+- All convention checks and pairing checks pass. Loss differences HF vs TransformerLens: 1.9e-5, 5.5e-6,
+  6.0e-6. Pairing: each SAE's FVU is lowest on its own block. The margin is thin for 410m layer 19 (0.056 on
+  block 19, 0.070 on block 15, 0.07–0.14 on blocks 5–21): mid-depth residuals of the 410M model change slowly.
+- Wall time of the FP pass: 63 s (70m), 179 s (160m, both layers), 315 s (410m, both layers), all under the
+  10-minute budget. 410m: 1.6 s forward + 1.6 s statistics per batch. A quantized variant costs one more model
+  forward per batch plus its statistics.
+
+**Observations** (descriptive; none is a test):
+
+1. L0 is exactly 32 on every token and the cut is always positive: ReLU never zeroes a kept latent here.
+2. The eligible count at Duan's rate (> 0.001) is 3,489–4,856, the same order as the 70M ReLU SAE (5,717 in the
+   stated arm), although the mean firing rate k / n_latents falls from 9.8e-4 to 4.9e-4 with width.
+3. The layer-4 SAEs of the two larger models are mostly dead on this stream: 64% (160m) and 50% (410m) of the
+   latents never fire in 199,680 tokens, against 8% for 70m layer 4 and 6–17% for the deep layers. Not checked:
+   whether this is the SAE or the WikiText stream (the SAEs were trained on the Pile).
+4. Position 0 of a block is 1/512 of our tokens and 1/2,048 of the SAE's training tokens. It lifts 10–12
+   latents over the eligibility rate at layer 4 of each size and none at the deep layers. 410m layer 19
+   reconstructs position-0 tokens badly (FVU 13.1 within the 390 position-0 tokens; their residual norm is
+   large and nearly constant, so the within-group variance is small). Rates without position 0 are in the table.
+5. Float32 noise floor of top-k membership: two equivalent float32 implementations of the same model disagree
+   on the top-k set of 0–2.3% of tokens. Any later comparison of FP vs quantized top-k membership has to be
+   read against this.
+6. `z_j > 0` holds on 3–49% of tokens for an average latent, so "would fire under ReLU" is not a usable analog
+   of the firing rate; the informative quantity is the distance to the cut.
+
+**Per-latent table** (`latents_fp_L<layer>.parquet`): `fire`, `rate`, `rate_nopos0`, `pos0_share`, `mean`,
+`mu_plus`, `peak`, `rate_pos_z`, `mean_z`, `sd_z` (population), `rate_rank2k` (rank k+1..2k), and for
+frac in {0.05, 0.1, 0.25} with band width `frac * |cut_t|`: `near_off_frac` (not kept, `z_j > cut_t - w_t`)
+and `near_on_frac` (firing, `z_j < cut_t + w_t`). These are candidate ingredients only; the predictor
+definitions belong to the pre-registration.
+
+**Open decisions for the pre-registration (owner):** (a) primary layer per size (same index 4, or proportional
+depth), and whether layer 4 of 160m/410m is usable given observation 3; (b) eligibility (rate > 0.001 as Duan,
+with or without position 0); (c) the TopK analogs of the near-threshold predictor and of the margin (no encoder
+bias); (d) which arm(s): the 70M bridge had Duan's released pipeline (TransformerLens) and the described
+method (HF); TransformerLens at 410m costs about 4–5 s per batch forward; (e) whether the 70m model is re-run
+with this SAE as the baseline for the scale comparison; (f) the outcome for TopK (Pearson survival as before;
+top-k membership changes are a second candidate, see observation 5).
+
+**Correction to the rewrite kit:** `writeup/rewrite_kit/01_outline_zh.md` section 7, row N6: "你已决定先放一放" →
+the first step (FP only) is done; no result bears on the post.
+
+---

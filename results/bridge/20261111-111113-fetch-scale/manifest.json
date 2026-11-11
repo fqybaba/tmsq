@@ -1,0 +1,227 @@
+[
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 166029852,
+    "sha256": "3da388330e4549156d76b58d6d268c63cd005e9336b4f4d2d378421e7b7a33fd",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\model.safetensors"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "config.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 567,
+    "sha256": "002050231a9b1ec3ac77aa6b9b3bbdc4d923f4068a7dd33b8da72a9bd6ad9a43",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "tokenizer.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 2113710,
+    "sha256": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\tokenizer.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "tokenizer_config.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 396,
+    "sha256": "70e38394e494931c6f773ba41e19460dd4436526b852207367f04341b4066d3f",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\tokenizer_config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-70m-deduped",
+    "type": "model",
+    "file": "special_tokens_map.json",
+    "revision": "e93a9faa9c77e5d09219f6c868bfc7a1bd65593c",
+    "bytes": 99,
+    "sha256": "6f50ab5a5a509a1c309d6171f339b196a900dc9c99ad0408ff23bb615fdae7ad",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-70m-deduped\\snapshots\\e93a9faa9c77e5d09219f6c868bfc7a1bd65593c\\special_tokens_map.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-160m-deduped",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "582159a2dfe3e712a8d47ae83dec95ae3bde8e7e",
+    "bytes": 374998696,
+    "sha256": "bbaae5c00917b163baa499fc8eb64859ee0c850c5fdecfc32f4d70dc07213575",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-160m-deduped\\snapshots\\582159a2dfe3e712a8d47ae83dec95ae3bde8e7e\\model.safetensors"
+  },
+  {
+    "repo": "EleutherAI/pythia-160m-deduped",
+    "type": "model",
+    "file": "config.json",
+    "revision": "582159a2dfe3e712a8d47ae83dec95ae3bde8e7e",
+    "bytes": 569,
+    "sha256": "76eb275107220e450d31258f792a2efcbee109d8b62ae0088260057dec06362f",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-160m-deduped\\snapshots\\582159a2dfe3e712a8d47ae83dec95ae3bde8e7e\\config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-160m-deduped",
+    "type": "model",
+    "file": "tokenizer.json",
+    "revision": "582159a2dfe3e712a8d47ae83dec95ae3bde8e7e",
+    "bytes": 2113710,
+    "sha256": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-160m-deduped\\snapshots\\582159a2dfe3e712a8d47ae83dec95ae3bde8e7e\\tokenizer.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-160m-deduped",
+    "type": "model",
+    "file": "tokenizer_config.json",
+    "revision": "582159a2dfe3e712a8d47ae83dec95ae3bde8e7e",
+    "bytes": 396,
+    "sha256": "70e38394e494931c6f773ba41e19460dd4436526b852207367f04341b4066d3f",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-160m-deduped\\snapshots\\582159a2dfe3e712a8d47ae83dec95ae3bde8e7e\\tokenizer_config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-160m-deduped",
+    "type": "model",
+    "file": "special_tokens_map.json",
+    "revision": "582159a2dfe3e712a8d47ae83dec95ae3bde8e7e",
+    "bytes": 99,
+    "sha256": "6f50ab5a5a509a1c309d6171f339b196a900dc9c99ad0408ff23bb615fdae7ad",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-160m-deduped\\snapshots\\582159a2dfe3e712a8d47ae83dec95ae3bde8e7e\\special_tokens_map.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-410m-deduped",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "c4fc8d586d62df497f1f9b69d66d3ca419992d3e",
+    "bytes": 911373632,
+    "sha256": "e7ae132489f63d5d86009a8178a75c7d5d195410d067fca01a3160623e370fae",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-410m-deduped\\snapshots\\c4fc8d586d62df497f1f9b69d66d3ca419992d3e\\model.safetensors"
+  },
+  {
+    "repo": "EleutherAI/pythia-410m-deduped",
+    "type": "model",
+    "file": "config.json",
+    "revision": "c4fc8d586d62df497f1f9b69d66d3ca419992d3e",
+    "bytes": 570,
+    "sha256": "d4c11e84a59c8af4d88446bba53b718f7aef740daa070ded08fd6a9a3aca4fc6",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-410m-deduped\\snapshots\\c4fc8d586d62df497f1f9b69d66d3ca419992d3e\\config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-410m-deduped",
+    "type": "model",
+    "file": "tokenizer.json",
+    "revision": "c4fc8d586d62df497f1f9b69d66d3ca419992d3e",
+    "bytes": 2113710,
+    "sha256": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-410m-deduped\\snapshots\\c4fc8d586d62df497f1f9b69d66d3ca419992d3e\\tokenizer.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-410m-deduped",
+    "type": "model",
+    "file": "tokenizer_config.json",
+    "revision": "c4fc8d586d62df497f1f9b69d66d3ca419992d3e",
+    "bytes": 396,
+    "sha256": "70e38394e494931c6f773ba41e19460dd4436526b852207367f04341b4066d3f",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-410m-deduped\\snapshots\\c4fc8d586d62df497f1f9b69d66d3ca419992d3e\\tokenizer_config.json"
+  },
+  {
+    "repo": "EleutherAI/pythia-410m-deduped",
+    "type": "model",
+    "file": "special_tokens_map.json",
+    "revision": "c4fc8d586d62df497f1f9b69d66d3ca419992d3e",
+    "bytes": 99,
+    "sha256": "6f50ab5a5a509a1c309d6171f339b196a900dc9c99ad0408ff23bb615fdae7ad",
+    "local": "<HF_HOME>\\hub\\models--EleutherAI--pythia-410m-deduped\\snapshots\\c4fc8d586d62df497f1f9b69d66d3ca419992d3e\\special_tokens_map.json"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-70m-deduped-x64-k32-layers-4",
+    "type": "model",
+    "file": "config.json",
+    "revision": "513a81699e3573bf6f7abf2530fba1478ef1cbbf",
+    "bytes": 149,
+    "sha256": "b1def9a0f941b18bd891fc193817ff1b717c378ffc89b0e17e25384e53d3d161",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-70m-deduped-x64-k32-layers-4\\snapshots\\513a81699e3573bf6f7abf2530fba1478ef1cbbf\\config.json"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-70m-deduped-x64-k32-layers-4",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "513a81699e3573bf6f7abf2530fba1478ef1cbbf",
+    "bytes": 134220048,
+    "sha256": "63d547105b50688bf07855a64cf72b9f26b241f1d78f8eab195269bc71d30d43",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-70m-deduped-x64-k32-layers-4\\snapshots\\513a81699e3573bf6f7abf2530fba1478ef1cbbf\\model.safetensors"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-160m-deduped-x64-k32-layers-4",
+    "type": "model",
+    "file": "config.json",
+    "revision": "f549238df335ff9d9ecb559d6c5ed05ea9e966ad",
+    "bytes": 149,
+    "sha256": "48b9b33ae11a0530b8bbcda6c9f5d0230602ea1a893b5de1fbcf598a30fa22c7",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-160m-deduped-x64-k32-layers-4\\snapshots\\f549238df335ff9d9ecb559d6c5ed05ea9e966ad\\config.json"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-160m-deduped-x64-k32-layers-4",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "f549238df335ff9d9ecb559d6c5ed05ea9e966ad",
+    "bytes": 301993232,
+    "sha256": "eb505229bffa5d63bd62feb087098ad63d87923500ab16417158212892d3b995",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-160m-deduped-x64-k32-layers-4\\snapshots\\f549238df335ff9d9ecb559d6c5ed05ea9e966ad\\model.safetensors"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-160m-deduped-x64-k32-layers-9",
+    "type": "model",
+    "file": "config.json",
+    "revision": "5a0c0b0bf033e2df98613af24c2e21ec387ca4c2",
+    "bytes": 149,
+    "sha256": "48b9b33ae11a0530b8bbcda6c9f5d0230602ea1a893b5de1fbcf598a30fa22c7",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-160m-deduped-x64-k32-layers-9\\snapshots\\5a0c0b0bf033e2df98613af24c2e21ec387ca4c2\\config.json"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-160m-deduped-x64-k32-layers-9",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "5a0c0b0bf033e2df98613af24c2e21ec387ca4c2",
+    "bytes": 301993232,
+    "sha256": "ea686b4171e1f3392ddc3086f2dbc45255275c8a7ef5f9703656f76fc3c8f495",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-160m-deduped-x64-k32-layers-9\\snapshots\\5a0c0b0bf033e2df98613af24c2e21ec387ca4c2\\model.safetensors"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-410m-deduped-x64-k32-layers-4",
+    "type": "model",
+    "file": "config.json",
+    "revision": "79ce83b2283910c9af147710230df2e653471a31",
+    "bytes": 150,
+    "sha256": "558a52ffe459bc5d04aa18185e9fa1fb11ab03f2835ab733b71841857a46b844",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-410m-deduped-x64-k32-layers-4\\snapshots\\79ce83b2283910c9af147710230df2e653471a31\\config.json"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-410m-deduped-x64-k32-layers-4",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "79ce83b2283910c9af147710230df2e653471a31",
+    "bytes": 536875280,
+    "sha256": "cb9ad648468abeeb528c5f64d987cef2b90368ee0b6577b1346372c8af9d87ad",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-410m-deduped-x64-k32-layers-4\\snapshots\\79ce83b2283910c9af147710230df2e653471a31\\model.safetensors"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-410m-deduped-x64-k32-layers-19",
+    "type": "model",
+    "file": "config.json",
+    "revision": "c4e789b41b46df3c78b542d0a0efc3317a479fbf",
+    "bytes": 150,
+    "sha256": "558a52ffe459bc5d04aa18185e9fa1fb11ab03f2835ab733b71841857a46b844",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-410m-deduped-x64-k32-layers-19\\snapshots\\c4e789b41b46df3c78b542d0a0efc3317a479fbf\\config.json"
+  },
+  {
+    "repo": "tim-lawson/sae-pythia-410m-deduped-x64-k32-layers-19",
+    "type": "model",
+    "file": "model.safetensors",
+    "revision": "c4e789b41b46df3c78b542d0a0efc3317a479fbf",
+    "bytes": 536875280,
+    "sha256": "e0989ef0c5fb900994b48ae20b4a49dc9a3af3c6d2caccda9cdf7ba919c22293",
+    "local": "<HF_HOME>\\hub\\models--tim-lawson--sae-pythia-410m-deduped-x64-k32-layers-19\\snapshots\\c4e789b41b46df3c78b542d0a0efc3317a479fbf\\model.safetensors"
+  }
+]

@@ -1,0 +1,49 @@
+sizes:
+  70m:
+    model: EleutherAI/pythia-70m-deduped
+    model_revision: e93a9faa9c77e5d09219f6c868bfc7a1bd65593c
+    tl_name: pythia-70m-deduped
+    n_layers: 6
+    d_model: 512
+    layers:
+    - 4
+  160m:
+    model: EleutherAI/pythia-160m-deduped
+    model_revision: 582159a2dfe3e712a8d47ae83dec95ae3bde8e7e
+    tl_name: pythia-160m-deduped
+    n_layers: 12
+    d_model: 768
+    layers:
+    - 4
+    - 9
+  410m:
+    model: EleutherAI/pythia-410m-deduped
+    model_revision: c4fc8d586d62df497f1f9b69d66d3ca419992d3e
+    tl_name: pythia-410m-deduped
+    n_layers: 24
+    d_model: 1024
+    layers:
+    - 4
+    - 19
+sae_repo: tim-lawson/sae-pythia-{size}-deduped-x64-k32-layers-{layer}
+sae_files:
+- config.json
+- model.safetensors
+sae_revisions:
+  70m-4: 513a81699e3573bf6f7abf2530fba1478ef1cbbf
+  160m-4: f549238df335ff9d9ecb559d6c5ed05ea9e966ad
+  160m-9: 5a0c0b0bf033e2df98613af24c2e21ec387ca4c2
+  410m-4: 79ce83b2283910c9af147710230df2e653471a31
+  410m-19: c4e789b41b46df3c78b542d0a0efc3317a479fbf
+dataset: Salesforce/wikitext
+dataset_file: wikitext-2-raw-v1/train-00000-of-00001.parquet
+dataset_revision: b08601e04326c79dfdd32d625aee71d232d685c3
+n_blocks: 390
+block_len: 512
+batch_blocks: 4
+timing_batches: 6
+max_minutes: 10
+conv_loss_tol: 0.001
+conv_z_rel_tol: 0.02
+active_rate: 0.001
+threads: 0
